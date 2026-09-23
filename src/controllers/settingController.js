@@ -1,4 +1,6 @@
 import Setting from '../models/settingModel.js';
+import User from '../models/userModel.js';
+import { uploadToCloudinary } from '../utils/cloudinaryUpload.js';
 
 /**
  * @desc    Get store settings & credits balance for authenticated user
@@ -37,6 +39,12 @@ export const updateSettings = async (req, res, next) => {
 
     if (!setting) {
       setting = new Setting({ user: req.user._id });
+    }
+
+    if (req.file) {
+      const logoData = await uploadToCloudinary(req.file.buffer, 'foodypay_logos');
+      setting.logo = logoData;
+      await User.findByIdAndUpdate(req.user._id, { logo: logoData });
     }
 
     const {

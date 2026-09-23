@@ -1,5 +1,5 @@
 import Dish from '../models/dishModel.js';
-import { uploadToCloudinary } from '../utils/cloudinaryUpload.js';
+import { uploadToCloudinary, deleteFromCloudinary } from '../utils/cloudinaryUpload.js';
 
 /**
  * @desc    Get all dishes for authenticated user
@@ -8,7 +8,8 @@ import { uploadToCloudinary } from '../utils/cloudinaryUpload.js';
  */
 export const getDishes = async (req, res, next) => {
   try {
-    const dishes = await Dish.find({ user: req.user._id }).sort({ createdAt: -1 });
+    const filter = req.user ? { user: req.user._id } : {};
+    const dishes = await Dish.find(filter).sort({ createdAt: -1 });
     res.json({
       success: true,
       count: dishes.length,
@@ -84,6 +85,9 @@ export const updateDish = async (req, res, next) => {
     }
 
     if (req.file) {
+      if (dish.image && dish.image.public_id) {
+        await deleteFromCloudinary(dish.image.public_id);
+      }
       const image = await uploadToCloudinary(req.file.buffer, 'foodypay_dishes');
       dish.image = image;
     }
@@ -142,22 +146,30 @@ export const toggleDishStock = async (req, res, next) => {
 };
 
 /**
- * @desc    Delete dish from catalog
+ * @desc    Delete dish from catalog and delete image from Cloudinary
  * @route   DELETE /api/dishes/:id
  * @access  Private
  */
 export const deleteDish = async (req, res, next) => {
   try {
-    const dish = await Dish.findOneAndDelete({ _id: req.params.id, user: req.user._id });
+    const dish = await Dish.findOne({ _id: req.params.id, user: req.user._id });
 
     if (!dish) {
       res.status(404);
       throw new Error('Dish not found');
     }
 
+    // Delete image from Cloudinary if public_id exists
+    if (dish.image && dish.image.public_id) {
+      await deleteFromCloudinary(dish.image.public_id);
+    }
+
+    // Delete dish document from MongoDB Atlas
+    await Dish.deleteOne({ _id: dish._id });
+
     res.json({
       success: true,
-      message: 'Dish deleted successfully',
+      message: 'Dish and associated Cloudinary image deleted successfully',
     });
   } catch (error) {
     next(error);

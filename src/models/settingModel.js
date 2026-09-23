@@ -48,6 +48,10 @@ const settingSchema = new mongoose.Schema(
       type: Number,
       default: 2450,
     },
+    logo: {
+      url: { type: String, default: '' },
+      public_id: { type: String, default: '' },
+    },
   },
   {
     timestamps: true,

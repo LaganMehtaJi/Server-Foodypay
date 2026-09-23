@@ -36,3 +36,28 @@ export const uploadToCloudinary = (fileBuffer, folder = 'foodypay_logos') => {
     uploadStream.end(fileBuffer);
   });
 };
+
+/**
+ * Deletes an image from Cloudinary by its public_id.
+ * @param {string} publicId - Cloudinary asset public_id
+ * @returns {Promise<any>}
+ */
+export const deleteFromCloudinary = (publicId) => {
+  return new Promise((resolve) => {
+    if (!publicId || publicId.startsWith('placeholder_')) {
+      return resolve(null);
+    }
+    if (!process.env.CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME === 'your_cloudinary_cloud_name') {
+      console.warn('Cloudinary credentials missing - Skipping Cloudinary image deletion');
+      return resolve(null);
+    }
+
+    cloudinary.uploader.destroy(publicId, (error, result) => {
+      if (error) {
+        console.warn('Error deleting image from Cloudinary:', error);
+        return resolve(null);
+      }
+      resolve(result);
+    });
+  });
+};

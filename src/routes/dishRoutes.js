@@ -11,6 +11,8 @@ import { protect } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
+router.get('/public', getDishes);
+
 router.use(protect);
 
 router.route('/')
