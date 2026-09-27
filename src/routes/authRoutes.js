@@ -7,6 +7,7 @@ import {
   getAllUsers,
   deleteUserById,
   deleteUserByEmail,
+  getPublicMerchantDetails,
 } from '../controllers/authController.js';
 import upload from '../middlewares/uploadMiddleware.js';
 import { protect } from '../middlewares/authMiddleware.js';
@@ -17,6 +18,8 @@ const router = express.Router();
 router.post('/register', upload.single('logo'), registerUser);
 router.post('/login', loginUser);
 router.post('/google', googleAuth);
+router.get('/merchant/:identifier', getPublicMerchantDetails);
+
 
 // Admin User Management routes
 router.get('/users', getAllUsers);

@@ -97,6 +97,39 @@ export const getOrders = async (req, res, next) => {
 };
 
 /**
+ * @desc    Get public orders for Kitchen Display System / Table QR view
+ * @route   GET /api/orders/public
+ * @access  Public (filtered by merchantId or foodypayId)
+ */
+export const getPublicOrders = async (req, res, next) => {
+  try {
+    const { merchantId, foodypayId } = req.query;
+    let targetUser = null;
+
+    if (merchantId && merchantId !== 'undefined') {
+      targetUser = await User.findById(merchantId).catch(() => null);
+    }
+    if (!targetUser && foodypayId && foodypayId !== 'undefined') {
+      targetUser = await User.findOne({ foodypayId });
+    }
+
+    if (!targetUser) {
+      return res.json({ success: true, count: 0, data: [] });
+    }
+
+    const orders = await Order.find({ user: targetUser._id }).sort({ createdAt: -1 });
+    res.json({
+      success: true,
+      count: orders.length,
+      data: orders,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+/**
  * @desc    Create a new manual / online order
  * @route   POST /api/orders
  * @access  Private

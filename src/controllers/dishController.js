@@ -1,14 +1,37 @@
 import Dish from '../models/dishModel.js';
+import User from '../models/userModel.js';
 import { uploadToCloudinary, deleteFromCloudinary } from '../utils/cloudinaryUpload.js';
 
 /**
- * @desc    Get all dishes for authenticated user
+ * @desc    Get all dishes for authenticated user or public merchant
  * @route   GET /api/dishes
- * @access  Private
+ * @access  Private / Public (with merchantId or foodypayId)
  */
 export const getDishes = async (req, res, next) => {
   try {
-    const filter = req.user ? { user: req.user._id } : {};
+    let filter = {};
+
+    if (req.user) {
+      filter = { user: req.user._id };
+    } else {
+      const { merchantId, foodypayId } = req.query;
+      let targetUser = null;
+
+      if (merchantId && merchantId !== 'undefined') {
+        targetUser = await User.findById(merchantId).catch(() => null);
+      }
+      if (!targetUser && foodypayId && foodypayId !== 'undefined') {
+        targetUser = await User.findOne({ foodypayId });
+      }
+
+      if (targetUser) {
+        filter = { user: targetUser._id };
+      } else if (merchantId || foodypayId) {
+        // Unknown merchant ID passed: return 0 dishes
+        return res.json({ success: true, count: 0, data: [] });
+      }
+    }
+
     const dishes = await Dish.find(filter).sort({ createdAt: -1 });
     res.json({
       success: true,
@@ -19,6 +42,7 @@ export const getDishes = async (req, res, next) => {
     next(error);
   }
 };
+
 
 /**
  * @desc    Create new dish in catalog

@@ -310,3 +310,51 @@ export const deleteUserByEmail = async (req, res, next) => {
   }
 };
 
+/**
+ * @desc    Get public merchant details for Customer Menu / Table QR ordering
+ * @route   GET /api/auth/merchant/:identifier
+ * @access  Public
+ */
+export const getPublicMerchantDetails = async (req, res, next) => {
+  try {
+    const { identifier } = req.params;
+    let user = null;
+
+    if (identifier && identifier !== 'undefined') {
+      user = await User.findById(identifier).catch(() => null);
+    }
+    if (!user && identifier) {
+      user = await User.findOne({ foodypayId: identifier.toUpperCase() });
+    }
+    if (!user && identifier) {
+      const allUsers = await User.find({});
+      user = allUsers.find((u) => {
+        const slug = (u.businessName || u.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        return slug === identifier.toLowerCase();
+      });
+    }
+
+    if (!user) {
+      res.status(404);
+      throw new Error('Merchant restaurant account not found');
+    }
+
+    res.json({
+      success: true,
+      data: {
+        _id: user._id,
+        foodypayId: user.foodypayId,
+        businessName: user.businessName || user.name,
+        name: user.name,
+        contactNo: user.contactNo,
+        logo: user.logo,
+        gstPercent: 5,
+        upiId: 'merchant@icici',
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
