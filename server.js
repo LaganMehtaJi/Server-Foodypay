@@ -22,10 +22,31 @@ connectDB();
 
 const app = express();
 
-// Middlewares
-app.use(cors());
+// Middlewares & Universal Permissive CORS Policy
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', '*'],
+  optionsSuccessStatus: 200,
+}));
+
+// Universal Cross-Origin & Referrer Policy Headers
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, *');
+  res.header('Referrer-Policy', 'no-referrer-when-downgrade');
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 
 // Server Telemetry & Status API Endpoints (/status, /api/status, /api/health)
 const getSystemStatus = (req, res) => {
