@@ -243,3 +243,70 @@ export const getUserProfile = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * @desc    Get all registered users (Admin)
+ * @route   GET /api/auth/users
+ * @access  Public / Admin
+ */
+export const getAllUsers = async (req, res, next) => {
+  try {
+    const users = await User.find({}).select('-password').sort({ createdAt: -1 });
+    res.json({
+      success: true,
+      count: users.length,
+      data: users,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Delete user account by ID (Admin)
+ * @route   DELETE /api/auth/users/:id
+ * @access  Public / Admin
+ */
+export const deleteUserById = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      res.status(404);
+      throw new Error('User account not found');
+    }
+    const deletedEmail = user.email;
+    await User.findByIdAndDelete(req.params.id);
+    res.json({
+      success: true,
+      message: `Account (${deletedEmail}) has been deleted permanently from database.`,
+      email: deletedEmail,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Delete user account by Email (Admin)
+ * @route   DELETE /api/auth/users/email/:email
+ * @access  Public / Admin
+ */
+export const deleteUserByEmail = async (req, res, next) => {
+  try {
+    const targetEmail = req.params.email.toLowerCase().trim();
+    const user = await User.findOne({ email: targetEmail });
+    if (!user) {
+      res.status(404);
+      throw new Error(`User account with email ${targetEmail} not found`);
+    }
+    await User.findOneAndDelete({ email: targetEmail });
+    res.json({
+      success: true,
+      message: `Account (${targetEmail}) has been deleted permanently from database.`,
+      email: targetEmail,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

@@ -1,5 +1,82 @@
 import Order from '../models/orderModel.js';
 import Customer from '../models/customerModel.js';
+import User from '../models/userModel.js';
+
+/**
+ * @desc    Create a new public customer order (from table QR code scan)
+ * @route   POST /api/orders/public
+ * @access  Public
+ */
+export const createPublicOrder = async (req, res, next) => {
+  try {
+    const { merchantId, foodypayId, type, table, customer, phone, items, note, paymentStatus, paymentLabel, subtotal, discount, tax, total } = req.body;
+
+    let targetUser = null;
+    if (merchantId) {
+      targetUser = await User.findById(merchantId).catch(() => null);
+    }
+    if (!targetUser && foodypayId) {
+      targetUser = await User.findOne({ foodypayId });
+    }
+    if (!targetUser) {
+      targetUser = await User.findOne(); // Fallback to primary account
+    }
+
+    if (!targetUser) {
+      return res.status(404).json({ success: false, message: 'Merchant account not found for order placement' });
+    }
+
+    const count = await Order.countDocuments({ user: targetUser._id });
+    const orderId = `#FP-${1080 + count + 1}`;
+
+    const order = await Order.create({
+      user: targetUser._id,
+      orderId,
+      type: type || 'Dine-In',
+      table: table || 'Table 1',
+      customer: customer || 'Walk-in Guest',
+      phone: phone || '',
+      status: 'new',
+      paymentStatus: paymentStatus || 'cash',
+      paymentLabel: paymentLabel || 'Cash on Counter',
+      items: items || [],
+      note: note || '',
+      subtotal: subtotal || 0,
+      discount: discount || 0,
+      tax: tax || 0,
+      total: total || 0,
+    });
+
+    // Auto CRM Sync for Customer
+    if (customer && customer !== 'Walk-in Guest') {
+      const existingCustomer = await Customer.findOne({ user: targetUser._id, name: customer });
+      if (existingCustomer) {
+        existingCustomer.ordersCount += 1;
+        existingCustomer.totalSales += total || 0;
+        existingCustomer.lastOrdered = 'Just now';
+        await existingCustomer.save();
+      } else {
+        await Customer.create({
+          user: targetUser._id,
+          name: customer,
+          phone: phone || '',
+          ordersCount: 1,
+          totalSales: total || 0,
+          lastOrdered: 'Just now',
+          tags: ['QR Diner'],
+        });
+      }
+    }
+
+    res.status(201).json({
+      success: true,
+      data: order,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 /**
  * @desc    Get all orders for authenticated user
