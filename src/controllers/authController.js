@@ -14,37 +14,46 @@ export const registerUser = async (req, res, next) => {
   try {
     const { name, email, password, businessName, contactNo } = req.body;
 
-    if (!name || !email || !password || !businessName || !contactNo) {
+    if (!name || !email || !password) {
       res.status(400);
-      throw new Error('Please fill in all required fields: name, email, password, businessName, contactNo');
+      throw new Error('Please fill in required fields: name, email, and password.');
     }
+
+    const cleanEmail = email.toLowerCase().trim();
 
     // Check if user already exists
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ email: cleanEmail });
     if (userExists) {
       res.status(400);
-      throw new Error('User already exists with this email address');
+      throw new Error('An account already exists with this email address.');
     }
 
-    // Upload logo to Cloudinary if provided
+    // Safely upload logo to Cloudinary if provided
     let logoData = { url: '', public_id: '' };
     if (req.file) {
-      logoData = await uploadToCloudinary(req.file.buffer, 'foodypay_logos');
+      try {
+        logoData = await uploadToCloudinary(req.file.buffer, 'foodypay_logos');
+      } catch (err) {
+        console.warn('Cloudinary upload skipped/failed:', err.message);
+      }
     }
 
     const foodypayId = 'FP-' + Math.floor(100000 + Math.random() * 900000);
+    const finalBusinessName = (businessName && businessName.trim()) ? businessName.trim() : `${name.trim()}'s Food Outlet`;
+    const finalContactNo = (contactNo && contactNo.trim()) ? contactNo.trim() : '+91 98000 00000';
 
-    // Create User
+    // Create User & Store Record
     const user = await User.create({
-      name,
-      email,
+      name: name.trim(),
+      email: cleanEmail,
       password,
       foodypayId,
-      businessName,
-      contactNo,
+      businessName: finalBusinessName,
+      contactNo: finalContactNo,
       logo: logoData,
       authProvider: 'local',
     });
+
 
     if (user) {
       const token = generateToken(user._id);
