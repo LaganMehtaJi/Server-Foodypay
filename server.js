@@ -2,7 +2,11 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import mongoose from 'mongoose';
+
+//Conection with MongoDB
 import connectDB from './src/config/db.js';
+
+
 import authRoutes from './src/routes/authRoutes.js';
 import dashboardRoutes from './src/routes/dashboardRoutes.js';
 import orderRoutes from './src/routes/orderRoutes.js';

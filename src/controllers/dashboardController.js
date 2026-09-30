@@ -1,3 +1,6 @@
+import { calculateTodayOrderStats } from './orderController.js';
+import Order from '../models/orderModel.js';
+
 /**
  * @desc    Get dashboard metrics & user details
  * @route   GET /api/dashboard
@@ -6,6 +9,20 @@
 export const getDashboardData = async (req, res, next) => {
   try {
     const user = req.user;
+
+    const aggregatedStats = await calculateTodayOrderStats(user._id);
+
+    const recentOrders = await Order.find({ user: user._id })
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    const recentTransactions = recentOrders.map((ord) => ({
+      id: ord.orderId || ord._id,
+      customer: ord.customer || 'Walk-in Guest',
+      amount: ord.total || 0,
+      status: ord.status === 'completed' ? 'Paid' : 'Pending',
+      time: ord.createdAt ? new Date(ord.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recently',
+    }));
 
     res.json({
       success: true,
@@ -22,16 +39,14 @@ export const getDashboardData = async (req, res, next) => {
           createdAt: user.createdAt,
         },
         stats: {
-          totalOrders: 142,
-          totalRevenue: 25400,
-          pendingPayments: 3,
-          activeTables: 8,
+          todayOrders: aggregatedStats.todayOrders,
+          todaySales: aggregatedStats.todaySales,
+          totalOrders: aggregatedStats.totalOrders,
+          totalRevenue: aggregatedStats.totalSales,
+          pendingPayments: aggregatedStats.pendingOrders,
         },
-        recentTransactions: [
-          { id: 'TXN-101', customer: 'Rahul Sharma', amount: 450, status: 'Paid', time: '10 mins ago' },
-          { id: 'TXN-102', customer: 'Priya Verma', amount: 1200, status: 'Paid', time: '25 mins ago' },
-          { id: 'TXN-103', customer: 'Amit Kumar', amount: 890, status: 'Pending', time: '1 hour ago' },
-        ],
+        todayStats: aggregatedStats,
+        recentTransactions,
       },
     });
   } catch (error) {

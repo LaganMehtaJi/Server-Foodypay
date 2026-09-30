@@ -1,6 +1,90 @@
+import mongoose from 'mongoose';
 import Order from '../models/orderModel.js';
 import Customer from '../models/customerModel.js';
 import User from '../models/userModel.js';
+
+/**
+ * MongoDB Aggregation Pipeline to calculate Today's Sales & Today's Orders
+ */
+export const calculateTodayOrderStats = async (userId) => {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+
+  const result = await Order.aggregate([
+    { $match: { user: userObjectId } },
+    {
+      $facet: {
+        today: [
+          { $match: { createdAt: { $gte: startOfDay, $lte: endOfDay } } },
+          {
+            $group: {
+              _id: null,
+              todayOrders: { $sum: 1 },
+              todaySales: {
+                $sum: {
+                  $cond: [{ $eq: ['$status', 'completed'] }, '$total', 0]
+                }
+              },
+              todayGross: { $sum: '$total' }
+            }
+          }
+        ],
+        total: [
+          {
+            $group: {
+              _id: null,
+              totalOrders: { $sum: 1 },
+              totalSales: {
+                $sum: {
+                  $cond: [{ $eq: ['$status', 'completed'] }, '$total', 0]
+                }
+              },
+              pendingOrders: {
+                $sum: {
+                  $cond: [{ $in: ['$status', ['new', 'preparing', 'ready']] }, 1, 0]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]);
+
+  const todayFacet = result[0]?.today[0] || { todayOrders: 0, todaySales: 0, todayGross: 0 };
+  const totalFacet = result[0]?.total[0] || { totalOrders: 0, totalSales: 0, pendingOrders: 0 };
+
+  return {
+    todayOrders: todayFacet.todayOrders || 0,
+    todaySales: todayFacet.todaySales > 0 ? todayFacet.todaySales : todayFacet.todayGross || 0,
+    todayGross: todayFacet.todayGross || 0,
+    totalOrders: totalFacet.totalOrders || 0,
+    totalSales: totalFacet.totalSales || 0,
+    pendingOrders: totalFacet.pendingOrders || 0,
+  };
+};
+
+/**
+ * @desc    Get aggregated today's sales & order stats
+ * @route   GET /api/orders/stats
+ * @access  Private
+ */
+export const getOrderStats = async (req, res, next) => {
+  try {
+    const stats = await calculateTodayOrderStats(req.user._id);
+    res.json({
+      success: true,
+      data: stats,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 /**
  * @desc    Create a new public customer order (from table QR code scan)
@@ -12,10 +96,10 @@ export const createPublicOrder = async (req, res, next) => {
     const { merchantId, foodypayId, type, table, customer, phone, items, note, paymentStatus, paymentLabel, subtotal, discount, tax, total } = req.body;
 
     let targetUser = null;
-    if (merchantId) {
+    if (merchantId && merchantId !== 'undefined') {
       targetUser = await User.findById(merchantId).catch(() => null);
     }
-    if (!targetUser && foodypayId) {
+    if (!targetUser && foodypayId && foodypayId !== 'undefined') {
       targetUser = await User.findOne({ foodypayId });
     }
     if (!targetUser) {
@@ -37,6 +121,7 @@ export const createPublicOrder = async (req, res, next) => {
       customer: customer || 'Walk-in Guest',
       phone: phone || '',
       status: 'new',
+      seen: false, // Unseen by merchant -> triggers sound notification
       paymentStatus: paymentStatus || 'cash',
       paymentLabel: paymentLabel || 'Cash on Counter',
       items: items || [],
@@ -77,7 +162,6 @@ export const createPublicOrder = async (req, res, next) => {
   }
 };
 
-
 /**
  * @desc    Get all orders for authenticated user
  * @route   GET /api/orders
@@ -86,10 +170,13 @@ export const createPublicOrder = async (req, res, next) => {
 export const getOrders = async (req, res, next) => {
   try {
     const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+    const todayStats = await calculateTodayOrderStats(req.user._id);
+
     res.json({
       success: true,
       count: orders.length,
       data: orders,
+      todayStats,
     });
   } catch (error) {
     next(error);
@@ -128,9 +215,8 @@ export const getPublicOrders = async (req, res, next) => {
   }
 };
 
-
 /**
- * @desc    Create a new manual / online order
+ * @desc    Create a new manual / counter order
  * @route   POST /api/orders
  * @access  Private
  */
@@ -149,6 +235,7 @@ export const createOrder = async (req, res, next) => {
       customer: customer || 'Walk-in Guest',
       phone: phone || '',
       status: 'new',
+      seen: true, // Manual order created directly by counter staff is auto-seen
       paymentStatus: paymentStatus || 'cash',
       paymentLabel: paymentLabel || 'Cash on Counter',
       items: items || [],
@@ -179,9 +266,12 @@ export const createOrder = async (req, res, next) => {
       }
     }
 
+    const todayStats = await calculateTodayOrderStats(req.user._id);
+
     res.status(201).json({
       success: true,
       data: order,
+      todayStats,
     });
   } catch (error) {
     next(error);
@@ -207,7 +297,7 @@ export const updateOrder = async (req, res, next) => {
       throw new Error('Cannot edit order once cooking has started');
     }
 
-    const { type, table, customer, phone, items, note, paymentStatus, paymentLabel, subtotal, discount, tax, total } = req.body;
+    const { type, table, customer, phone, items, note, paymentStatus, paymentLabel, subtotal, discount, tax, total, status } = req.body;
 
     if (type) order.type = type;
     if (table) order.table = table;
@@ -221,12 +311,15 @@ export const updateOrder = async (req, res, next) => {
     if (discount !== undefined) order.discount = discount;
     if (tax !== undefined) order.tax = tax;
     if (total !== undefined) order.total = total;
+    if (status) order.status = status;
 
     await order.save();
+    const todayStats = await calculateTodayOrderStats(req.user._id);
 
     res.json({
       success: true,
       data: order,
+      todayStats,
     });
   } catch (error) {
     next(error);
@@ -234,7 +327,7 @@ export const updateOrder = async (req, res, next) => {
 };
 
 /**
- * @desc    Update order status
+ * @desc    Update order status / cash settlement
  * @route   PUT /api/orders/:id/status
  * @access  Private
  */
@@ -251,12 +344,44 @@ export const updateOrderStatus = async (req, res, next) => {
     if (status) order.status = status;
     if (paymentStatus) order.paymentStatus = paymentStatus;
     if (paymentLabel) order.paymentLabel = paymentLabel;
+    if (status === 'completed' || status === 'preparing' || status === 'ready') {
+      order.seen = true;
+    }
 
     await order.save();
+    const todayStats = await calculateTodayOrderStats(req.user._id);
 
     res.json({
       success: true,
       data: order,
+      todayStats,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Mark order as SEEN by counter staff (stops continuous alarm)
+ * @route   PUT /api/orders/:id/seen
+ * @access  Private
+ */
+export const markOrderSeen = async (req, res, next) => {
+  try {
+    const order = await Order.findOne({ _id: req.params.id, user: req.user._id });
+    if (!order) {
+      res.status(404);
+      throw new Error('Order not found');
+    }
+    order.seen = true;
+    await order.save();
+
+    const todayStats = await calculateTodayOrderStats(req.user._id);
+
+    res.json({
+      success: true,
+      data: order,
+      todayStats,
     });
   } catch (error) {
     next(error);
@@ -277,9 +402,12 @@ export const deleteOrder = async (req, res, next) => {
       throw new Error('Order not found');
     }
 
+    const todayStats = await calculateTodayOrderStats(req.user._id);
+
     res.json({
       success: true,
       message: 'Order deleted successfully',
+      todayStats,
     });
   } catch (error) {
     next(error);
