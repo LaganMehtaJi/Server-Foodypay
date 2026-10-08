@@ -20,7 +20,7 @@ jobs:
           [ -n "${{ secrets.EC2_HOST_STAGE }}" ] && echo "✅ EC2_HOST found" || (echo "❌ EC2_HOST missing" && exit 1)
           [ -n "${{ secrets.EC2_USER_STAGE }}" ] && echo "✅ EC2_USER found" || (echo "❌ EC2_USER missing" && exit 1)
           [ -n "${{ secrets.EC2_SSH_KEY_STAGE }}" ] && echo "✅ EC2_SSH_KEY found" || (echo "❌ EC2_SSH_KEY missing" && exit 1)
-          [ -n "${{ secrets.ENV_FILE_STAGE }}" ] && echo "✅ ENV_FILE found" || (echo "❌ ENV_FILE missing" && exit 1)
+          [ -n "${{ secrets.ENV_FILE }}" ] && echo "✅ ENV_FILE found" || (echo "❌ ENV_FILE missing" && exit 1)
 
       - name: Setup SSH
         run: |
