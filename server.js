@@ -2,6 +2,11 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import mongoose from 'mongoose';
+import http from 'http';
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
 
 //Conection with MongoDB
 import connectDB from './src/config/db.js';
@@ -57,6 +62,22 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Real-Time API Telemetry & Request Logger Middleware
+app.use((req, res, next) => {
+  const startTime = Date.now();
+  const timestamp = new Date().toISOString();
+  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
+
+  res.on('finish', () => {
+    const duration = Date.now() - startTime;
+    const status = res.statusCode;
+    const statusIcon = status >= 500 ? '❌' : status >= 400 ? '⚠️' : '✅';
+    console.log(`[${timestamp}] ${statusIcon} ${req.method} ${req.originalUrl || req.url} | Status: ${status} | ${duration}ms | IP: ${clientIp}`);
+  });
+
+  next();
+});
+
 // Server Telemetry & Status API Endpoints (/status, /api/status, /api/health)
 const getSystemStatus = (req, res) => {
   const dbStateMap = {
@@ -98,7 +119,7 @@ const getSystemStatus = (req, res) => {
       dashboard: '/api/dashboard',
       orders: '/api/orders',
       dishes: '/api/dishes',
-      customers: '/api/customers',
+      customers: '/api/customers',  
       coupons: '/api/coupons',
       tables: '/api/tables',
       settings: '/api/settings',
@@ -132,11 +153,49 @@ app.use('/api/customer', customerLocationRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-let PORT = process.env.PORT || 5001;
+let PORT = process.env.PORT || 3000;
+
+// Auto-configure EC2 Nginx SSL Reverse Proxy on Server Startup
+const autoConfigureEc2Ssl = () => {
+  if (process.platform !== 'linux') return;
+  try {
+    console.log('🔄 Checking EC2 Nginx SSL Configuration...');
+    if (!fs.existsSync('/etc/ssl/certs/nginx-selfsigned.crt')) {
+      execSync('sudo openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt -subj "/CN=3.108.59.216"', { stdio: 'ignore' });
+    }
+    const nginxConfig = `server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+
+    ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+    ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}`;
+    fs.writeFileSync('/etc/nginx/sites-available/default', nginxConfig);
+    execSync('sudo nginx -t && sudo systemctl restart nginx', { stdio: 'ignore' });
+    console.log('✅ EC2 Nginx SSL Reverse Proxy auto-configured for https://3.108.59.216 successfully!');
+  } catch (err) {
+    console.log('ℹ️ Nginx auto-config info:', err.message);
+  }
+};
 
 const startServer = (port) => {
   const server = app.listen(port, () => {
     console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${port}`);
+    autoConfigureEc2Ssl();
   });
 
   server.on('error', (error) => {
