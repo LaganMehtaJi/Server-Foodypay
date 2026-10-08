@@ -62,11 +62,11 @@ jobs:
             echo "Fetching latest code..."
             git fetch origin
 
-            echo "Resetting to origin/master..."
-            git reset --hard origin/master
+            echo "Resetting to origin/stage..."
+            git reset --hard origin/stage
 
             echo "Writing .env file..."
-            printf "%s" "$ENV_FILE_STAGE" > .env
+            printf "%s" "$ENV_FILE" > .env
 
             echo ".env created successfully."
 
