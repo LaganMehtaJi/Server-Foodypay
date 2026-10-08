@@ -83,8 +83,6 @@ jobs:
             echo "Installing dependencies..."
             npm i
 
-            echo "Building application..."
-            npm run build
 
             echo "Reloading PM2..."
             pm2 reload backend --update-env
