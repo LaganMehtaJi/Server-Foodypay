@@ -27,7 +27,7 @@ export const calculateTodayOrderStats = async (userId) => {
               todayOrders: { $sum: 1 },
               todaySales: {
                 $sum: {
-                  $cond: [{ $eq: ['$status', 'completed'] }, '$total', 0]
+                  $cond: [{ $in: ['$status', ['completed', 'delivered', 'served']] }, '$total', 0]
                 }
               },
               todayGross: { $sum: '$total' }
@@ -41,12 +41,12 @@ export const calculateTodayOrderStats = async (userId) => {
               totalOrders: { $sum: 1 },
               totalSales: {
                 $sum: {
-                  $cond: [{ $eq: ['$status', 'completed'] }, '$total', 0]
+                  $cond: [{ $in: ['$status', ['completed', 'delivered', 'served']] }, '$total', 0]
                 }
               },
               pendingOrders: {
                 $sum: {
-                  $cond: [{ $in: ['$status', ['new', 'preparing', 'ready']] }, 1, 0]
+                  $cond: [{ $in: ['$status', ['new', 'preparing', 'ready', 'out_for_delivery', 'dispatched']] }, 1, 0]
                 }
               }
             }
@@ -87,13 +87,13 @@ export const getOrderStats = async (req, res, next) => {
 };
 
 /**
- * @desc    Create a new public customer order (from table QR code scan)
+ * @desc    Create a new public customer order (from table QR code scan or online delivery)
  * @route   POST /api/orders/public
  * @access  Public
  */
 export const createPublicOrder = async (req, res, next) => {
   try {
-    const { merchantId, foodypayId, type, table, customer, phone, items, note, paymentStatus, paymentLabel, subtotal, discount, tax, total } = req.body;
+    const { merchantId, foodypayId, type, table, customer, phone, address, paymentMode, items, note, paymentStatus, paymentLabel, subtotal, discount, tax, total } = req.body;
 
     let targetUser = null;
     if (merchantId && merchantId !== 'undefined') {
@@ -120,6 +120,8 @@ export const createPublicOrder = async (req, res, next) => {
       table: table || 'Table 1',
       customer: customer || 'Walk-in Guest',
       phone: phone || '',
+      address: address || '',
+      paymentMode: paymentMode || 'Cash',
       status: 'new',
       seen: false, // Unseen by merchant -> triggers sound notification
       paymentStatus: paymentStatus || 'cash',
@@ -169,12 +171,23 @@ export const createPublicOrder = async (req, res, next) => {
  */
 export const getOrders = async (req, res, next) => {
   try {
-    const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 100;
+    const skip = (page - 1) * limit;
+
+    const total = await Order.countDocuments({ user: req.user._id });
+    const orders = await Order.find({ user: req.user._id })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
     const todayStats = await calculateTodayOrderStats(req.user._id);
 
     res.json({
       success: true,
       count: orders.length,
+      total,
+      totalPages: Math.ceil(total / limit) || 1,
+      currentPage: page,
       data: orders,
       todayStats,
     });
@@ -191,6 +204,10 @@ export const getOrders = async (req, res, next) => {
 export const getPublicOrders = async (req, res, next) => {
   try {
     const { merchantId, foodypayId } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 100;
+    const skip = (page - 1) * limit;
+
     let targetUser = null;
 
     if (merchantId && merchantId !== 'undefined') {
@@ -201,13 +218,21 @@ export const getPublicOrders = async (req, res, next) => {
     }
 
     if (!targetUser) {
-      return res.json({ success: true, count: 0, data: [] });
+      return res.json({ success: true, count: 0, total: 0, totalPages: 0, currentPage: page, data: [] });
     }
 
-    const orders = await Order.find({ user: targetUser._id }).sort({ createdAt: -1 });
+    const total = await Order.countDocuments({ user: targetUser._id });
+    const orders = await Order.find({ user: targetUser._id })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
     res.json({
       success: true,
       count: orders.length,
+      total,
+      totalPages: Math.ceil(total / limit) || 1,
+      currentPage: page,
       data: orders,
     });
   } catch (error) {

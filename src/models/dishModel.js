@@ -8,6 +8,17 @@ const dishSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+    storeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Store',
+      index: true,
+    },
+    sku: {
+      type: String,
+      default: '',
+      trim: true,
+      index: true,
+    },
     name: {
       type: String,
       required: [true, 'Please enter dish name'],
@@ -23,6 +34,14 @@ const dishSchema = new mongoose.Schema(
       required: [true, 'Please enter dish price'],
       default: 0,
     },
+    originalPrice: {
+      type: Number,
+      default: 0,
+    },
+    showDiscountTag: {
+      type: Boolean,
+      default: true,
+    },
     isVeg: {
       type: Boolean,
       default: true,
@@ -35,6 +54,11 @@ const dishSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
     desc: {
       type: String,
       default: '',
@@ -43,6 +67,12 @@ const dishSchema = new mongoose.Schema(
       url: { type: String, default: '' },
       public_id: { type: String, default: '' },
     },
+    images: [
+      {
+        url: { type: String, default: '' },
+        public_id: { type: String, default: '' },
+      },
+    ],
     isPinned: {
       type: Boolean,
       default: false,

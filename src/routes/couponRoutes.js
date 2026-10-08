@@ -1,9 +1,13 @@
 import express from 'express';
-import { getCoupons, createCoupon, deleteCoupon } from '../controllers/couponController.js';
+import { getCoupons, getPublicCustomerCoupons, createCoupon, deleteCoupon } from '../controllers/couponController.js';
 import { protect } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
+// Public route for customers to fetch assigned store coupons
+router.get('/public', getPublicCustomerCoupons);
+
+// Protected routes for dashboard merchant
 router.use(protect);
 
 router.route('/')

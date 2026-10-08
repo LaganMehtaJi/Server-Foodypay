@@ -10,6 +10,9 @@ import { uploadToCloudinary, deleteFromCloudinary } from '../utils/cloudinaryUpl
 export const getDishes = async (req, res, next) => {
   try {
     let filter = {};
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 100;
+    const skip = (page - 1) * limit;
 
     if (req.user) {
       filter = { user: req.user._id };
@@ -28,14 +31,22 @@ export const getDishes = async (req, res, next) => {
         filter = { user: targetUser._id };
       } else if (merchantId || foodypayId) {
         // Unknown merchant ID passed: return 0 dishes
-        return res.json({ success: true, count: 0, data: [] });
+        return res.json({ success: true, count: 0, total: 0, totalPages: 0, currentPage: page, data: [] });
       }
     }
 
-    const dishes = await Dish.find(filter).sort({ createdAt: -1 });
+    const total = await Dish.countDocuments(filter);
+    const dishes = await Dish.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
     res.json({
       success: true,
       count: dishes.length,
+      total,
+      totalPages: Math.ceil(total / limit) || 1,
+      currentPage: page,
       data: dishes,
     });
   } catch (error) {

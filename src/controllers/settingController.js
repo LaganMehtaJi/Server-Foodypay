@@ -14,9 +14,13 @@ export const getSettings = async (req, res, next) => {
     if (!setting) {
       setting = await Setting.create({
         user: req.user._id,
-        restName: req.user.businessName || req.user.name || "Sharma's Kitchen",
+        restName: req.user.businessName || (req.user.name ? `${req.user.name}'s Restaurant` : 'My POS Outlet'),
         phone: req.user.contactNo || '',
       });
+    } else if (req.user.businessName && (!setting.restName || setting.restName === 'Lagan Da Dhaba' || setting.restName === 'My Restaurant' || setting.restName === "Sharma's Kitchen")) {
+      setting.restName = req.user.businessName;
+      if (req.user.contactNo) setting.phone = req.user.contactNo;
+      await setting.save();
     }
 
     res.json({
@@ -56,6 +60,9 @@ export const updateSettings = async (req, res, next) => {
       phone,
       address,
       upiId,
+      paymentRoutingMode,
+      razorpayKeyId,
+      razorpayKeySecret,
       gstPercent,
       creditsBalance,
     } = req.body;
@@ -68,6 +75,9 @@ export const updateSettings = async (req, res, next) => {
     if (phone !== undefined) setting.phone = phone;
     if (address !== undefined) setting.address = address;
     if (upiId !== undefined) setting.upiId = upiId;
+    if (paymentRoutingMode !== undefined) setting.paymentRoutingMode = paymentRoutingMode;
+    if (razorpayKeyId !== undefined) setting.razorpayKeyId = razorpayKeyId;
+    if (razorpayKeySecret !== undefined) setting.razorpayKeySecret = razorpayKeySecret;
     if (gstPercent !== undefined) setting.gstPercent = Number(gstPercent);
     if (creditsBalance !== undefined) setting.creditsBalance = Number(creditsBalance);
 

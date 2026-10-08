@@ -40,6 +40,19 @@ const settingSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    paymentRoutingMode: {
+      type: String,
+      enum: ['foodypay_default', 'merchant_razorpay', 'merchant_upi'],
+      default: 'foodypay_default',
+    },
+    razorpayKeyId: {
+      type: String,
+      default: '',
+    },
+    razorpayKeySecret: {
+      type: String,
+      default: '',
+    },
     gstPercent: {
       type: Number,
       default: 5,

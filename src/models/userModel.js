@@ -55,10 +55,43 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    firebaseUid: {
+      type: String,
+      default: null,
+      index: true,
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
     authProvider: {
       type: String,
-      enum: ['local', 'google'],
+      enum: ['local', 'google', 'firebase'],
       default: 'local',
+    },
+    isLocked: {
+      type: Boolean,
+      default: false,
+    },
+    lockReason: {
+      type: String,
+      default: 'Subscription Payment Required',
+    },
+    subscriptionPrice: {
+      type: Number,
+      default: 0,
+    },
+    subscriptionStatus: {
+      type: String,
+      enum: ['Active', 'Expired', 'Locked', 'Trial'],
+      default: 'Trial',
+    },
+    subscriptionPlan: {
+      type: String,
+      default: 'Free Trial (14 Days)',
+    },
+    subscriptionExpiry: {
+      type: Date,
     },
   },
   {

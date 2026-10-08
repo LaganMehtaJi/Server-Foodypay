@@ -18,6 +18,14 @@ const couponSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    discountValue: {
+      type: Number,
+      default: 0,
+    },
+    type: {
+      type: String,
+      default: 'percentage',
+    },
     minOrder: {
       type: Number,
       default: 199,
@@ -30,6 +38,33 @@ const couponSchema = new mongoose.Schema(
       type: String,
       enum: ['Active', 'Expired'],
       default: 'Active',
+    },
+    assignedToAll: {
+      type: Boolean,
+      default: true,
+    },
+    assignedCustomerPhone: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    assignedCustomerEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      default: '',
+    },
+    assignedCustomerName: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    description: {
+      type: String,
+      default: '',
+    },
+    expiryDate: {
+      type: Date,
     },
   },
   {

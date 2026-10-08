@@ -1,0 +1,82 @@
+name: Deploy Backend to EC2
+
+on:
+  push:
+    branches:
+      - stage
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Validate Secrets
+        run: |
+          echo "Checking required secrets..."
+
+          [ -n "${{ secrets.EC2_HOST_STAGE }}" ] && echo "✅ EC2_HOST found" || (echo "❌ EC2_HOST missing" && exit 1)
+          [ -n "${{ secrets.EC2_USER_STAGE }}" ] && echo "✅ EC2_USER found" || (echo "❌ EC2_USER missing" && exit 1)
+          [ -n "${{ secrets.EC2_SSH_KEY_STAGE }}" ] && echo "✅ EC2_SSH_KEY found" || (echo "❌ EC2_SSH_KEY missing" && exit 1)
+          [ -n "${{ secrets.ENV_FILE_STAGE }}" ] && echo "✅ ENV_FILE found" || (echo "❌ ENV_FILE missing" && exit 1)
+
+      - name: Setup SSH
+        run: |
+          set -x
+          echo "Creating SSH directory..."
+          mkdir -p ~/.ssh
+
+          echo "Writing private key..."
+          echo "${{ secrets.EC2_SSH_KEY_STAGE }}" > ~/.ssh/id_rsa
+
+          chmod 600 ~/.ssh/id_rsa
+
+          echo "Adding EC2 host to known_hosts..."
+          ssh-keyscan -H "${{ secrets.EC2_HOST_STAGE }}" >> ~/.ssh/known_hosts
+
+          echo "SSH setup completed."
+
+      - name: Deploy to EC2
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE_STAGE }}
+        run: |
+          echo "Connecting to EC2..."
+
+          ssh ${{ secrets.EC2_USER_STAGE }}@${{ secrets.EC2_HOST_STAGE }} << EOF
+            set -ex
+
+            echo "Current user:"
+            whoami
+
+            echo "Current directory:"
+            pwd
+
+            echo "Moving to project directory..."
+            cd /home/ec2-user/backend/Server-Foodypay
+
+            echo "Current branch:"
+            git branch
+
+            echo "Fetching latest code..."
+            git fetch origin
+
+            echo "Resetting to origin/master..."
+            git reset --hard origin/master
+
+            echo "Writing .env file..."
+            printf "%s" "$ENV_FILE_STAGE" > .env
+
+            echo ".env created successfully."
+
+            echo "Installing dependencies..."
+            npm install
+
+            echo "Reloading application..."
+            pm2 reload backend
+
+            echo "Deployment completed successfully."
+          EOF
+
+          echo "Workflow finished."

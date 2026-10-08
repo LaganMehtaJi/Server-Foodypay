@@ -13,9 +13,15 @@ import orderRoutes from './src/routes/orderRoutes.js';
 import dishRoutes from './src/routes/dishRoutes.js';
 import customerRoutes from './src/routes/customerRoutes.js';
 import couponRoutes from './src/routes/couponRoutes.js';
+import { getPublicCustomerCoupons } from './src/controllers/couponController.js';
 import tableRoutes from './src/routes/tableRoutes.js';
 import settingRoutes from './src/routes/settingRoutes.js';
 import reviewRoutes from './src/routes/reviewRoutes.js';
+import paymentRoutes from './src/routes/paymentRoutes.js';
+import notificationRoutes from './src/routes/notificationRoutes.js';
+import deliveryZoneRoutes from './src/routes/deliveryZoneRoutes.js';
+import storeRoutes from './src/routes/storeRoutes.js';
+import customerLocationRoutes from './src/routes/customerLocationRoutes.js';
 import { notFound, errorHandler } from './src/middlewares/errorMiddleware.js';
 
 // Load environment variables
@@ -111,10 +117,17 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/dishes', dishRoutes);
 app.use('/api/customers', customerRoutes);
+app.get('/api/coupons/public', getPublicCustomerCoupons);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/tables', tableRoutes);
 app.use('/api/settings', settingRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/delivery', deliveryZoneRoutes);
+app.use('/api/stores', storeRoutes);
+app.use('/api/customer/location', customerLocationRoutes);
+app.use('/api/customer', customerLocationRoutes);
 
 // Error Handling Middlewares
 app.use(notFound);

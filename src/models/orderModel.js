@@ -38,8 +38,16 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['new', 'preparing', 'ready', 'completed'],
+      enum: ['new', 'preparing', 'ready', 'out_for_delivery', 'dispatched', 'delivered', 'served', 'completed', 'cancelled'],
       default: 'new',
+    },
+    address: {
+      type: String,
+      default: '',
+    },
+    paymentMode: {
+      type: String,
+      default: 'Cash',
     },
     seen: {
       type: Boolean,
