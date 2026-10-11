@@ -53,6 +53,14 @@ const orderSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    sentToKitchen: {
+      type: Boolean,
+      default: false,
+    },
+    kitchenSeen: {
+      type: Boolean,
+      default: false,
+    },
     paymentStatus: {
       type: String,
       default: 'cash',
@@ -60,6 +68,26 @@ const orderSchema = new mongoose.Schema(
     paymentLabel: {
       type: String,
       default: 'Cash on Counter',
+    },
+    isPaid: {
+      type: Boolean,
+      default: true,
+    },
+    dueNote: {
+      type: String,
+      default: '',
+    },
+    dueMarkedAt: {
+      type: Date,
+      default: null,
+    },
+    dueClearedAt: {
+      type: Date,
+      default: null,
+    },
+    dueClearedMode: {
+      type: String,
+      default: '',
     },
     items: [orderItemSchema],
     note: {

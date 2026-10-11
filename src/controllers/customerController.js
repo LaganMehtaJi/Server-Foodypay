@@ -1,4 +1,5 @@
 import Customer from '../models/customerModel.js';
+import { syncCustomerToFirestore } from '../services/firestoreService.js';
 
 /**
  * @desc    Get all customers for authenticated user
@@ -41,6 +42,8 @@ export const createCustomer = async (req, res, next) => {
       totalSales: 0,
     });
 
+    syncCustomerToFirestore(customer).catch(() => {});
+
     res.status(201).json({
       success: true,
       data: customer,
@@ -49,3 +52,4 @@ export const createCustomer = async (req, res, next) => {
     next(error);
   }
 };
+

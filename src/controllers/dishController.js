@@ -1,6 +1,7 @@
 import Dish from '../models/dishModel.js';
 import User from '../models/userModel.js';
 import { uploadToCloudinary, deleteFromCloudinary } from '../utils/cloudinaryUpload.js';
+import { syncDishToFirestore, deleteDishFromFirestore } from '../services/firestoreService.js';
 
 /**
  * @desc    Get all dishes for authenticated user or public merchant
@@ -96,6 +97,8 @@ export const createDish = async (req, res, next) => {
       inStock: true,
     });
 
+    syncDishToFirestore(dish).catch(() => {});
+
     res.status(201).json({
       success: true,
       data: dish,
@@ -144,6 +147,7 @@ export const updateDish = async (req, res, next) => {
     }
 
     await dish.save();
+    syncDishToFirestore(dish).catch(() => {});
 
     res.json({
       success: true,
@@ -170,6 +174,7 @@ export const toggleDishStock = async (req, res, next) => {
 
     dish.inStock = !dish.inStock;
     await dish.save();
+    syncDishToFirestore(dish).catch(() => {});
 
     res.json({
       success: true,
@@ -199,8 +204,10 @@ export const deleteDish = async (req, res, next) => {
       await deleteFromCloudinary(dish.image.public_id);
     }
 
+    const dishDocId = String(dish._id);
     // Delete dish document from MongoDB Atlas
     await Dish.deleteOne({ _id: dish._id });
+    deleteDishFromFirestore(dishDocId).catch(() => {});
 
     res.json({
       success: true,

@@ -1,4 +1,5 @@
 import Table from '../models/tableModel.js';
+import { syncTableToFirestore, deleteTableFromFirestore } from '../services/firestoreService.js';
 
 /**
  * @desc    Get all tables for authenticated user
@@ -46,6 +47,8 @@ export const createTable = async (req, res, next) => {
       status: 'available',
     });
 
+    syncTableToFirestore(table).catch(() => {});
+
     res.status(201).json({
       success: true,
       data: table,
@@ -82,6 +85,7 @@ export const updateTable = async (req, res, next) => {
     if (status !== undefined) table.status = status;
 
     await table.save();
+    syncTableToFirestore(table).catch(() => {});
 
     res.json({
       success: true,
@@ -109,6 +113,7 @@ export const updateTableStatus = async (req, res, next) => {
 
     table.status = status || table.status;
     await table.save();
+    syncTableToFirestore(table).catch(() => {});
 
     res.json({
       success: true,
@@ -133,6 +138,9 @@ export const deleteTable = async (req, res, next) => {
       throw new Error('Table not found');
     }
 
+    const tableDocId = String(table._id);
+    deleteTableFromFirestore(tableDocId).catch(() => {});
+
     res.json({
       success: true,
       message: 'Table deleted successfully',
@@ -141,3 +149,4 @@ export const deleteTable = async (req, res, next) => {
     next(error);
   }
 };
+

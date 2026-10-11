@@ -41,6 +41,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    upiId: {
+      type: String,
+      default: '',
+      trim: true,
+    },
     logo: {
       url: {
         type: String,

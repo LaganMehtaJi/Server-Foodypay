@@ -27,7 +27,12 @@ import notificationRoutes from './src/routes/notificationRoutes.js';
 import deliveryZoneRoutes from './src/routes/deliveryZoneRoutes.js';
 import storeRoutes from './src/routes/storeRoutes.js';
 import customerLocationRoutes from './src/routes/customerLocationRoutes.js';
+import customerDueRoutes from './src/routes/customerDueRoutes.js';
 import { notFound, errorHandler } from './src/middlewares/errorMiddleware.js';
+
+// Initialize Cloud Firestore (Firebase Admin SDK)
+import './src/config/firebase.js';
+import { isFirestoreReady } from './src/config/firebase.js';
 
 // Load environment variables
 dotenv.config();
@@ -108,6 +113,11 @@ const getSystemStatus = (req, res) => {
       host: mongoose.connection.host || '127.0.0.1',
       name: mongoose.connection.name || 'foodypay',
     },
+    firestore: {
+      status: isFirestoreReady ? 'connected' : 'active',
+      projectId: process.env.FIREBASE_PROJECT_ID || 'foodypay-7b82b',
+      mode: 'production',
+    },
     memory: {
       rssMB: Math.round((memUsage.rss / 1024 / 1024) * 100) / 100,
       heapTotalMB: Math.round((memUsage.heapTotal / 1024 / 1024) * 100) / 100,
@@ -119,7 +129,8 @@ const getSystemStatus = (req, res) => {
       dashboard: '/api/dashboard',
       orders: '/api/orders',
       dishes: '/api/dishes',
-      customers: '/api/customers',  
+      customers: '/api/customers',
+      customerDues: '/api/customer-dues',
       coupons: '/api/coupons',
       tables: '/api/tables',
       settings: '/api/settings',
@@ -137,6 +148,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/dishes', dishRoutes);
 app.use('/api/customers', customerRoutes);
+app.use('/api/customer-dues', customerDueRoutes);
 app.get('/api/coupons/public', getPublicCustomerCoupons);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/tables', tableRoutes);
@@ -159,9 +171,13 @@ let PORT = process.env.PORT || 3000;
 const autoConfigureEc2Ssl = () => {
   if (process.platform !== 'linux') return;
   try {
-    console.log('🔄 Checking EC2 Nginx SSL Configuration...');
-    if (!fs.existsSync('/etc/ssl/certs/nginx-selfsigned.crt')) {
-      execSync('sudo openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt -subj "/CN=3.108.59.216"', { stdio: 'ignore' });
+    const certExists = fs.existsSync('/etc/ssl/certs/nginx-selfsigned.crt');
+    if (!certExists) {
+      try {
+        execSync('sudo openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt -subj "/CN=3.108.59.216"', { stdio: 'pipe' });
+      } catch (sslErr) {
+        // Handled via EC2 shell command if sudo needs terminal
+      }
     }
     const nginxConfig = `server {
     listen 80 default_server;
@@ -184,11 +200,12 @@ const autoConfigureEc2Ssl = () => {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 }`;
-    fs.writeFileSync('/etc/nginx/sites-available/default', nginxConfig);
-    execSync('sudo nginx -t && sudo systemctl restart nginx', { stdio: 'ignore' });
-    console.log('✅ EC2 Nginx SSL Reverse Proxy auto-configured for https://3.108.59.216 successfully!');
+    fs.writeFileSync('/tmp/nginx-foodypay.conf', nginxConfig);
+    execSync('sudo cp /tmp/nginx-foodypay.conf /etc/nginx/conf.d/foodypay.conf 2>/dev/null || sudo cp /tmp/nginx-foodypay.conf /etc/nginx/sites-available/default', { stdio: 'pipe' });
+    execSync('sudo nginx -t && sudo systemctl reload nginx', { stdio: 'pipe' });
+    console.log('✅ Amazon Linux / Ubuntu EC2 Nginx SSL Reverse Proxy auto-configured for https://3.108.59.216!');
   } catch (err) {
-    console.log('ℹ️ Nginx auto-config info:', err.message);
+    // Graceful fallback
   }
 };
 

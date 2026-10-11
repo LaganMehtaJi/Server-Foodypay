@@ -43,7 +43,7 @@ const settingSchema = new mongoose.Schema(
     paymentRoutingMode: {
       type: String,
       enum: ['foodypay_default', 'merchant_razorpay', 'merchant_upi'],
-      default: 'foodypay_default',
+      default: 'merchant_upi',
     },
     razorpayKeyId: {
       type: String,
