@@ -357,14 +357,22 @@ export const updateOrder = async (req, res, next) => {
     };
     if (req.user) filter.user = req.user._id;
 
-    const order = await Order.findOne(filter);
+    let order = await Order.findOne(filter);
+    if (!order) {
+      order = await Order.findOne({
+        $or: [
+          ...(mongoose.isValidObjectId(id) ? [{ _id: id }] : []),
+          { orderId: id },
+        ],
+      });
+    }
 
     if (!order) {
       res.status(404);
       throw new Error('Order not found');
     }
 
-    const { type, table, customer, phone, items, note, paymentStatus, paymentLabel, subtotal, discount, tax, total, status, sentToKitchen, kitchenSeen, hasPendingKot } = req.body;
+    const { type, table, customer, phone, items, note, paymentStatus, paymentLabel, subtotal, discount, tax, total, status, sentToKitchen, kitchenSeen, hasPendingKot, billPrinted, isPaid, tableCleared } = req.body;
 
     if (type) order.type = type;
     if (table) order.table = table;
@@ -382,6 +390,9 @@ export const updateOrder = async (req, res, next) => {
     if (sentToKitchen !== undefined) order.sentToKitchen = Boolean(sentToKitchen);
     if (kitchenSeen !== undefined) order.kitchenSeen = Boolean(kitchenSeen);
     if (hasPendingKot !== undefined) order.hasPendingKot = Boolean(hasPendingKot);
+    if (billPrinted !== undefined) order.billPrinted = Boolean(billPrinted);
+    if (isPaid !== undefined) order.isPaid = Boolean(isPaid);
+    if (tableCleared !== undefined) order.tableCleared = Boolean(tableCleared);
 
     await order.save();
     const todayStats = await calculateTodayOrderStats(order.user);
@@ -412,14 +423,22 @@ export const updateOrderStatus = async (req, res, next) => {
     };
     if (req.user) filter.user = req.user._id;
 
-    const order = await Order.findOne(filter);
+    let order = await Order.findOne(filter);
+    if (!order) {
+      order = await Order.findOne({
+        $or: [
+          ...(mongoose.isValidObjectId(id) ? [{ _id: id }] : []),
+          { orderId: id },
+        ],
+      });
+    }
 
     if (!order) {
       res.status(404);
       throw new Error('Order not found');
     }
 
-    const { status, paymentStatus, paymentLabel, sentToKitchen, kitchenSeen, hasPendingKot } = req.body;
+    const { status, paymentStatus, paymentLabel, sentToKitchen, kitchenSeen, hasPendingKot, billPrinted, isPaid, tableCleared } = req.body;
 
     if (status) order.status = status;
     if (status === 'preparing' || sentToKitchen) {
@@ -429,9 +448,12 @@ export const updateOrderStatus = async (req, res, next) => {
     if (sentToKitchen !== undefined) order.sentToKitchen = Boolean(sentToKitchen);
     if (kitchenSeen !== undefined) order.kitchenSeen = Boolean(kitchenSeen);
     if (hasPendingKot !== undefined) order.hasPendingKot = Boolean(hasPendingKot);
+    if (billPrinted !== undefined) order.billPrinted = Boolean(billPrinted);
+    if (isPaid !== undefined) order.isPaid = Boolean(isPaid);
+    if (tableCleared !== undefined) order.tableCleared = Boolean(tableCleared);
     if (paymentStatus) order.paymentStatus = paymentStatus;
     if (paymentLabel) order.paymentLabel = paymentLabel;
-    if (status === 'completed' || status === 'preparing' || status === 'ready' || status === 'served') {
+    if (status === 'completed' || status === 'preparing' || status === 'ready' || status === 'served' || status === 'paid') {
       order.seen = true;
     }
 

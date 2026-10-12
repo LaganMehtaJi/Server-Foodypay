@@ -1,11 +1,14 @@
 import mongoose from 'mongoose';
 
 const orderItemSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  qty: { type: Number, required: true, default: 1 },
-  price: { type: Number, required: true },
+  name: { type: String, default: 'Item' },
+  qty: { type: Number, default: 1 },
+  quantity: { type: Number, default: 1 },
+  price: { type: Number, default: 0 },
   isVeg: { type: Boolean, default: true },
-});
+  image: { type: String, default: '' },
+  customizations: { type: Array, default: [] },
+}, { _id: false, strict: false });
 
 const orderSchema = new mongoose.Schema(
   {
@@ -38,8 +41,19 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['new', 'preparing', 'ready', 'out_for_delivery', 'dispatched', 'delivered', 'served', 'completed', 'cancelled'],
       default: 'new',
+    },
+    billPrinted: {
+      type: Boolean,
+      default: false,
+    },
+    isPaid: {
+      type: Boolean,
+      default: false,
+    },
+    tableCleared: {
+      type: Boolean,
+      default: false,
     },
     address: {
       type: String,

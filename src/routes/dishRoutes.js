@@ -7,16 +7,16 @@ import {
   deleteDish,
 } from '../controllers/dishController.js';
 import upload from '../middlewares/uploadMiddleware.js';
-import { protect } from '../middlewares/authMiddleware.js';
+import { protect, optionalProtect } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 router.get('/public', getDishes);
+router.get('/', optionalProtect, getDishes);
 
 router.use(protect);
 
 router.route('/')
-  .get(getDishes)
   .post(upload.single('image'), createDish);
 
 router.route('/:id')
