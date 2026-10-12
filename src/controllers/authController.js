@@ -4,6 +4,8 @@ import Order from '../models/orderModel.js';
 import generateToken from '../utils/generateToken.js';
 import { uploadToCloudinary } from '../utils/cloudinaryUpload.js';
 import { OAuth2Client } from 'google-auth-library';
+import { db, isFirestoreReady } from '../config/firebase.js';
+import { backupUserToMongo } from '../utils/dualDbSync.js';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -56,6 +58,31 @@ export const registerUser = async (req, res, next) => {
       authProvider: 'local',
     });
 
+
+    // 1. PRIMARY STORAGE: Save into Cloud Firestore Business_Users collection
+    if (isFirestoreReady()) {
+      try {
+        await db.collection('Business_Users').doc(foodypayId).set({
+          uniqueId: foodypayId,
+          businessId: foodypayId,
+          id: foodypayId,
+          businessName: finalBusinessName,
+          name: name.trim(),
+          email: cleanEmail,
+          phone: finalContactNo,
+          plan: 'Free',
+          startingDate: new Date().toISOString(),
+          expireDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+          status: 'Active',
+          logoUrl: logoData.url || '',
+          authProvider: 'local',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }, { merge: true });
+      } catch (fsErr) {
+        console.warn('⚠️ Firestore Business_Users save warning:', fsErr.message);
+      }
+    }
 
     if (user) {
       const token = generateToken(user._id);

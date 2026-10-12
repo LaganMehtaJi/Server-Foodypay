@@ -8,10 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 
-//Conection with MongoDB
 import connectDB from './src/config/db.js';
-
-
 import authRoutes from './src/routes/authRoutes.js';
 import dashboardRoutes from './src/routes/dashboardRoutes.js';
 import orderRoutes from './src/routes/orderRoutes.js';
@@ -32,8 +29,8 @@ import { notFound, errorHandler } from './src/middlewares/errorMiddleware.js';
 // Load environment variables
 dotenv.config();
 
-// Connect to MongoDB Database
-connectDB();
+// Connect MongoDB in background as silent resilient backup database
+connectDB().catch(() => {});
 
 const app = express();
 

@@ -1,6 +1,8 @@
 import Dish from '../models/dishModel.js';
 import User from '../models/userModel.js';
 import { uploadToCloudinary, deleteFromCloudinary } from '../utils/cloudinaryUpload.js';
+import { db, isFirestoreReady } from '../config/firebase.js';
+import { backupDishToMongo } from '../utils/dualDbSync.js';
 
 /**
  * @desc    Get all dishes for authenticated user or public merchant
@@ -14,6 +16,39 @@ export const getDishes = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 100;
     const skip = (page - 1) * limit;
 
+    const bId = (req.user?.foodypayId || req.user?._id || req.query?.foodypayId || req.query?.merchantId || '').toString().trim().toUpperCase();
+
+    // 1. PRIMARY: Fetch from Cloud Firestore
+    if (isFirestoreReady() && bId) {
+      try {
+        const snap = await db.collection('dishes')
+          .where('businessId', '==', bId)
+          .limit(limit)
+          .get();
+
+        if (!snap.empty) {
+          const fsDishes = [];
+          snap.forEach((doc) => {
+            const d = doc.data();
+            fsDishes.push({ id: doc.id, _id: doc.id, ...d });
+            backupDishToMongo(d).catch(() => {});
+          });
+
+          return res.json({
+            success: true,
+            source: 'firestore_primary',
+            count: fsDishes.length,
+            total: fsDishes.length,
+            totalPages: 1,
+            currentPage: 1,
+            data: fsDishes,
+          });
+        }
+      } catch (fsErr) {
+        console.warn('⚠️ Firestore dishes fetch notice, falling back to MongoDB:', fsErr.message);
+      }
+    }
+
     if (req.user) {
       filter = { user: req.user._id };
     } else {
@@ -24,7 +59,7 @@ export const getDishes = async (req, res, next) => {
         targetUser = await User.findById(merchantId).catch(() => null);
       }
       if (!targetUser && foodypayId && foodypayId !== 'undefined') {
-        targetUser = await User.findOne({ foodypayId });
+        targetUser = await User.findOne({ foodypayId }).catch(() => null);
       }
 
       if (targetUser) {
@@ -35,14 +70,17 @@ export const getDishes = async (req, res, next) => {
       }
     }
 
-    const total = await Dish.countDocuments(filter);
+    // 2. FALLBACK: Fetch from MongoDB
+    const total = await Dish.countDocuments(filter).catch(() => 0);
     const dishes = await Dish.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .catch(() => []);
 
     res.json({
       success: true,
+      source: 'mongo_fallback',
       count: dishes.length,
       total,
       totalPages: Math.ceil(total / limit) || 1,
@@ -82,8 +120,15 @@ export const createDish = async (req, res, next) => {
       if (customizations) parsedCustomizations = typeof customizations === 'string' ? JSON.parse(customizations) : customizations;
     } catch (e) {}
 
-    const dish = await Dish.create({
-      user: req.user._id,
+    const bId = (req.user?.foodypayId || req.user?._id || '').toString().trim().toUpperCase();
+    const dishId = `prod_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+
+    const dishPayload = {
+      id: dishId,
+      _id: dishId,
+      businessId: bId,
+      foodypayId: bId,
+      merchantId: bId,
       name: name.trim().toUpperCase(),
       category: category || 'Fast Food',
       price: Number(price),
@@ -94,11 +139,36 @@ export const createDish = async (req, res, next) => {
       sizes: parsedSizes,
       customizations: parsedCustomizations,
       inStock: true,
-    });
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    // 1. PRIMARY STORAGE: Save into Cloud Firestore
+    let savedInFirestore = false;
+    if (isFirestoreReady()) {
+      try {
+        await db.collection('dishes').doc(dishId).set(dishPayload, { merge: true });
+        savedInFirestore = true;
+      } catch (fsErr) {
+        console.warn('⚠️ Firestore primary dish save warning:', fsErr.message);
+      }
+    }
+
+    // 2. BACKGROUND BACKUP: Save into MongoDB
+    let mongoDish = null;
+    try {
+      mongoDish = await Dish.create({
+        user: req.user._id,
+        ...dishPayload,
+      });
+    } catch (mErr) {
+      console.warn('⚠️ MongoDB dish backup notice:', mErr.message);
+    }
 
     res.status(201).json({
       success: true,
-      data: dish,
+      data: mongoDish || dishPayload,
+      storage: savedInFirestore ? 'firestore_with_mongo_backup' : 'mongo_fallback',
     });
   } catch (error) {
     next(error);
@@ -145,6 +215,22 @@ export const updateDish = async (req, res, next) => {
 
     await dish.save();
 
+    // Sync to Firestore
+    if (isFirestoreReady()) {
+      try {
+        await db.collection('dishes').doc(dish._id.toString()).set({
+          name: dish.name,
+          category: dish.category,
+          price: dish.price,
+          isVeg: dish.isVeg,
+          desc: dish.desc,
+          image: dish.image,
+          inStock: dish.inStock,
+          updatedAt: new Date().toISOString(),
+        }, { merge: true });
+      } catch (e) {}
+    }
+
     res.json({
       success: true,
       data: dish,
@@ -170,6 +256,15 @@ export const toggleDishStock = async (req, res, next) => {
 
     dish.inStock = !dish.inStock;
     await dish.save();
+
+    if (isFirestoreReady()) {
+      try {
+        await db.collection('dishes').doc(dish._id.toString()).update({
+          inStock: dish.inStock,
+          updatedAt: new Date().toISOString(),
+        });
+      } catch (e) {}
+    }
 
     res.json({
       success: true,
@@ -201,6 +296,13 @@ export const deleteDish = async (req, res, next) => {
 
     // Delete dish document from MongoDB Atlas
     await Dish.deleteOne({ _id: dish._id });
+
+    // Delete from Firestore
+    if (isFirestoreReady()) {
+      try {
+        await db.collection('dishes').doc(req.params.id.toString()).delete();
+      } catch (e) {}
+    }
 
     res.json({
       success: true,

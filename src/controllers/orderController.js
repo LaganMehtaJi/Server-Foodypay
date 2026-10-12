@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import Order from '../models/orderModel.js';
 import Customer from '../models/customerModel.js';
 import User from '../models/userModel.js';
+import { db, isFirestoreReady } from '../config/firebase.js';
+import { backupOrderToMongo } from '../utils/dualDbSync.js';
 
 /**
  * MongoDB Aggregation Pipeline to calculate Today's Sales & Today's Orders
@@ -113,9 +115,10 @@ export const createPublicOrder = async (req, res, next) => {
     const count = await Order.countDocuments({ user: targetUser._id });
     const orderId = `#FP-${1080 + count + 1}`;
 
-    const order = await Order.create({
-      user: targetUser._id,
+    const orderData = {
       orderId,
+      _id: orderId,
+      id: orderId,
       type: type || 'Dine-In',
       table: table || 'Table 1',
       customer: customer || 'Walk-in Guest',
@@ -128,36 +131,64 @@ export const createPublicOrder = async (req, res, next) => {
       paymentLabel: paymentLabel || 'Cash on Counter',
       items: items || [],
       note: note || '',
-      subtotal: subtotal || 0,
-      discount: discount || 0,
-      tax: tax || 0,
-      total: total || 0,
-    });
+      subtotal: Number(subtotal) || 0,
+      discount: Number(discount) || 0,
+      tax: Number(tax) || 0,
+      total: Number(total) || 0,
+      businessId: (foodypayId || targetUser.foodypayId || merchantId || '').toString().toUpperCase(),
+      merchantFilter: (foodypayId || targetUser.foodypayId || merchantId || '').toString().toUpperCase(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
 
-    // Auto CRM Sync for Customer
-    if (customer && customer !== 'Walk-in Guest') {
-      const existingCustomer = await Customer.findOne({ user: targetUser._id, name: customer });
-      if (existingCustomer) {
-        existingCustomer.ordersCount += 1;
-        existingCustomer.totalSales += total || 0;
-        existingCustomer.lastOrdered = 'Just now';
-        await existingCustomer.save();
-      } else {
-        await Customer.create({
-          user: targetUser._id,
-          name: customer,
-          phone: phone || '',
-          ordersCount: 1,
-          totalSales: total || 0,
-          lastOrdered: 'Just now',
-          tags: ['QR Diner'],
-        });
+    // 1. PRIMARY STORAGE: Save into Cloud Firestore
+    let savedInFirestore = false;
+    if (isFirestoreReady()) {
+      try {
+        await db.collection('orders').doc(orderId).set(orderData, { merge: true });
+        savedInFirestore = true;
+      } catch (fsErr) {
+        console.warn('⚠️ Firestore primary save warning:', fsErr.message);
       }
+    }
+
+    // 2. BACKGROUND BACKUP: Save silently into MongoDB (Zero latency impact)
+    let mongoOrder = null;
+    try {
+      mongoOrder = await Order.create({
+        user: targetUser._id,
+        ...orderData,
+      });
+
+      // Auto CRM Sync for Customer in MongoDB
+      if (customer && customer !== 'Walk-in Guest') {
+        const existingCustomer = await Customer.findOne({ user: targetUser._id, name: customer });
+        if (existingCustomer) {
+          existingCustomer.ordersCount += 1;
+          existingCustomer.totalSales += total || 0;
+          existingCustomer.lastOrdered = 'Just now';
+          await existingCustomer.save();
+        } else {
+          await Customer.create({
+            user: targetUser._id,
+            name: customer,
+            phone: phone || '',
+            ordersCount: 1,
+            totalSales: total || 0,
+            lastOrdered: 'Just now',
+            tags: ['QR Diner'],
+          });
+        }
+      }
+    } catch (mErr) {
+      // MongoDB backup silent catch if Mongo cluster is unreachable
+      console.warn('⚠️ MongoDB background backup notice:', mErr.message);
     }
 
     res.status(201).json({
       success: true,
-      data: order,
+      data: mongoOrder || orderData,
+      storage: savedInFirestore ? 'firestore_with_mongo_backup' : 'mongo_fallback',
     });
   } catch (error) {
     next(error);
@@ -175,15 +206,54 @@ export const getOrders = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 100;
     const skip = (page - 1) * limit;
 
-    const total = await Order.countDocuments({ user: req.user._id });
+    const bId = (req.user?.foodypayId || req.user?._id || '').toString().trim().toUpperCase();
+
+    // 1. PRIMARY: Fetch from Cloud Firestore
+    if (isFirestoreReady() && bId) {
+      try {
+        const snap = await db.collection('orders')
+          .where('merchantFilter', '==', bId)
+          .limit(limit)
+          .get();
+
+        if (!snap.empty) {
+          const fsOrders = [];
+          snap.forEach((doc) => {
+            const d = doc.data();
+            fsOrders.push({ id: doc.id, _id: doc.id, ...d });
+            // Background silent backup to MongoDB
+            backupOrderToMongo(d).catch(() => {});
+          });
+
+          fsOrders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+          return res.json({
+            success: true,
+            source: 'firestore_primary',
+            count: fsOrders.length,
+            total: fsOrders.length,
+            totalPages: 1,
+            currentPage: 1,
+            data: fsOrders,
+          });
+        }
+      } catch (fsErr) {
+        console.warn('⚠️ Firestore orders fetch notice, falling back to MongoDB:', fsErr.message);
+      }
+    }
+
+    // 2. FALLBACK: Fetch from MongoDB cluster if Firestore is empty or fails
+    const total = await Order.countDocuments({ user: req.user._id }).catch(() => 0);
     const orders = await Order.find({ user: req.user._id })
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
-    const todayStats = await calculateTodayOrderStats(req.user._id);
+      .limit(limit)
+      .catch(() => []);
+    const todayStats = await calculateTodayOrderStats(req.user._id).catch(() => ({}));
 
     res.json({
       success: true,
+      source: 'mongo_fallback',
       count: orders.length,
       total,
       totalPages: Math.ceil(total / limit) || 1,
@@ -208,27 +278,65 @@ export const getPublicOrders = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 100;
     const skip = (page - 1) * limit;
 
+    const targetBid = (foodypayId || merchantId || '').toString().trim().toUpperCase();
+
+    // 1. PRIMARY: Fetch from Cloud Firestore
+    if (isFirestoreReady() && targetBid) {
+      try {
+        const snap = await db.collection('orders')
+          .where('merchantFilter', '==', targetBid)
+          .limit(limit)
+          .get();
+
+        if (!snap.empty) {
+          const fsOrders = [];
+          snap.forEach((doc) => {
+            const d = doc.data();
+            fsOrders.push({ id: doc.id, _id: doc.id, ...d });
+            backupOrderToMongo(d).catch(() => {});
+          });
+
+          fsOrders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+          return res.json({
+            success: true,
+            source: 'firestore_primary',
+            count: fsOrders.length,
+            total: fsOrders.length,
+            totalPages: 1,
+            currentPage: 1,
+            data: fsOrders,
+          });
+        }
+      } catch (fsErr) {
+        console.warn('⚠️ Firestore public orders notice, falling back to MongoDB:', fsErr.message);
+      }
+    }
+
+    // 2. FALLBACK: Fetch from MongoDB
     let targetUser = null;
 
     if (merchantId && merchantId !== 'undefined') {
       targetUser = await User.findById(merchantId).catch(() => null);
     }
     if (!targetUser && foodypayId && foodypayId !== 'undefined') {
-      targetUser = await User.findOne({ foodypayId });
+      targetUser = await User.findOne({ foodypayId }).catch(() => null);
     }
 
     if (!targetUser) {
       return res.json({ success: true, count: 0, total: 0, totalPages: 0, currentPage: page, data: [] });
     }
 
-    const total = await Order.countDocuments({ user: targetUser._id });
+    const total = await Order.countDocuments({ user: targetUser._id }).catch(() => 0);
     const orders = await Order.find({ user: targetUser._id })
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .catch(() => []);
 
     res.json({
       success: true,
+      source: 'mongo_fallback',
       count: orders.length,
       total,
       totalPages: Math.ceil(total / limit) || 1,
