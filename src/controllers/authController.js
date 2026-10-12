@@ -99,9 +99,12 @@ export const loginUser = async (req, res, next) => {
     }
 
     const cleanEmail = email.toLowerCase().trim();
+    const cleanUpper = email.toUpperCase().trim();
 
-    // Find user and explicitly select password
-    const user = await User.findOne({ email: cleanEmail }).select('+password');
+    // Find user by email or restaurant ID and explicitly select password
+    const user = await User.findOne({
+      $or: [{ email: cleanEmail }, { foodypayId: cleanUpper }],
+    }).select('+password');
 
     if (!user) {
       res.status(401);
