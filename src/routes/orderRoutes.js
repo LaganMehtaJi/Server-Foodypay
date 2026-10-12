@@ -10,32 +10,36 @@ import {
   markOrderSeen,
   deleteOrder,
 } from '../controllers/orderController.js';
-import { protect } from '../middlewares/authMiddleware.js';
+import { protect, optionalProtect } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-// Public route for QR code table ordering and Kitchen KDS
+// Public routes for QR code table ordering, Kitchen KDS, and POS operations
 router.get('/public', getPublicOrders);
 router.post('/public', createPublicOrder);
 router.put('/public/:id/status', updateOrderStatus);
 router.put('/public/:id/kitchen-seen', markOrderSeen);
+router.put('/public/:id', updateOrder);
+
+// Allow GET and PUT with optional token so unauthenticated or local sessions don't get 401
+router.get('/', optionalProtect, getOrders);
+router.route('/:id')
+  .put(optionalProtect, updateOrder);
+
+router.route('/:id/status')
+  .put(optionalProtect, updateOrderStatus);
 
 router.use(protect);
 
 router.get('/stats', getOrderStats);
 
 router.route('/')
-  .get(getOrders)
   .post(createOrder);
-
-router.route('/:id/status')
-  .put(updateOrderStatus);
 
 router.route('/:id/seen')
   .put(markOrderSeen);
 
 router.route('/:id')
-  .put(updateOrder)
   .delete(deleteOrder);
 
 export default router;

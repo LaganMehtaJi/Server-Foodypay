@@ -29,8 +29,8 @@ export const getDishes = async (req, res, next) => {
 
       if (targetUser) {
         filter = { user: targetUser._id };
-      } else if (merchantId || foodypayId) {
-        // Unknown merchant ID passed: return 0 dishes
+      } else {
+        // Unauthenticated or unknown merchant ID: strictly return 0 dishes to prevent leakage
         return res.json({ success: true, count: 0, total: 0, totalPages: 0, currentPage: page, data: [] });
       }
     }

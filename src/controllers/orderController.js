@@ -191,15 +191,21 @@ export const getOrders = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 100;
     const skip = (page - 1) * limit;
 
-    const bId = (req.user?.foodypayId || '').toString().trim().toUpperCase();
+    const bId = (req.user?.foodypayId || req.query.foodypayId || req.query.merchantId || '').toString().trim().toUpperCase();
 
     // Query MongoDB directly
-    const query = {
-      $or: [
+    const query = {};
+    if (req.user) {
+      query.$or = [
         { user: req.user._id },
         ...(bId ? [{ businessId: bId }, { merchantFilter: bId }, { foodypayId: bId }] : []),
-      ],
-    };
+      ];
+    } else if (bId) {
+      query.$or = [{ businessId: bId }, { merchantFilter: bId }, { foodypayId: bId }];
+    } else {
+      // Neither authenticated user nor valid restaurant foodypayId provided: return 0 orders
+      return res.json({ success: true, count: 0, total: 0, totalPages: 0, currentPage: page, data: [], todayStats: {} });
+    }
 
     const total = await Order.countDocuments(query).catch(() => 0);
     const orders = await Order.find(query)
@@ -207,7 +213,7 @@ export const getOrders = async (req, res, next) => {
       .skip(skip)
       .limit(limit)
       .catch(() => []);
-    const todayStats = await calculateTodayOrderStats(req.user._id).catch(() => ({}));
+    const todayStats = req.user ? await calculateTodayOrderStats(req.user._id).catch(() => ({})) : {};
 
     res.json({
       success: true,
@@ -285,7 +291,7 @@ export const getPublicOrders = async (req, res, next) => {
  */
 export const createOrder = async (req, res, next) => {
   try {
-    const { type, table, customer, phone, items, note, paymentStatus, paymentLabel, subtotal, discount, tax, total } = req.body;
+    const { type, table, customer, phone, items, note, paymentStatus, paymentLabel, subtotal, discount, tax, total, status, sentToKitchen } = req.body;
 
     const count = await Order.countDocuments({ user: req.user._id });
     const orderId = `#FP-${1080 + count + 1}`;
@@ -297,7 +303,8 @@ export const createOrder = async (req, res, next) => {
       table: table || 'Table 1',
       customer: customer || 'Walk-in Guest',
       phone: phone || '',
-      status: 'new',
+      status: status || 'new',
+      sentToKitchen: Boolean(sentToKitchen),
       seen: true, // Manual order created directly by counter staff is auto-seen
       paymentStatus: paymentStatus || 'cash',
       paymentLabel: paymentLabel || 'Cash on Counter',
