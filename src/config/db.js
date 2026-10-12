@@ -8,22 +8,22 @@ const connectDB = async () => {
     const conn = await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 5000,
     });
-    console.log(`✅ MongoDB Backup Engine Connected: ${conn.connection.host}`);
+    console.log(`✅ MongoDB Primary Database Connected: ${conn.connection.host}`);
     return conn;
   } catch (error) {
     if (mongoUri !== FALLBACK_ATLAS_URI) {
-      console.warn(`⚠️ Primary MongoDB connection failed (${error.message}). Retrying with Cloud Atlas backup cluster...`);
+      console.warn(`⚠️ Primary MongoDB connection failed (${error.message}). Retrying with Cloud Atlas fallback cluster...`);
       try {
         const connFallback = await mongoose.connect(FALLBACK_ATLAS_URI, {
           serverSelectionTimeoutMS: 5000,
         });
-        console.log(`✅ MongoDB Backup Engine Connected via Cloud Atlas: ${connFallback.connection.host}`);
+        console.log(`✅ MongoDB Primary Database Connected via Cloud Atlas: ${connFallback.connection.host}`);
         return connFallback;
       } catch (fbErr) {
-        console.warn(`⚠️ MongoDB Backup Engine Warning: ${fbErr.message}. Primary Firestore is active.`);
+        console.error(`❌ MongoDB Database Connection Error: ${fbErr.message}`);
       }
     } else {
-      console.warn(`⚠️ MongoDB Backup Engine Warning: ${error.message}. Primary Firestore is active.`);
+      console.error(`❌ MongoDB Database Connection Error: ${error.message}`);
     }
   }
 };

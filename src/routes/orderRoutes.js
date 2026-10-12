@@ -17,6 +17,8 @@ const router = express.Router();
 // Public route for QR code table ordering and Kitchen KDS
 router.get('/public', getPublicOrders);
 router.post('/public', createPublicOrder);
+router.put('/public/:id/status', updateOrderStatus);
+router.put('/public/:id/kitchen-seen', markOrderSeen);
 
 router.use(protect);
 

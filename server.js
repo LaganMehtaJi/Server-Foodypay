@@ -29,8 +29,8 @@ import { notFound, errorHandler } from './src/middlewares/errorMiddleware.js';
 // Load environment variables
 dotenv.config();
 
-// Connect MongoDB in background as silent resilient backup database
-connectDB().catch(() => {});
+// Connect MongoDB as primary database
+connectDB();
 
 const app = express();
 
