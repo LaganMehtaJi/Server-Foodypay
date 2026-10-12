@@ -95,6 +95,7 @@ const getSystemStatus = (req, res) => {
     status: 'online',
     success: true,
     service: 'FoodyPay API Server',
+    Developer: 'Lagan Mehta',
     version: '1.0.0',
     timestamp: new Date().toISOString(),
     uptime: `${hours}h ${minutes}m ${seconds}s`,
