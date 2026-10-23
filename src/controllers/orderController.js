@@ -102,10 +102,17 @@ export const createPublicOrder = async (req, res, next) => {
       targetUser = await User.findById(merchantId).catch(() => null);
     }
     if (!targetUser && foodypayId && foodypayId !== 'undefined') {
-      targetUser = await User.findOne({ foodypayId });
+      const cleanFp = String(foodypayId).trim().toUpperCase();
+      const stripped = cleanFp.replace(/^FP[-_]?/i, '').trim();
+      targetUser = await User.findOne({
+        $or: [
+          { foodypayId: cleanFp },
+          { foodypayId: new RegExp(`^(FP[-_]?)?${stripped}$`, 'i') }
+        ]
+      }).catch(() => null);
     }
-    if (!targetUser) {
-      targetUser = await User.findOne(); // Fallback to primary account
+    if (!targetUser && (!foodypayId || foodypayId === 'undefined')) {
+      targetUser = await User.findOne(); // Fallback to primary account only if no merchant ID specified
     }
 
     if (!targetUser) {
@@ -328,12 +335,15 @@ export const getPublicOrders = async (req, res, next) => {
     }
     if (!targetUser && foodypayId && foodypayId !== 'undefined') {
       const cleanFp = foodypayId.toString().trim().toUpperCase();
-      targetUser = await User.findOne({ foodypayId: cleanFp }).catch(() => null);
-      if (!targetUser && cleanFp.startsWith('SYS-')) {
-        targetUser = (await User.findOne({ foodypayId: 'FP-624358' })) || (await User.findOne({}));
-      }
+      const stripped = cleanFp.replace(/^FP[-_]?/i, '').trim();
+      targetUser = await User.findOne({
+        $or: [
+          { foodypayId: cleanFp },
+          { foodypayId: new RegExp(`^(FP[-_]?)?${stripped}$`, 'i') }
+        ]
+      }).catch(() => null);
     }
-    if (!targetUser) {
+    if (!targetUser && (!foodypayId || foodypayId === 'undefined')) {
       targetUser = (await User.findOne({ foodypayId: 'FP-624358' })) || (await User.findOne({}));
     }
 
@@ -426,7 +436,13 @@ export const claimPublicOrder = async (req, res, next) => {
     }
 
     order.customer = customer.trim();
-    if (phone) order.phone = phone.trim();
+    if (phone) {
+      let cleanP = String(phone).replace(/\D/g, '');
+      if (cleanP.length > 10 && cleanP.startsWith('91')) cleanP = cleanP.slice(2);
+      if (cleanP.length > 10 && cleanP.startsWith('0')) cleanP = cleanP.slice(1);
+      if (cleanP.length > 10) cleanP = cleanP.slice(-10);
+      order.phone = cleanP || phone.trim();
+    }
     if (note && note.trim()) {
       order.note = order.note ? `${order.note} | ${note.trim()}` : note.trim();
     }

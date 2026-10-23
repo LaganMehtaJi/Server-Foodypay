@@ -73,7 +73,8 @@
       gap: 10px;
       position: sticky;
       top: 0;
-      z-index: 55;
+      z-index: 95;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
       transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .app-download-bar.hiding {
@@ -331,9 +332,7 @@
 
     /* WAITER MODE OVERRIDES & BOTTOM NAV REMOVAL */
     body.is-waiter-mode .bottom-dock-nav,
-    body.is-waiter-mode #bottomDockNav,
-    body.is-waiter-mode .app-download-bar,
-    body.is-waiter-mode #appDownloadBanner {
+    body.is-waiter-mode #bottomDockNav {
       display: none !important;
     }
     body.is-waiter-mode .cart-summary-dock {
@@ -1429,6 +1428,24 @@
 <body>
 <div class="app-viewport">
 
+  <!-- TOP APP DOWNLOAD BANNER (Both Customer & Waiter App Install) -->
+  <div class="app-download-bar" id="appDownloadBanner">
+    <button class="app-dl-close" onclick="dismissAppBanner()" title="Close banner" aria-label="Dismiss">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+    <div class="app-dl-logo">
+      <img src="/Logo.png" alt="FoodyPay App" onerror="this.src='https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=100&q=80'">
+    </div>
+    <div class="app-dl-info">
+      <div class="app-dl-title" id="appDlTitle">FoodyPay App <span class="app-dl-tag" id="appDlTag">FREE</span></div>
+      <div class="app-dl-desc" id="appDlDesc">Fast ordering, live tracking &amp; bill</div>
+    </div>
+    <button class="btn-app-download" onclick="handleAppDownload()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      <span id="appDlBtnText">Install</span>
+    </button>
+  </div>
+
   <!-- WAITER MODE MAIN TABLES SCREEN (DEFAULT FOR WAITER) -->
   <div id="waiterTablesScreen" style="display:none;min-height:100vh;background:#F8FAFC;padding-bottom:30px">
     <!-- Waiter Terminal Top Dashboard Header -->
@@ -1521,20 +1538,7 @@
       </div>
     </div>
 
-  <!-- TOP APP DOWNLOAD BANNER (Hides if downloaded / dismissed) -->
-  <div class="app-download-bar" id="appDownloadBanner">
-    <button class="app-dl-close" onclick="dismissAppBanner()" title="Close banner">✕</button>
-    <div class="app-dl-logo">
-      <img src="/Logo.png" alt="Foodypay App" onerror="this.src='https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=100&q=80'">
-    </div>
-    <div class="app-dl-info">
-      <div class="app-dl-title">Foodypay App <span class="app-dl-tag">FREE</span></div>
-      <div class="app-dl-desc">Fast ordering &amp; table offers</div>
-    </div>
-    <button class="btn-app-download" onclick="handleAppDownload()">
-      <span>📥 Install</span>
-    </button>
-  </div>
+
 
   <!-- TOP HEADER (DARK SLATE/NAVY WITH CURVED BOTTOM) -->
   <header class="hero-header">
@@ -1619,7 +1623,7 @@
       <div>
         <div style="display:flex;align-items:center;gap:6px">
           <span class="live-pulse-dot" id="lotStatusDot"></span>
-          <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.5px;color:#CA8A04" id="lotStatusBadge">👨‍🍳 Cooking in Kitchen</span>
+          <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.5px;color:#CA8A04" id="lotStatusBadge">Cooking in Kitchen</span>
         </div>
         <h4 style="margin:4px 0 0;font-size:15px;font-weight:900;color:#0F172A" id="lotGreetingText">
           Running Order on <span id="lotTableName" style="color:#EA580C">Table 1</span>
@@ -1639,34 +1643,34 @@
     </div>
     <div style="display:flex;justify-content:space-between;font-size:10.5px;font-weight:700;color:#64748B;margin-bottom:12px">
       <span id="lotLabelStep1" style="color:#2563EB">Order Placed</span>
-      <span id="lotLabelStep2" style="color:#CA8A04">👨‍🍳 Cooking in Kitchen</span>
+      <span id="lotLabelStep2" style="color:#CA8A04">Cooking in Kitchen</span>
       <span id="lotLabelStep3">Ready / Bill</span>
     </div>
 
     <!-- Items Quick Preview (Expandable) -->
-    <div id="lotItemsListAccordion" style="max-height:0;overflow:hidden;transition:max-height 0.3s ease;border-top:1px dashed #E2E8F0;padding-top:0;margin-top:0">
+    <div id="lotItemsListAccordion" style="max-height:400px;overflow-y:auto;transition:max-height 0.3s ease;border-top:1px dashed #E2E8F0;padding-top:8px;margin-top:8px">
       <div id="lotItemsListContent" style="padding-top:8px;display:flex;flex-direction:column;gap:6px;font-size:12px;color:#334155"></div>
     </div>
 
     <!-- Action Buttons -->
-    <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-      <button onclick="toggleLotItemsAccordion()" style="flex:1;min-width:110px;background:#F1F5F9;border:1px solid #CBD5E1;color:#334155;padding:8px 10px;border-radius:9px;font-size:11.5px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px">
-        <span id="lotToggleItemsText">👁️ View Dishes</span>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <button id="lotAddMoreBtn" onclick="scrollToMenu()" style="flex:1;min-width:120px;background:#0F172A;border:none;color:#fff;padding:9px 12px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 2px 8px rgba(15,23,42,0.2)">
+        <span>+ Add More Items</span>
       </button>
 
-      <button id="lotClaimOrderBtn" onclick="openClaimOrderModal()" style="flex:1.4;min-width:140px;background:#EA580C;border:none;color:#fff;padding:8px 12px;border-radius:9px;font-size:11.5px;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 2px 6px rgba(234,88,12,0.25)">
-        <span>👤 Link My Details to Bill</span>
+      <button id="lotClaimOrderBtn" onclick="openClaimOrderModal()" style="flex:1.3;min-width:130px;background:#EA580C;border:none;color:#fff;padding:9px 12px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 2px 6px rgba(234,88,12,0.25)">
+        <span>Link My Details to Bill</span>
       </button>
     </div>
   </div>
 
   <!-- CATEGORY PILLS BAR -->
   <div class="cats-wrapper" id="catsBar">
-    <button class="cat-pill active" onclick="selectCategory('All', this)">☀️ All Items</button>
-    <button class="cat-pill" onclick="selectCategory('Starters', this)">🥔 Starters</button>
-    <button class="cat-pill" onclick="selectCategory('Main Course', this)">🍲 Main Courses</button>
-    <button class="cat-pill" onclick="selectCategory('Drinks', this)">🧋 Drinks</button>
-    <button class="cat-pill" onclick="selectCategory('Dessert', this)">🍯 Dessert</button>
+    <button class="cat-pill active" onclick="selectCategory('All', this)">All Items</button>
+    <button class="cat-pill" onclick="selectCategory('Starters', this)">Starters</button>
+    <button class="cat-pill" onclick="selectCategory('Main Course', this)">Main Courses</button>
+    <button class="cat-pill" onclick="selectCategory('Drinks', this)">Drinks</button>
+    <button class="cat-pill" onclick="selectCategory('Dessert', this)">Dessert</button>
   </div>
 
 
@@ -1674,7 +1678,7 @@
   <!-- SECTION TITLE (e.g. Main Courses (3)) -->
   <div id="sectionHeaderWrap">
     <div class="section-header-title" id="dynamicSectionTitle">
-      <span>🍲 Main Courses</span>
+      <span>Main Courses</span>
       <span class="section-counter-badge" id="sectionItemCount">(3)</span>
     </div>
   </div>
@@ -1717,10 +1721,10 @@
       <span>QR Scan</span>
     </button>
 
-    <!-- 3. Coupons -->
-    <button class="nav-dock-item" id="navCouponsBtn" onclick="openCouponsModal()">
-      <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
-      <span>Coupons</span>
+    <!-- 3. My Order / Bill -->
+    <button class="nav-dock-item" id="navOrdersBtn" onclick="openCheckoutModal()">
+      <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+      <span>My Order</span>
     </button>
   </nav>
 
@@ -1784,12 +1788,12 @@
     </div>
 
     <div class="payment-notice">
-      <span>💵</span>
+      
       <span>Payment on Table / Counter: Pay via UPI QR or Cash after food arrives</span>
     </div>
 
     <button class="btn-submit-order" id="btnPlaceOrder" onclick="placeOrder()">
-      <span>🚀 Confirm &amp; Send to Kitchen</span>
+      <span>Confirm &amp; Send to Kitchen</span>
     </button>
   </div>
 </div>
@@ -1797,7 +1801,7 @@
 <!-- ORDER CONFIRMATION MODAL -->
 <div class="sheet-overlay" id="successModal" style="display:none">
   <div class="sheet-modal" style="border-radius:26px;text-align:center;padding:26px 20px">
-    <div style="font-size:48px;margin-bottom:8px">🎉</div>
+    <div style="margin-bottom:8px"><svg style="width:48px;height:48px;color:#16a34a;stroke:currentColor;fill:none;stroke-width:2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
     <h2 style="font-size:20px;font-weight:900;color:var(--dark);margin-bottom:6px">Order Sent to Kitchen!</h2>
     <p style="color:#64748B;font-size:13.5px;margin-bottom:16px">The chef has received your order and started preparing it fresh.</p>
 
@@ -1858,7 +1862,7 @@
 </div>
 
 <!-- COUPONS MODAL DRAWER -->
-<div class="sheet-overlay" id="couponsModal" style="display:none" onclick="if(event.target===this)closeCouponsModal()">
+<div class="sheet-overlay" id="couponsModal" style="display:none!important" onclick="if(event.target===this)closeCouponsModal()">
   <div class="sheet-modal">
     <div class="sheet-drag-handle"></div>
     <div class="sheet-header">
@@ -2161,9 +2165,30 @@
     const cleanTable = currentTable.toLowerCase().startsWith('table') ? currentTable : `Table ${currentTable}`;
     currentTable = cleanTable;
 
+    const qName = url.searchParams.get('name') || url.searchParams.get('restName') || url.searchParams.get('storeName');
+    if (qName) {
+      const cleanName = decodeURIComponent(qName).trim();
+      if (cleanName) {
+        document.getElementById('storeNameText').textContent = cleanName;
+        document.title = `${cleanName} - Digital Menu`;
+        updateStoreLogoInitial(cleanName);
+      }
+    }
+
     document.getElementById('modalTableBadge').textContent = currentTable;
     document.getElementById('qrActiveTableText').textContent = currentTable;
     document.getElementById('tableQrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(window.location.href)}`;
+  }
+
+  function updateStoreLogoInitial(name, logoUrl) {
+    const wrap = document.getElementById('storeLogoWrap');
+    if (!wrap) return;
+    if (logoUrl) {
+      wrap.innerHTML = `<img src="${logoUrl}" alt="${name}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`;
+    } else {
+      const initial = (name || 'F').trim().charAt(0).toUpperCase();
+      wrap.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-weight:900;font-size:20px;border-radius:12px;box-shadow:0 3px 10px rgba(234,88,12,0.3)">${initial}</div>`;
+    }
   }
 
   // Waiter Order Terminal Handlers
@@ -2179,11 +2204,9 @@
     // Apply waiter mode body class (automatically hides bottom dock nav and app download banner)
     document.body.classList.add('is-waiter-mode');
 
-    const dlBanner = document.getElementById('appDownloadBanner');
-    if (dlBanner) dlBanner.style.display = 'none';
-
     const btmDock = document.getElementById('bottomDockNav');
     if (btmDock) btmDock.style.display = 'none';
+    checkAppDownloadStatus();
 
     // 1. Try restoring session from saved Waiter JWT
     if (currentWaiterJwt) {
@@ -2779,7 +2802,7 @@
      CUSTOMER DINE-IN LIVE ORDER TRACKING & CLAIMING
   ───────────────────────────────────────────────────────── */
   let customerActiveTableOrder = null;
-  let lotItemsExpanded = false;
+  let lotItemsExpanded = true;
 
   async function fetchCustomerActiveTableOrder() {
     if (isWaiterMode || !currentTable || !merchantUniqueId) return;
@@ -2832,21 +2855,21 @@
 
     if (isReadyOrBill) {
       if (dot) dot.style.background = '#22C55E';
-      if (badge) { badge.textContent = '🍽️ Food Ready / Bill Generated'; badge.style.color = '#15803D'; }
+      if (badge) { badge.textContent = 'Food Ready / Bill Generated'; badge.style.color = '#15803D'; }
       if (s1) s1.style.background = '#22C55E';
       if (s2) s2.style.background = '#22C55E';
       if (s3) s3.style.background = '#22C55E';
       if (l3) l3.style.color = '#15803D';
     } else if (isCooking) {
       if (dot) dot.style.background = '#EAB308';
-      if (badge) { badge.textContent = '👨‍🍳 Cooking in Kitchen (KOT Placed)'; badge.style.color = '#CA8A04'; }
+      if (badge) { badge.textContent = 'Cooking in Kitchen (KOT Placed)'; badge.style.color = '#CA8A04'; }
       if (s1) s1.style.background = '#2563EB';
       if (s2) s2.style.background = '#EAB308';
       if (s3) s3.style.background = '#E2E8F0';
       if (l2) l2.style.color = '#CA8A04';
     } else {
       if (dot) dot.style.background = '#2563EB';
-      if (badge) { badge.textContent = '📋 Order Placed with Reception'; badge.style.color = '#1D4ED8'; }
+      if (badge) { badge.textContent = 'Order Placed with Reception'; badge.style.color = '#1D4ED8'; }
       if (s1) s1.style.background = '#2563EB';
       if (s2) s2.style.background = '#E2E8F0';
       if (s3) s3.style.background = '#E2E8F0';
@@ -2860,14 +2883,14 @@
 
     if (greeting) {
       if (hasRealCust) {
-        greeting.innerHTML = `👋 Hi <b>${escapeHtml(order.customer)}</b>! Order on <span style="color:#EA580C">${escapeHtml(currentTable)}</span>`;
+        greeting.innerHTML = `Hi <b>${escapeHtml(order.customer)}</b>! Order on <span style="color:#EA580C">${escapeHtml(currentTable)}</span>`;
       } else {
         greeting.innerHTML = `Running Order on <span style="color:#EA580C">${escapeHtml(currentTable)}</span>`;
       }
     }
 
     if (claimBtn) {
-      claimBtn.innerHTML = hasRealCust ? '<span>✏️ Edit My Bill Details</span>' : '<span>👤 Link My Details to Bill</span>';
+      claimBtn.innerHTML = hasRealCust ? '<span>Edit My Bill Details</span>' : '<span>Link My Details to Bill</span>';
     }
 
     // Render dishes accordion content
@@ -2896,7 +2919,7 @@
       acc.style.maxHeight = '0';
       acc.style.paddingTop = '0';
       acc.style.marginTop = '0';
-      if (btnText) btnText.textContent = '👁️ View Dishes';
+      if (btnText) btnText.textContent = 'View Dishes';
     }
   }
 
@@ -3025,7 +3048,10 @@
     const container = document.getElementById('menuContainer');
 
     try {
-      const res = await fetch(`/api/crm/menu/${encodeURIComponent(merchantUniqueId)}`);
+      const url = new URL(window.location.href);
+      const qName = url.searchParams.get('name') || url.searchParams.get('restName') || url.searchParams.get('storeName') || '';
+      const menuUrl = `/api/crm/menu/${encodeURIComponent(merchantUniqueId)}${qName ? '?name=' + encodeURIComponent(qName) : ''}`;
+      const res = await fetch(menuUrl);
       const json = await res.json();
 
       if (!json.success || !json.data) {
@@ -3033,9 +3059,11 @@
       }
 
       storeData = json.data;
-      if (storeData.businessName) {
-        document.getElementById('storeNameText').textContent = storeData.businessName;
-      }
+      const finalName = storeData.businessName || 'Food Outlet';
+      document.getElementById('storeNameText').textContent = finalName;
+      document.title = `${finalName} - Menu & Ordering`;
+      updateStoreLogoInitial(finalName, storeData.logo);
+
       if (storeData.logo) {
         document.getElementById('userProfileImg').src = storeData.logo;
       }
@@ -3071,7 +3099,7 @@
 
   function renderCategories(categories) {
     const catsBar = document.getElementById('catsBar');
-    let h = `<button class="cat-pill ${activeCategory === 'All' ? 'active' : ''}" onclick="selectCategory('All', this)">☀️ All Items</button>`;
+    let h = `<button class="cat-pill ${activeCategory === 'All' ? 'active' : ''}" onclick="selectCategory('All', this)">All Items</button>`;
 
     const distinctCats = categories.length ? categories : Array.from(new Set(catalogProducts.map(p => p.cat || 'Main Course'))).filter(Boolean);
     distinctCats.forEach(c => {
@@ -3382,7 +3410,7 @@
       document.getElementById('btnPlaceOrder').innerHTML = '<span>🚀 Send KOT to Kitchen (Punch)</span>';
     } else {
       document.getElementById('modalTableBadge').textContent = currentTable;
-      document.getElementById('btnPlaceOrder').innerHTML = '<span>🚀 Confirm &amp; Send to Kitchen</span>';
+      document.getElementById('btnPlaceOrder').innerHTML = '<span>Confirm &amp; Send to Kitchen</span>';
     }
 
     modal.style.display = 'flex';
@@ -3479,18 +3507,38 @@
       updateCartBar();
 
       if (isWaiterMode) {
-        showToast(`✅ Order punched & KOT printed at Reception for ${currentTable}!`);
+        showToast(`Order punched & KOT printed at Reception for ${currentTable}!`);
         setTimeout(() => {
           showWaiterTablesScreen();
         }, 500);
       } else {
-        document.getElementById('successModal').style.display = 'flex';
+        // Customer Mode: Auto-dismiss modal, show toast, and display the live running order!
+        showToast('Order Sent to Kitchen! Preparing fresh.');
+        document.getElementById('successModal').style.display = 'none';
+
+        // Fetch and show active running order on table
+        await fetchCustomerActiveTableOrder();
+
+        // Scroll smoothly to active order card
+        setTimeout(() => {
+          const tracker = document.getElementById('customerLiveOrderTracker');
+          if (tracker) {
+            tracker.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 200);
       }
     } catch (err) {
       alert('Order submission error: ' + err.message);
     } finally {
       btn.disabled = false;
-      btn.innerHTML = '<span>🚀 Confirm &amp; Send to Kitchen</span>';
+      btn.innerHTML = '<span>Confirm &amp; Send to Kitchen</span>';
+    }
+  }
+
+  function scrollToMenu() {
+    const target = document.getElementById('catsBar') || document.getElementById('dishesGridContainer');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
 
@@ -3541,7 +3589,7 @@
     }
 
     activeCouponName = code;
-    showToast(`🎉 Coupon ${code} Applied! Saved ₹${appliedDiscount}`);
+    showToast(`Coupon ${code} Applied! Saved ₹${appliedDiscount}`);
     closeCouponsModal();
     updateCartBar();
     if (document.getElementById('checkoutModal').style.display === 'flex') {

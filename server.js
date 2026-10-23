@@ -163,6 +163,9 @@ app.use('/crm', express.static(crmDir));
 app.get('/', (req, res) => {
   res.sendFile(path.join(crmDir, 'index.html'));
 });
+app.get(['/dashboard', '/pos'], (req, res) => {
+  res.sendFile(path.join(crmDir, 'dashboard.html'));
+});
 
 // Serve static public assets (customer menu, icons, styles)
 app.use(express.static(path.join(__dirname, 'public')));

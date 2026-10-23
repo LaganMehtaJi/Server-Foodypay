@@ -107,6 +107,7 @@ export const registerUser = async (req, res, next) => {
       contactNo: finalContactNo,
       logo: logoData,
       authProvider: 'local',
+      isEmailVerified: Boolean(req.body.isEmailVerified),
       subscriptionPlan: planName,
       subscriptionExpiry: new Date(expiryDate),
       subscriptionStatus: userStatus,
@@ -116,7 +117,12 @@ export const registerUser = async (req, res, next) => {
     });
 
     if (user) {
-      const token = generateToken(user._id);
+      if (req.body.isEmailVerified && !user.isEmailVerified) {
+      user.isEmailVerified = true;
+      await user.save();
+    }
+
+    const token = generateToken(user._id);
 
       res.status(201).json({
         success: true,
@@ -128,6 +134,7 @@ export const registerUser = async (req, res, next) => {
           businessName: user.businessName,
           contactNo: user.contactNo,
           logo: user.logo,
+          isEmailVerified: user.isEmailVerified,
           token,
         },
       });
@@ -202,6 +209,7 @@ export const loginUser = async (req, res, next) => {
         businessName: user.businessName,
         contactNo: user.contactNo,
         logo: user.logo,
+        isEmailVerified: user.isEmailVerified,
         token,
       },
     });

@@ -1,7 +1,7 @@
 {
-  "name": "Foodypay Digital Menu",
-  "short_name": "Foodypay",
-  "start_url": "/menu/FP-624358/2",
+  "name": "FoodyPay App",
+  "short_name": "FoodyPay",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#112338",
   "theme_color": "#112338",

@@ -26,6 +26,13 @@ export const getCoupons = async (req, res, next) => {
  */
 export const getPublicCustomerCoupons = async (req, res, next) => {
   try {
+    // Customer coupons disabled: customers currently have no active coupons
+    return res.json({
+      success: true,
+      count: 0,
+      data: [],
+      message: 'No coupons active for customers at this time.'
+    });
     const { phone, email, merchantId, foodypayId } = req.query;
 
     let userQuery = {};
