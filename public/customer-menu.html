@@ -1972,29 +1972,32 @@
 
 <!-- WAITER PIN / ID LOGIN MODAL -->
 <div class="sheet-overlay" id="waiterLoginModal" style="display:none">
-  <div class="sheet-modal" style="text-align:center">
+  <div class="sheet-modal" style="text-align:center;max-width:390px;margin:0 auto;border-radius:24px;padding:24px 20px">
     <div class="sheet-drag-handle"></div>
-    <div style="font-size:42px;margin:8px 0">🤵</div>
-    <h3 style="font-size:18px;font-weight:900;color:#0F172A">Waiter Terminal Login</h3>
-    <p style="font-size:13px;color:#64748B;margin:6px 0 16px">Enter Merchant ID, Employee ID &amp; PIN to securely unlock</p>
+    <div style="width:54px;height:54px;border-radius:16px;background:#FFF4ED;color:#EA580C;display:flex;align-items:center;justify-content:center;margin:6px auto 12px;border:1.5px solid #FED7AA;box-shadow:0 4px 14px rgba(234,88,12,0.15)">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </div>
+    <h3 style="font-size:18px;font-weight:900;color:#0F172A;margin:0 0 4px" id="waiterLoginTitle">Waiter Terminal Login</h3>
+    <p style="font-size:12.5px;color:#64748B;margin:0 0 16px">Security PIN enter karke terminal unlock karein</p>
 
-    <div class="form-group" style="text-align:left">
-      <label style="font-size:12px;font-weight:800;color:#334155">Merchant / Restaurant ID</label>
-      <input type="text" id="inputMerchantId" placeholder="e.g. FP-624358 or SYS-007KX1" style="font-weight:700">
+    <div class="form-group" style="text-align:left;display:none" id="merchantIdGroup">
+      <label style="font-size:11.5px;font-weight:800;color:#334155">Merchant / Outlet ID</label>
+      <input type="text" id="inputMerchantId" placeholder="e.g. FP-445920" style="font-weight:700" readonly>
     </div>
 
     <div class="form-group" style="text-align:left">
-      <label style="font-size:12px;font-weight:800;color:#334155">Unique Waiter / Employee ID</label>
-      <input type="text" id="inputWaiterId" placeholder="e.g. W-01, waiter-rahul, or FP-624358-W-Rahul" autocomplete="username">
+      <label style="font-size:11.5px;font-weight:800;color:#334155">Waiter / Employee ID</label>
+      <input type="text" id="inputWaiterId" placeholder="e.g. waiter-rahul" style="font-weight:700;background:#F8FAFC" autocomplete="username">
     </div>
 
     <div class="form-group" style="text-align:left">
-      <label style="font-size:12px;font-weight:800;color:#334155">Passcode / PIN</label>
-      <input type="password" id="inputWaiterPin" placeholder="Enter PIN / Passcode" maxlength="20" autocomplete="current-password">
+      <label style="font-size:11.5px;font-weight:800;color:#334155">Security PIN</label>
+      <input type="password" id="inputWaiterPin" placeholder="● ● ● ●" maxlength="6" inputmode="numeric" pattern="[0-9]*" style="font-size:22px;letter-spacing:8px;text-align:center;font-weight:900;padding:10px;border:2px solid #EA580C;border-radius:12px;background:#FFF8F4" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitWaiterLogin()">
     </div>
 
-    <button class="btn-submit-order" style="background:#4F46E5;margin-top:10px" onclick="submitWaiterLogin()">
-      <span>🔓 Secure Login (JWT Verified)</span>
+    <button class="btn-submit-order" style="background:#EA580C;margin-top:14px;box-shadow:0 4px 15px rgba(234,88,12,0.35)" onclick="submitWaiterLogin()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      <span>Unlock Waiter Terminal</span>
     </button>
   </div>
 </div>
@@ -2216,14 +2219,17 @@
         });
         const meData = await meRes.json();
         if (meData.success && meData.waiter) {
-          currentWaiterId = meData.waiter.employeeId;
-          currentWaiterName = meData.waiter.name;
-          currentWaiterAssignedTables = meData.waiter.assignedTables || [];
-          showToast(`🤵 Welcome, ${currentWaiterName}! (JWT Verified)`);
-          showWaiterTablesScreen();
-          return;
+          const waiterEmpId = (meData.waiter.employeeId || '').toLowerCase();
+          const targetEmpId = (currentWaiterId || '').toLowerCase();
+          if (!targetEmpId || waiterEmpId === targetEmpId) {
+            currentWaiterId = meData.waiter.employeeId;
+            currentWaiterName = meData.waiter.name;
+            currentWaiterAssignedTables = meData.waiter.assignedTables || [];
+            showToast(`Welcome, ${currentWaiterName}!`);
+            showWaiterTablesScreen();
+            return;
+          }
         } else {
-          // Token invalid or expired
           currentWaiterJwt = '';
           localStorage.removeItem('fp_waiter_jwt');
         }
@@ -2233,9 +2239,7 @@
     }
 
     if (!currentWaiterId) {
-      const mInput = document.getElementById('inputMerchantId');
-      if (mInput) mInput.value = merchantUniqueId;
-      document.getElementById('waiterLoginModal').style.display = 'flex';
+      promptWaiterPinLogin();
       return;
     }
 
@@ -2246,18 +2250,35 @@
         currentWaiterName = json.data.name;
         currentWaiterId = json.data.employeeId;
         currentWaiterAssignedTables = Array.isArray(json.data.assignedTables) ? json.data.assignedTables : [];
-      } else {
-        const mInput = document.getElementById('inputMerchantId');
-        if (mInput) mInput.value = merchantUniqueId;
-        document.getElementById('waiterLoginModal').style.display = 'flex';
-        return;
       }
     } catch (e) {
       console.warn('Waiter check error:', e);
     }
 
-    showToast(`🤵 Waiter Terminal Active: ${currentWaiterName}`);
-    showWaiterTablesScreen();
+    // Require PIN login upon QR scan
+    promptWaiterPinLogin();
+  }
+
+  function promptWaiterPinLogin() {
+    const modal = document.getElementById('waiterLoginModal');
+    if (!modal) return;
+    const mInput = document.getElementById('inputMerchantId');
+    if (mInput) mInput.value = merchantUniqueId;
+    const wInput = document.getElementById('inputWaiterId');
+    if (wInput) wInput.value = currentWaiterId || '';
+    const pinInput = document.getElementById('inputWaiterPin');
+    if (pinInput) {
+      pinInput.value = '';
+      setTimeout(() => pinInput.focus(), 300);
+    }
+    const titleEl = document.getElementById('waiterLoginTitle');
+    if (titleEl) {
+      titleEl.innerHTML = currentWaiterName
+        ? `Unlock for <b>${currentWaiterName}</b>`
+        : 'Waiter Terminal Login';
+    }
+    modal.style.display = 'flex';
+  }
   }
 
   function showWaiterTablesScreen() {
@@ -2521,6 +2542,8 @@
 
                 const itemsCount = (order.items || []).reduce((sum, it) => sum + (Number(it.qty) || 1), 0);
                 const itemsNames = (order.items || []).slice(0, 2).map(it => `${it.qty}x ${it.name}`).join(', ');
+                const itemsSum = (order.items || []).reduce((sum, it) => sum + ((Number(it.price !== undefined ? it.price : it.p) || 0) * (Number(it.qty) || 1)), 0);
+                const cardDisplayTotal = (itemsSum > 0) ? Math.max(0, itemsSum - Number(order.discount || 0)) : Number(order.total || 0);
 
                 return `
                   <div class="waiter-table-box occupied" style="background:${cardBg};border:1.5px solid ${cardBorder}" onclick="showWaiterMenuScreen('${displayName}')">
@@ -2530,7 +2553,7 @@
                     </div>
 
                     <div style="margin:4px 0">
-                      <div class="waiter-tb-amount" style="font-size:16px;font-weight:900;color:#0f172a">₹${order.total || 0}</div>
+                      <div class="waiter-tb-amount" style="font-size:16px;font-weight:900;color:#0f172a">₹${cardDisplayTotal}</div>
                       <div style="font-size:11.5px;font-weight:700;color:#334155">${order.waiterName ? `🤵 ${order.waiterName} · ` : ''}${statusLabel}</div>
                       <div class="waiter-tb-items-count">${itemsCount} items ${itemsNames ? `· <small style="color:#475569">${itemsNames}</small>` : ''}</div>
                     </div>
@@ -3035,8 +3058,8 @@
       currentWaiterAssignedTables = Array.isArray(data.data.assignedTables) ? data.data.assignedTables : [];
 
       document.getElementById('waiterLoginModal').style.display = 'none';
-      showToast(`🔓 Waiter Logged In: ${currentWaiterName} (JWT Active)`);
-      initWaiterMode();
+      showToast(`Welcome, ${currentWaiterName}!`);
+      showWaiterTablesScreen();
     } catch (e) {
       alert('Login error: ' + e.message);
     }
@@ -3379,12 +3402,19 @@
 
     itemsList.innerHTML = h || '<p style="color:#94a3b8;text-align:center;padding:20px 0">Your cart is empty</p>';
 
-    const taxRate = Number(storeData?.gstPercent || 0);
-    const discountedSubtotal = Math.max(0, subtotal - appliedDiscount);
-    const tax = taxRate > 0 ? Math.round((discountedSubtotal * taxRate) / 100) : 0;
-    const grandTotal = discountedSubtotal + tax;
+    const taxRate = Number(storeData?.gstPercent !== undefined ? storeData.gstPercent : 5);
+    const discountedTotal = Math.max(0, subtotal - appliedDiscount);
+    
+    // Inclusive GST Rule (Matching Dashboard: Total = 80, Subtotal = 76.19, GST = 3.81)
+    let taxableSubtotal = discountedTotal;
+    let taxAmount = 0;
+    if (taxRate > 0) {
+      taxableSubtotal = +(discountedTotal / (1 + taxRate / 100)).toFixed(2);
+      taxAmount = +(discountedTotal - taxableSubtotal).toFixed(2);
+    }
+    const grandTotal = discountedTotal;
 
-    document.getElementById('billSubtotal').textContent = `₹${subtotal}`;
+    document.getElementById('billSubtotal').textContent = `₹${taxableSubtotal.toFixed(2)}`;
     
     // Discount row
     if (appliedDiscount > 0) {
@@ -3395,10 +3425,10 @@
       document.getElementById('discountRow').style.display = 'none';
     }
 
-    if (tax > 0) {
+    if (taxAmount > 0) {
       document.getElementById('taxRow').style.display = 'flex';
       document.getElementById('billTaxRate').textContent = `${taxRate}%`;
-      document.getElementById('billTax').textContent = `₹${tax}`;
+      document.getElementById('billTax').textContent = `+₹${taxAmount.toFixed(2)}`;
     } else {
       document.getElementById('taxRow').style.display = 'none';
     }
@@ -3452,10 +3482,11 @@
       });
     });
 
-    const discountedSubtotal = Math.max(0, subtotal - appliedDiscount);
-    const taxRate = Number(storeData?.gstPercent || 0);
-    const tax = taxRate > 0 ? Math.round((discountedSubtotal * taxRate) / 100) : 0;
-    const total = discountedSubtotal + tax;
+    const discountedTotal = Math.max(0, subtotal - appliedDiscount);
+    const taxRate = Number(storeData?.gstPercent !== undefined ? storeData.gstPercent : 5);
+    const taxableSubtotal = taxRate > 0 ? +(discountedTotal / (1 + taxRate / 100)).toFixed(2) : discountedTotal;
+    const tax = taxRate > 0 ? +(discountedTotal - taxableSubtotal).toFixed(2) : 0;
+    const total = discountedTotal;
     const customer = document.getElementById('custName').value.trim() || (isWaiterMode ? `Diner (Served by ${currentWaiterName})` : 'Walk-in Guest');
     const phone = document.getElementById('custPhone').value.trim();
     const note = document.getElementById('orderNote').value.trim();
@@ -3468,7 +3499,7 @@
       phone,
       note,
       items,
-      subtotal,
+      subtotal: taxableSubtotal,
       discount: appliedDiscount,
       tax,
       total,
@@ -3610,6 +3641,8 @@
 
   // PWA & App Download Management
   let deferredPrompt = null;
+  let appReappearTimer = null;
+
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
@@ -3617,42 +3650,63 @@
 
   window.addEventListener('appinstalled', () => {
     localStorage.setItem('foodypay_app_downloaded', 'true');
+    if (appReappearTimer) clearTimeout(appReappearTimer);
     removeAppBanner();
   });
 
-  function checkAppDownloadStatus() {
+  function isAppDownloadedOrStandalone() {
     const isDownloaded = localStorage.getItem('foodypay_app_downloaded') === 'true';
-    const isDismissed = sessionStorage.getItem('foodypay_app_banner_dismissed') === 'true';
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    return isDownloaded || isStandalone;
+  }
 
-    if (isDownloaded || isDismissed || isStandalone) {
-      const banner = document.getElementById('appDownloadBanner');
-      if (banner) banner.style.display = 'none';
+  function configureAppBannerForMode() {
+    const titleEl = document.getElementById('appDlTitle');
+    const descEl = document.getElementById('appDlDesc');
+    const btnTextEl = document.getElementById('appDlBtnText');
+    if (!titleEl) return;
+
+    if (isWaiterMode) {
+      titleEl.innerHTML = `Waiter Terminal App <span class="app-dl-tag" style="background:#6366F1">WAITER</span>`;
+      if (descEl) descEl.textContent = 'Take table orders, print KOT & live sync';
+      if (btnTextEl) btnTextEl.textContent = 'Install App';
+    } else {
+      const storeName = storeData?.businessName || 'FoodyPay';
+      titleEl.innerHTML = `${storeName} App <span class="app-dl-tag" style="background:#22C55E">FREE</span>`;
+      if (descEl) descEl.textContent = 'Fast ordering, live tracking & bill';
+      if (btnTextEl) btnTextEl.textContent = 'Install App';
     }
   }
 
-  function handleAppDownload() {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === 'accepted') {
-          localStorage.setItem('foodypay_app_downloaded', 'true');
-          removeAppBanner();
-          showToast('✅ Foodypay App Installed!');
-        }
-        deferredPrompt = null;
-      });
-    } else {
-      // Mark as downloaded and store permanently
-      localStorage.setItem('foodypay_app_downloaded', 'true');
-      showToast('🚀 Foodypay App Downloaded!');
-      removeAppBanner();
+  function checkAppDownloadStatus() {
+    configureAppBannerForMode();
+    if (isAppDownloadedOrStandalone()) {
+      const banner = document.getElementById('appDownloadBanner');
+      if (banner) banner.style.display = 'none';
+      return;
     }
+    showAppBanner();
+  }
+
+  function showAppBanner() {
+    if (isAppDownloadedOrStandalone()) return;
+    const banner = document.getElementById('appDownloadBanner');
+    if (!banner) return;
+    configureAppBannerForMode();
+    banner.style.display = 'flex';
+    void banner.offsetWidth; // Force layout reflow
+    banner.classList.remove('hiding');
   }
 
   function dismissAppBanner() {
-    sessionStorage.setItem('foodypay_app_banner_dismissed', 'true');
     removeAppBanner();
+    // Schedule banner to reappear after exactly 10 seconds if user hasn't downloaded
+    if (appReappearTimer) clearTimeout(appReappearTimer);
+    appReappearTimer = setTimeout(() => {
+      if (!isAppDownloadedOrStandalone()) {
+        showAppBanner();
+      }
+    }, 10000);
   }
 
   function removeAppBanner() {
@@ -3662,6 +3716,35 @@
     setTimeout(() => {
       banner.style.display = 'none';
     }, 350);
+  }
+
+  function handleAppDownload() {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          localStorage.setItem('foodypay_app_downloaded', 'true');
+          if (appReappearTimer) clearTimeout(appReappearTimer);
+          removeAppBanner();
+          showToast('FoodyPay App Installed!');
+        } else {
+          // Re-trigger 10s timer if user dismissed native dialog
+          dismissAppBanner();
+        }
+        deferredPrompt = null;
+      });
+    } else {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      if (isIOS) {
+        showToast('Safari me Share button dabayein aur "Add to Home Screen" chunein');
+        dismissAppBanner();
+      } else {
+        localStorage.setItem('foodypay_app_downloaded', 'true');
+        if (appReappearTimer) clearTimeout(appReappearTimer);
+        removeAppBanner();
+        showToast('FoodyPay App Installed!');
+      }
+    }
   }
 
   // Initialize
