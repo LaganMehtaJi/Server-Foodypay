@@ -166,6 +166,9 @@ app.get('/', (req, res) => {
 app.get(['/dashboard', '/pos'], (req, res) => {
   res.sendFile(path.join(crmDir, 'dashboard.html'));
 });
+app.get(['/waiter.html', '/waiter-app'], (req, res) => {
+  res.sendFile(path.join(crmDir, 'waiter.html'));
+});
 
 // Serve static public assets (customer menu, icons, styles)
 app.use(express.static(path.join(__dirname, 'public')));
