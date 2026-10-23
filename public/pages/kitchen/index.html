@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kitchen Display System (KDS) · FoodyPay</title>
+  <link rel="stylesheet" href="/assets/css/shared.css">
+  <style>
+    body {
+      background: #0B0F19;
+      color: #F8FAFC;
+      padding: 16px;
+    }
+    .kds-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #1E293B;
+      margin-bottom: 20px;
+    }
+    .kds-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    .kds-ticket {
+      background: #151D2F;
+      border: 1.5px solid #1E293B;
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+    .kds-ticket.cooking {
+      border-color: #EAB308;
+    }
+    .kds-ticket.ready {
+      border-color: #22C55E;
+    }
+    .kds-ticket-head {
+      padding: 12px 16px;
+      background: #1E293B;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .kds-items-list {
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .kds-item-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14.5px;
+      font-weight: 700;
+    }
+    .kds-actions {
+      padding: 12px 16px;
+      background: #111827;
+      border-top: 1px solid #1E293B;
+      display: flex;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="kds-header">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="font-size:28px">👨‍🍳</div>
+      <div>
+        <h2 style="font-size:20px;font-weight:900;margin:0">Kitchen Order Tickets (KDS)</h2>
+        <div style="font-size:12px;color:#94A3B8">Live Kitchen Display Board · Auto-Sync 1.5s</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div id="kdsStatsPill" class="fp-badge yellow" style="font-size:12px;padding:6px 12px">
+        0 Active Tickets
+      </div>
+      <a href="/pages" class="fp-btn outline" style="color:#FFF;border-color:#334155;text-decoration:none;padding:6px 12px;font-size:12px">
+        ← Portal
+      </a>
+    </div>
+  </header>
+
+  <main class="kds-grid" id="kdsTicketsGrid">
+    <div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:#64748B">
+      <div style="font-size:40px;margin-bottom:12px">🍳</div>
+      <b style="font-size:16px;color:#94A3B8">Kitchen board is clear</b>
+      <p style="font-size:13px;margin-top:4px">New orders from Waiters or Customer QR will appear here instantly</p>
+    </div>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const foodypayId = params.get('foodypayId') || 'FP-624358';
+    let knownTickets = new Set();
+
+    function playBell() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.frequency.setValueAtTime(800, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.3);
+      } catch (e) {}
+    }
+
+    async function fetchKdsOrders() {
+      try {
+        const res = await fetch(`/api/orders/public?foodypayId=${encodeURIComponent(foodypayId)}&limit=30`);
+        const json = await res.json();
+        const orders = (json && Array.isArray(json.data)) ? json.data : [];
+
+        // Filter active non-settled orders
+        const active = orders.filter(o => o.status !== 'settled' && o.status !== 'completed' && o.status !== 'cancelled');
+
+        document.getElementById('kdsStatsPill').textContent = `${active.length} Active Ticket${active.length !== 1 ? 's' : ''}`;
+
+        let hasNew = false;
+        active.forEach(o => {
+          if (!knownTickets.has(o._id)) {
+            knownTickets.add(o._id);
+            hasNew = true;
+          }
+        });
+        if (hasNew && knownTickets.size > 1) playBell();
+
+        renderTickets(active);
+      } catch (e) {
+        console.warn('KDS fetch error:', e);
+      }
+    }
+
+    function renderTickets(tickets) {
+      const grid = document.getElementById('kdsTicketsGrid');
+      if (!tickets || !tickets.length) {
+        grid.innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:#64748B">
+            <div style="font-size:40px;margin-bottom:12px">🍳</div>
+            <b style="font-size:16px;color:#94A3B8">Kitchen board is clear</b>
+            <p style="font-size:13px;margin-top:4px">New orders from Waiters or Customer QR will appear here instantly</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = tickets.map(t => {
+        const isCooking = t.status === 'kot_printed' || t.kotPrinted || t.status === 'preparing';
+        const isReady = t.status === 'bill_printed' || t.status === 'ready' || t.status === 'served';
+        const cardClass = isReady ? 'ready' : (isCooking ? 'cooking' : '');
+        const elapsedMins = Math.floor((Date.now() - new Date(t.createdAt || Date.now()).getTime()) / 60000);
+
+        return `
+          <div class="kds-ticket ${cardClass}">
+            <div class="kds-ticket-head">
+              <div>
+                <b style="font-size:16px;color:#FFF">${t.table || 'Table 1'}</b>
+                <div style="font-size:11px;color:#94A3B8">${t.orderId || '#FP-NEW'} · ${t.waiterName ? '🤵 ' + t.waiterName : '👤 ' + (t.customer || 'Guest')}</div>
+              </div>
+              <div style="text-align:right">
+                <span class="fp-badge ${isReady ? 'green' : (isCooking ? 'yellow' : 'blue')}">
+                  ${isReady ? 'Ready' : (isCooking ? 'Cooking' : 'Received')}
+                </span>
+                <div style="font-size:11px;color:#94A3B8;margin-top:4px">⏱ ${elapsedMins}m ago</div>
+              </div>
+            </div>
+
+            <div class="kds-items-list">
+              ${(t.items || []).map(i => `
+                <div class="kds-item-row">
+                  <span><b style="color:#F59E0B">${i.qty}x</b> ${i.name} ${i.v && i.v !== 'Regular' ? '<small style="color:#94A3B8">(' + i.v + ')</small>' : ''}</span>
+                </div>
+              `).join('')}
+              ${t.note ? `<div style="font-size:12px;color:#FCA5A5;background:rgba(239,68,68,0.1);padding:6px 8px;border-radius:6px;margin-top:6px">⚠️ Note: ${t.note}</div>` : ''}
+            </div>
+
+            <div class="kds-actions">
+              <button onclick="markStatus('${t._id}', 'kot_printed')" class="fp-btn yellow" style="flex:1;padding:8px;font-size:12px">
+                👨‍🍳 Cooking
+              </button>
+              <button onclick="markStatus('${t._id}', 'bill_printed')" class="fp-btn" style="flex:1;background:#22C55E;color:#FFF;padding:8px;font-size:12px">
+                ✅ Done
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function markStatus(orderId, status) {
+      try {
+        await fetch(`/api/orders/public/${orderId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        fetchKdsOrders();
+      } catch (e) {
+        console.warn('Status update error:', e);
+      }
+    }
+
+    fetchKdsOrders();
+    setInterval(fetchKdsOrders, 2000);
+  </script>
+</body>
+</html>

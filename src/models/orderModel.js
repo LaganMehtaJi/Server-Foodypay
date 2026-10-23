@@ -1,14 +1,13 @@
 import mongoose from 'mongoose';
 
 const orderItemSchema = new mongoose.Schema({
-  name: { type: String, default: 'Item' },
-  qty: { type: Number, default: 1 },
-  quantity: { type: Number, default: 1 },
-  price: { type: Number, default: 0 },
+  pid: { type: String, default: '' },
+  name: { type: String, required: true },
+  v: { type: String, default: 'Regular' },
+  qty: { type: Number, required: true, default: 1 },
+  price: { type: Number, required: true },
   isVeg: { type: Boolean, default: true },
-  image: { type: String, default: '' },
-  customizations: { type: Array, default: [] },
-}, { _id: false, strict: false });
+});
 
 const orderSchema = new mongoose.Schema(
   {
@@ -17,6 +16,12 @@ const orderSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
       index: true,
+    },
+    foodypayId: {
+      type: String,
+      index: true,
+      trim: true,
+      default: '',
     },
     orderId: {
       type: String,
@@ -41,17 +46,22 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
+      enum: ['new', 'ordering', 'kot_printed', 'bill_printed', 'billed', 'settled', 'preparing', 'ready', 'out_for_delivery', 'dispatched', 'delivered', 'served', 'completed', 'cancelled'],
       default: 'new',
     },
+    kotPrinted: {
+      type: Boolean,
+      default: false,
+    },
+    printKotRequested: {
+      type: Boolean,
+      default: false,
+    },
+    kotPrintRequestedAt: {
+      type: String,
+      default: '',
+    },
     billPrinted: {
-      type: Boolean,
-      default: false,
-    },
-    isPaid: {
-      type: Boolean,
-      default: false,
-    },
-    tableCleared: {
       type: Boolean,
       default: false,
     },
@@ -63,40 +73,24 @@ const orderSchema = new mongoose.Schema(
       type: String,
       default: 'Cash',
     },
+    waiterId: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    waiterName: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    placedBy: {
+      type: String,
+      enum: ['Customer', 'Waiter', 'Counter'],
+      default: 'Customer',
+    },
     seen: {
       type: Boolean,
       default: false,
-    },
-    sentToKitchen: {
-      type: Boolean,
-      default: false,
-    },
-    kitchenSeen: {
-      type: Boolean,
-      default: false,
-    },
-    hasPendingKot: {
-      type: Boolean,
-      default: false,
-    },
-    kitchenSentAt: {
-      type: Date,
-    },
-    businessId: {
-      type: String,
-      default: '',
-    },
-    merchantId: {
-      type: String,
-      default: '',
-    },
-    foodypayId: {
-      type: String,
-      default: '',
-    },
-    merchantFilter: {
-      type: String,
-      default: '',
     },
     paymentStatus: {
       type: String,

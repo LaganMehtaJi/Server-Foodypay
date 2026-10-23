@@ -144,7 +144,7 @@ export const verifyRazorpaySignature = async (req, res, next) => {
           .update(`${razorpayOrderId}|${razorpayPaymentId}`)
           .digest('hex');
         isValid = generatedSignature === razorpaySignature;
-      } catch (e) {
+      } catch  {
         isValid = true;
       }
     }

@@ -5,25 +5,34 @@ import {
   updateDish,
   toggleDishStock,
   deleteDish,
+  bulkMigrateDishes,
 } from '../controllers/dishController.js';
 import upload from '../middlewares/uploadMiddleware.js';
-import { protect, optionalProtect } from '../middlewares/authMiddleware.js';
+import { protect } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
+// Public & Bulk endpoints
 router.get('/public', getDishes);
-router.get('/', optionalProtect, getDishes);
+router.post('/bulk-migrate', bulkMigrateDishes);
 
-router.use(protect);
+// Optional auth helper middleware: if Authorization header present, verify, else proceed
+const optionalAuth = (req, res, next) => {
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    return protect(req, res, next);
+  }
+  next();
+};
 
 router.route('/')
-  .post(upload.single('image'), createDish);
+  .get(optionalAuth, getDishes)
+  .post(optionalAuth, upload.single('image'), createDish);
 
 router.route('/:id')
-  .put(upload.single('image'), updateDish)
-  .delete(deleteDish);
+  .put(optionalAuth, upload.single('image'), updateDish)
+  .delete(optionalAuth, deleteDish);
 
 router.route('/:id/stock')
-  .patch(toggleDishStock);
+  .patch(optionalAuth, toggleDishStock);
 
 export default router;

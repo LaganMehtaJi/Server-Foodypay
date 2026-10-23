@@ -4,42 +4,44 @@ import {
   getOrderStats,
   createOrder,
   createPublicOrder,
+  claimPublicOrder,
+  updatePublicOrder,
+  deletePublicOrder,
   getPublicOrders,
+  syncPosTableStatus,
   updateOrder,
   updateOrderStatus,
   markOrderSeen,
   deleteOrder,
 } from '../controllers/orderController.js';
-import { protect, optionalProtect } from '../middlewares/authMiddleware.js';
+import { protect, optionalWaiterProtect, protectWaiter } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-// Public routes for QR code table ordering, Kitchen KDS, and POS operations
+// Public route for QR code table ordering, Waiter App, and Merchant POS Sync
 router.get('/public', getPublicOrders);
-router.post('/public', createPublicOrder);
-router.put('/public/:id/status', updateOrderStatus);
-router.put('/public/:id/kitchen-seen', markOrderSeen);
-router.put('/public/:id', updateOrder);
-
-// Allow GET and PUT with optional token so unauthenticated or local sessions don't get 401
-router.get('/', optionalProtect, getOrders);
-router.route('/:id')
-  .put(optionalProtect, updateOrder);
-
-router.route('/:id/status')
-  .put(optionalProtect, updateOrderStatus);
+router.post('/public', optionalWaiterProtect, createPublicOrder);
+router.post('/public/claim', claimPublicOrder);
+router.put('/public/:id', optionalWaiterProtect, updatePublicOrder);
+router.delete('/public/:id', protectWaiter, deletePublicOrder);
+router.post('/pos/sync-table-status', syncPosTableStatus);
 
 router.use(protect);
 
 router.get('/stats', getOrderStats);
 
 router.route('/')
+  .get(getOrders)
   .post(createOrder);
+
+router.route('/:id/status')
+  .put(updateOrderStatus);
 
 router.route('/:id/seen')
   .put(markOrderSeen);
 
 router.route('/:id')
+  .put(updateOrder)
   .delete(deleteOrder);
 
 export default router;

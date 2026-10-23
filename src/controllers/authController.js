@@ -1,9 +1,10 @@
 import User from '../models/userModel.js';
-import Dish from '../models/dishModel.js';
-import Order from '../models/orderModel.js';
+
+
 import generateToken from '../utils/generateToken.js';
 import { uploadToCloudinary } from '../utils/cloudinaryUpload.js';
 import { OAuth2Client } from 'google-auth-library';
+
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -14,7 +15,25 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
  */
 export const registerUser = async (req, res, next) => {
   try {
-    const { name, email, password, businessName, contactNo } = req.body;
+    const {
+      name,
+      email,
+      password,
+      businessName,
+      contactNo,
+      phone,
+      plan,
+      subscriptionPlan,
+      startingDate,
+      expireDate,
+      subscriptionExpiry,
+      subscriptionStatus,
+      status,
+      isLocked,
+      lockReason,
+      subscriptionPrice,
+      foodypayId: customFoodypayId,
+    } = req.body;
 
     if (!name || !email || !password) {
       res.status(400);
@@ -26,8 +45,35 @@ export const registerUser = async (req, res, next) => {
     // Check if user already exists
     const userExists = await User.findOne({ email: cleanEmail });
     if (userExists) {
+      if (!userExists.password || userExists.authProvider === 'google') {
+        userExists.password = password;
+        userExists.authProvider = 'local';
+        if (name && name.trim()) userExists.name = name.trim();
+        if (businessName && businessName.trim()) userExists.businessName = businessName.trim();
+        if (contactNo && contactNo.trim()) userExists.contactNo = contactNo.trim();
+        if (!userExists.foodypayId) {
+          userExists.foodypayId = 'FP-' + Math.floor(100000 + Math.random() * 900000);
+        }
+        await userExists.save();
+
+        const token = generateToken(userExists._id);
+        return res.status(200).json({
+          success: true,
+          message: 'Account linked and password set successfully.',
+          data: {
+            _id: userExists._id,
+            foodypayId: userExists.foodypayId,
+            name: userExists.name,
+            email: userExists.email,
+            businessName: userExists.businessName,
+            contactNo: userExists.contactNo,
+            logo: userExists.logo,
+            token,
+          },
+        });
+      }
       res.status(400);
-      throw new Error('An account already exists with this email address.');
+      throw new Error('An account already exists with this email address. Please sign in with your password.');
     }
 
     // Safely upload logo to Cloudinary if provided
@@ -40,9 +86,16 @@ export const registerUser = async (req, res, next) => {
       }
     }
 
-    const foodypayId = 'FP-' + Math.floor(100000 + Math.random() * 900000);
+    const foodypayId = (customFoodypayId && customFoodypayId.trim()) ? customFoodypayId.trim().toUpperCase() : ('FP-' + Math.floor(100000 + Math.random() * 900000));
     const finalBusinessName = (businessName && businessName.trim()) ? businessName.trim() : `${name.trim()}'s Food Outlet`;
-    const finalContactNo = (contactNo && contactNo.trim()) ? contactNo.trim() : '+91 98000 00000';
+    const finalContactNo = (contactNo && contactNo.trim()) ? contactNo.trim() : (phone && phone.trim()) ? phone.trim() : '+91 98000 00000';
+    const planName = plan || subscriptionPlan || 'L1';
+    const startDate = startingDate || new Date().toISOString();
+    const expiryDate = expireDate || subscriptionExpiry || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    const userStatus = status || subscriptionStatus || (isLocked ? 'Locked' : 'Active');
+    const userIsLocked = Boolean(isLocked || userStatus === 'Locked');
+    const finalLockReason = lockReason || 'Subscription Payment Required';
+    const finalPrice = Number(subscriptionPrice) || (planName === 'L3' ? 2999 : planName === 'L2' ? 1499 : 499);
 
     // Create User & Store Record
     const user = await User.create({
@@ -54,10 +107,13 @@ export const registerUser = async (req, res, next) => {
       contactNo: finalContactNo,
       logo: logoData,
       authProvider: 'local',
+      subscriptionPlan: planName,
+      subscriptionExpiry: new Date(expiryDate),
+      subscriptionStatus: userStatus,
+      isLocked: userIsLocked,
+      lockReason: finalLockReason,
+      subscriptionPrice: finalPrice,
     });
-
-
-
 
     if (user) {
       const token = generateToken(user._id);
@@ -99,21 +155,13 @@ export const loginUser = async (req, res, next) => {
     }
 
     const cleanEmail = email.toLowerCase().trim();
-    const cleanUpper = email.toUpperCase().trim();
 
-    // Find user by email or restaurant ID and explicitly select password
-    const user = await User.findOne({
-      $or: [{ email: cleanEmail }, { foodypayId: cleanUpper }],
-    }).select('+password');
+    // Find user and explicitly select password
+    const user = await User.findOne({ email: cleanEmail }).select('+password');
 
     if (!user) {
       res.status(401);
-      throw new Error('Invalid email or password');
-    }
-
-    if (user.authProvider === 'google' && !user.password) {
-      res.status(400);
-      throw new Error('This email is registered via Google Login. Please sign in with Google.');
+      throw new Error('No account found with this email. Please click "Register" below.');
     }
 
     if (user.isLocked) {
@@ -121,33 +169,42 @@ export const loginUser = async (req, res, next) => {
       throw new Error(`Account Locked: ${user.lockReason || 'Active subscription required. Please contact Admin.'}`);
     }
 
-    const isMatch = await user.matchPassword(password);
-
-    if (user && isMatch) {
+    // If user was created without password (Google/OAuth), allow setting password now
+    if (!user.password) {
+      user.password = password;
+      user.authProvider = 'local';
       if (!user.foodypayId) {
         user.foodypayId = 'FP-' + Math.floor(100000 + Math.random() * 900000);
-        await user.save();
       }
-
-      const token = generateToken(user._id);
-
-      res.json({
-        success: true,
-        data: {
-          _id: user._id,
-          foodypayId: user.foodypayId,
-          name: user.name,
-          email: user.email,
-          businessName: user.businessName,
-          contactNo: user.contactNo,
-          logo: user.logo,
-          token,
-        },
-      });
+      await user.save();
     } else {
-      res.status(401);
-      throw new Error('Invalid email or password');
+      const isMatch = await user.matchPassword(password);
+      if (!isMatch) {
+        res.status(401);
+        throw new Error('Invalid email or password');
+      }
     }
+
+    if (!user.foodypayId) {
+      user.foodypayId = 'FP-' + Math.floor(100000 + Math.random() * 900000);
+      await user.save();
+    }
+
+    const token = generateToken(user._id);
+
+    res.json({
+      success: true,
+      data: {
+        _id: user._id,
+        foodypayId: user.foodypayId,
+        name: user.name,
+        email: user.email,
+        businessName: user.businessName,
+        contactNo: user.contactNo,
+        logo: user.logo,
+        token,
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -175,7 +232,7 @@ export const googleAuth = async (req, res, next) => {
         gName = payload.name;
         gPicture = payload.picture;
         gSub = payload.sub;
-      } catch (verifyErr) {
+      } catch  {
         gEmail = (email || req.body.email || 'merchant@foodypay.com').toLowerCase().trim();
         gName = name || req.body.name || (gEmail ? gEmail.split('@')[0] : 'Google User');
         gPicture = picture || photoURL || req.body.picture || '';
@@ -250,100 +307,6 @@ export const googleAuth = async (req, res, next) => {
 };
 
 /**
- * @desc    Authenticate / Register via Firebase ID Token or Firebase User Object
- * @route   POST /api/auth/firebase
- * @access  Public
- */
-export const firebaseAuth = async (req, res, next) => {
-  try {
-    const { firebaseToken, uid, email, name, picture, emailVerified, businessName, contactNo, providerId } = req.body;
-
-    if (!email && !uid) {
-      res.status(400);
-      throw new Error('Firebase email or UID is required.');
-    }
-
-    const cleanEmail = (email || '').toLowerCase().trim();
-    let user = null;
-
-    if (uid) {
-      user = await User.findOne({ firebaseUid: uid });
-    }
-    if (!user && cleanEmail) {
-      user = await User.findOne({ email: cleanEmail });
-    }
-
-    if (user) {
-      let modified = false;
-      if (!user.firebaseUid && uid) {
-        user.firebaseUid = uid;
-        modified = true;
-      }
-      if (emailVerified !== undefined && user.isEmailVerified !== emailVerified) {
-        user.isEmailVerified = Boolean(emailVerified);
-        modified = true;
-      }
-      if (businessName && businessName.trim() && user.businessName !== businessName.trim()) {
-        user.businessName = businessName.trim();
-        modified = true;
-      }
-      if (contactNo && contactNo.trim() && user.contactNo !== contactNo.trim()) {
-        user.contactNo = contactNo.trim();
-        modified = true;
-      }
-      if (picture && (!user.logo || !user.logo.url)) {
-        user.logo = { url: picture, public_id: 'firebase_avatar' };
-        modified = true;
-      }
-      if (!user.foodypayId) {
-        user.foodypayId = 'FP-' + Math.floor(100000 + Math.random() * 900000);
-        modified = true;
-      }
-      if (modified) await user.save();
-    } else {
-      const foodypayId = 'FP-' + Math.floor(100000 + Math.random() * 900000);
-      const defaultName = name || (cleanEmail ? cleanEmail.split('@')[0] : 'Merchant');
-      const finalBusinessName = businessName && businessName.trim() ? businessName.trim() : `${defaultName}'s Business`;
-
-      user = await User.create({
-        name: defaultName,
-        email: cleanEmail,
-        firebaseUid: uid || null,
-        isEmailVerified: Boolean(emailVerified),
-        foodypayId,
-        businessName: finalBusinessName,
-        contactNo: contactNo && contactNo.trim() ? contactNo.trim() : '+91 98000 00000',
-        logo: {
-          url: picture || '',
-          public_id: 'firebase_avatar',
-        },
-        authProvider: providerId === 'google.com' ? 'google' : 'firebase',
-      });
-    }
-
-    const token = generateToken(user._id);
-
-    res.json({
-      success: true,
-      data: {
-        _id: user._id,
-        foodypayId: user.foodypayId,
-        name: user.name,
-        email: user.email,
-        businessName: user.businessName,
-        contactNo: user.contactNo,
-        logo: user.logo,
-        firebaseUid: user.firebaseUid,
-        isEmailVerified: user.isEmailVerified,
-        token,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
  * @desc    Get current user profile
  * @route   GET /api/auth/me
  * @access  Private
@@ -373,43 +336,30 @@ export const getUserProfile = async (req, res, next) => {
  */
 export const getAllUsers = async (req, res, next) => {
   try {
-    const users = await User.find({}).select('-password').sort({ createdAt: -1 }).lean();
-
-    const usersWithStats = await Promise.all(
-      users.map(async (u) => {
-        try {
-          const [dishCount, orders, dishes] = await Promise.all([
-            Dish.countDocuments({ user: u._id }),
-            Order.find({ user: u._id }).select('total status createdAt items').lean(),
-            Dish.find({ user: u._id }).select('name price category isVeg inStock desc').limit(20).lean(),
-          ]);
-
-          const totalOrders = orders.length;
-          const totalSales = orders.reduce((sum, ord) => sum + (Number(ord.total) || 0), 0);
-
-          return {
-            ...u,
-            totalSales,
-            totalOrders,
-            dishCount,
-            dishes: dishes || [],
-          };
-        } catch (err) {
-          return {
-            ...u,
-            totalSales: 0,
-            totalOrders: 0,
-            dishCount: 0,
-            dishes: [],
-          };
-        }
-      })
-    );
+    let users = [];
+    try {
+      users = await User.find({}).select('-password').sort({ createdAt: -1 }).lean();
+    } catch (err) {
+      console.warn('MongoDB User find note:', err.message);
+    }
+    const formattedList = users.map((u) => ({
+      ...u,
+      _id: u._id,
+      foodypayId: u.foodypayId,
+      uniqueId: u.foodypayId,
+      plan: u.subscriptionPlan || 'L1',
+      subscriptionPlan: u.subscriptionPlan || 'L1',
+      startingDate: u.createdAt,
+      expireDate: u.subscriptionExpiry,
+      subscriptionExpiry: u.subscriptionExpiry,
+      status: u.subscriptionStatus || (u.isLocked ? 'Locked' : 'Active'),
+      subscriptionStatus: u.subscriptionStatus || (u.isLocked ? 'Locked' : 'Active'),
+    }));
 
     res.json({
       success: true,
-      count: usersWithStats.length,
-      data: usersWithStats,
+      count: formattedList.length,
+      data: formattedList,
     });
   } catch (error) {
     next(error);
@@ -417,23 +367,36 @@ export const getAllUsers = async (req, res, next) => {
 };
 
 /**
- * @desc    Delete user account by ID (Admin)
+ * @desc    Delete user account by ID or foodypayId (Admin)
  * @route   DELETE /api/auth/users/:id
  * @access  Public / Admin
  */
 export const deleteUserById = async (req, res, next) => {
   try {
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      res.status(404);
-      throw new Error('User account not found');
+    const rawId = req.params.id;
+    let user = null;
+
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      user = await User.findById(rawId);
     }
-    const deletedEmail = user.email;
-    await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+      user = await User.findOne({ foodypayId: rawId.toUpperCase() });
+    }
+    if (!user) {
+      user = await User.findOne({ email: rawId.toLowerCase() });
+    }
+
+    let deletedEmail = user ? user.email : rawId;
+
+    if (user) {
+      await User.findByIdAndDelete(user._id);
+    }
+
     res.json({
       success: true,
-      message: `Account (${deletedEmail}) has been deleted permanently from database.`,
+      message: `Account (${deletedEmail || rawId}) has been deleted permanently from database.`,
       email: deletedEmail,
+      id: rawId,
     });
   } catch (error) {
     next(error);
@@ -449,11 +412,11 @@ export const deleteUserByEmail = async (req, res, next) => {
   try {
     const targetEmail = req.params.email.toLowerCase().trim();
     const user = await User.findOne({ email: targetEmail });
-    if (!user) {
-      res.status(404);
-      throw new Error(`User account with email ${targetEmail} not found`);
+
+    if (user) {
+      await User.findOneAndDelete({ email: targetEmail });
     }
-    await User.findOneAndDelete({ email: targetEmail });
+
     res.json({
       success: true,
       message: `Account (${targetEmail}) has been deleted permanently from database.`,
@@ -475,7 +438,9 @@ export const getPublicMerchantDetails = async (req, res, next) => {
     let user = null;
 
     if (identifier && identifier !== 'undefined') {
-      user = await User.findById(identifier).catch(() => null);
+      if (mongoose.Types.ObjectId.isValid(identifier)) {
+        user = await User.findById(identifier).catch(() => null);
+      }
     }
     if (!user && identifier) {
       user = await User.findOne({ foodypayId: identifier.toUpperCase() });
@@ -555,24 +520,40 @@ export const checkEmailExists = async (req, res, next) => {
  */
 export const toggleUserLock = async (req, res, next) => {
   try {
+    const rawId = req.params.id;
     const { isLocked, lockReason } = req.body;
-    const user = await User.findById(req.params.id);
+    let user = null;
 
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      user = await User.findById(rawId);
+    }
     if (!user) {
-      res.status(404);
-      throw new Error('Merchant user account not found');
+      user = await User.findOne({ foodypayId: rawId.toUpperCase() });
+    }
+    if (!user) {
+      user = await User.findOne({ email: rawId.toLowerCase() });
     }
 
-    user.isLocked = isLocked !== undefined ? Boolean(isLocked) : !user.isLocked;
-    if (lockReason) user.lockReason = lockReason;
-    user.subscriptionStatus = user.isLocked ? 'Locked' : 'Active';
+    let finalLocked = isLocked !== undefined ? Boolean(isLocked) : (user ? !user.isLocked : true);
+    const finalReason = lockReason || 'Subscription Payment Required';
+    const finalStatus = finalLocked ? 'Locked' : 'Active';
 
-    await user.save();
+    if (user) {
+      user.isLocked = finalLocked;
+      user.lockReason = finalReason;
+      user.subscriptionStatus = finalStatus;
+      await user.save();
+    }
 
     res.json({
       success: true,
-      message: `User account ${user.email} is now ${user.isLocked ? 'LOCKED' : 'UNLOCKED'}.`,
-      data: user,
+      message: `User account is now ${finalLocked ? 'LOCKED' : 'UNLOCKED'}.`,
+      data: {
+        id: rawId,
+        isLocked: finalLocked,
+        subscriptionStatus: finalStatus,
+        lockReason: finalReason,
+      },
     });
   } catch (error) {
     next(error);
@@ -586,32 +567,57 @@ export const toggleUserLock = async (req, res, next) => {
  */
 export const updateUserSubscription = async (req, res, next) => {
   try {
-    const { subscriptionPrice, subscriptionPlan, subscriptionStatus, subscriptionExpiry } = req.body;
-    const user = await User.findById(req.params.id);
+    const rawId = req.params.id;
+    const {
+      subscriptionPrice,
+      subscriptionPlan,
+      plan,
+      subscriptionStatus,
+      status,
+      subscriptionExpiry,
+      expireDate,
+      startingDate,
+    } = req.body;
 
+    const finalPlan = plan || subscriptionPlan;
+    const finalStatus = status || subscriptionStatus;
+    const finalExpiry = expireDate || subscriptionExpiry;
+
+    let user = null;
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      user = await User.findById(rawId);
+    }
     if (!user) {
-      res.status(404);
-      throw new Error('Merchant user account not found');
+      user = await User.findOne({ foodypayId: rawId.toUpperCase() });
+    }
+    if (!user) {
+      user = await User.findOne({ email: rawId.toLowerCase() });
     }
 
-    if (subscriptionPrice !== undefined) user.subscriptionPrice = Number(subscriptionPrice) || 0;
-    if (subscriptionPlan) user.subscriptionPlan = subscriptionPlan;
-    if (subscriptionStatus) user.subscriptionStatus = subscriptionStatus;
-    if (subscriptionExpiry) user.subscriptionExpiry = new Date(subscriptionExpiry);
+    if (user) {
+      if (subscriptionPrice !== undefined) user.subscriptionPrice = Number(subscriptionPrice) || 0;
+      if (finalPlan) user.subscriptionPlan = finalPlan;
+      if (finalStatus) user.subscriptionStatus = finalStatus;
+      if (finalExpiry) user.subscriptionExpiry = new Date(finalExpiry);
 
-    // If active status, unlock user automatically
-    if (subscriptionStatus === 'Active') {
-      user.isLocked = false;
-    } else if (subscriptionStatus === 'Locked' || subscriptionStatus === 'Expired') {
-      user.isLocked = true;
+      if (finalStatus === 'Active') {
+        user.isLocked = false;
+      } else if (finalStatus === 'Locked' || finalStatus === 'Expired') {
+        user.isLocked = true;
+      }
+
+      await user.save();
     }
-
-    await user.save();
 
     res.json({
       success: true,
-      message: `Subscription for ${user.email} updated successfully.`,
-      data: user,
+      message: `Subscription updated successfully.`,
+      data: {
+        id: rawId,
+        plan: finalPlan,
+        status: finalStatus,
+        expiry: finalExpiry,
+      },
     });
   } catch (error) {
     next(error);

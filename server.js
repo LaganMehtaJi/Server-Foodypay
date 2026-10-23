@@ -2,10 +2,11 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import http from 'http';
-import https from 'https';
+
+
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
 
 import connectDB from './src/config/db.js';
@@ -24,13 +25,16 @@ import notificationRoutes from './src/routes/notificationRoutes.js';
 import deliveryZoneRoutes from './src/routes/deliveryZoneRoutes.js';
 import storeRoutes from './src/routes/storeRoutes.js';
 import customerLocationRoutes from './src/routes/customerLocationRoutes.js';
+import printRoutes from './src/routes/printRoutes.js';
+import crmRoutes from './src/routes/crmRoutes.js';
+import staffRoutes from './src/routes/staffRoutes.js';
 import { notFound, errorHandler } from './src/middlewares/errorMiddleware.js';
 
 // Load environment variables
 dotenv.config();
 
 // Connect MongoDB as primary database
-connectDB();
+connectDB().catch(() => {});
 
 const app = express();
 
@@ -91,16 +95,36 @@ const getSystemStatus = (req, res) => {
 
   const memUsage = process.memoryUsage();
 
+  // Determine stage / prod / dev
+  // Checks APP_ENV, STAGE, NODE_ENV or optional req.query.env override
+  const rawEnv = (
+    req.query.env ||
+    process.env.APP_ENV ||
+    process.env.STAGE ||
+    process.env.NODE_ENV ||
+    'production'
+  ).toString().toLowerCase();
+
+  const isProd = rawEnv.includes('prod');
+  const isStage = rawEnv.includes('stage') || rawEnv.includes('staging');
+  const currentStage = isProd ? 'prod' : isStage ? 'stage' : 'development';
+  const environmentName = isProd ? 'production' : isStage ? 'staging' : rawEnv;
+  const branchName = process.env.BRANCH || process.env.GIT_BRANCH || process.env.RENDER_GIT_BRANCH || (isProd ? 'prod' : isStage ? 'stage' : 'main');
+
   res.status(200).json({
     status: 'online',
     success: true,
     service: 'FoodyPay API Server',
-    Developer: 'Lagan Mehta',
     version: '1.0.0',
+    stage: currentStage,                 // 'prod' | 'stage' | 'development'
+    environment: environmentName,        // 'production' | 'staging' | 'development'
+    branch: branchName,                  // 'prod' | 'stage' | 'main'
+    isProduction: isProd,
+    isStaging: isStage,
+    message: isProd ? 'FoodyPay API is running on PRODUCTION (prod)' : isStage ? 'FoodyPay API is running on STAGING (stage)' : `FoodyPay API is running on ${environmentName}`,
     timestamp: new Date().toISOString(),
     uptime: `${hours}h ${minutes}m ${seconds}s`,
     uptimeSeconds: Math.floor(uptimeSeconds),
-    environment: process.env.NODE_ENV || 'development',
     database: {
       status: dbStateMap[mongoose.connection.readyState] || 'unknown',
       host: mongoose.connection.host || '127.0.0.1',
@@ -129,6 +153,46 @@ app.get('/status', getSystemStatus);
 app.get('/api/status', getSystemStatus);
 app.get('/api/health', getSystemStatus);
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve static CRM Merchant POS Dashboard at root (/) and /crm
+const crmDir = path.join(__dirname, '..', 'crm');
+app.use(express.static(crmDir));
+app.use('/crm', express.static(crmDir));
+app.get('/', (req, res) => {
+  res.sendFile(path.join(crmDir, 'index.html'));
+});
+
+// Serve static public assets (customer menu, icons, styles)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Clean modular page routes (Frontend Portal, Waiter Login, Kitchen Display System)
+app.get(['/pages', '/portal'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'pages', 'index.html'));
+});
+app.get(['/login', '/waiter/login'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'pages', 'waiter', 'login.html'));
+});
+app.get(['/kitchen', '/kds'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'pages', 'kitchen', 'index.html'));
+});
+
+// Public table QR customer self-ordering & Waiter order-taking web routes
+app.get([
+  '/menu/:uniqueId/waiter/:waiterId',
+  '/menu/:uniqueId/:table/waiter/:waiterId',
+  '/:uniqueId/waiter/:waiterId',
+  '/waiter/:uniqueId/:waiterId',
+  '/waiter/:uniqueId',
+  '/waiter',
+  '/menu/:uniqueId/:table',
+  '/menu/:uniqueId',
+  '/order'
+], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'customer-menu.html'));
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
@@ -146,6 +210,9 @@ app.use('/api/delivery', deliveryZoneRoutes);
 app.use('/api/stores', storeRoutes);
 app.use('/api/customer/location', customerLocationRoutes);
 app.use('/api/customer', customerLocationRoutes);
+app.use('/api/print', printRoutes);
+app.use('/api/crm', crmRoutes);
+app.use('/api/staff', staffRoutes);
 
 // Error Handling Middlewares
 app.use(notFound);

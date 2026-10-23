@@ -100,6 +100,10 @@ const dishSchema = new mongoose.Schema(
   }
 );
 
+dishSchema.index({ sku: 1, category: 1 });
+dishSchema.index({ user: 1, category: 1 });
+dishSchema.index({ name: 'text', desc: 'text' });
+
 const Dish = mongoose.model('Dish', dishSchema);
 
 export default Dish;

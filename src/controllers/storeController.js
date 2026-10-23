@@ -1,6 +1,5 @@
 import Store from '../models/storeModel.js';
 import StoreDeliveryZone from '../models/storeDeliveryZoneModel.js';
-import DeliveryZone from '../models/deliveryZoneModel.js';
 import User from '../models/userModel.js';
 
 // @desc    Get all stores

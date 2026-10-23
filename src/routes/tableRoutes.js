@@ -6,16 +6,14 @@ import {
   updateTableStatus,
   deleteTable,
 } from '../controllers/tableController.js';
-import { protect, optionalProtect } from '../middlewares/authMiddleware.js';
+import { protect } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
-
-router.get('/public', getTables);
-router.get('/', optionalProtect, getTables);
 
 router.use(protect);
 
 router.route('/')
+  .get(getTables)
   .post(createTable);
 
 router.route('/:id/status')

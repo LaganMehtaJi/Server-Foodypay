@@ -1,34 +1,13 @@
 import Table from '../models/tableModel.js';
-import User from '../models/userModel.js';
 
 /**
- * @desc    Get all tables for authenticated user or merchant foodypayId
+ * @desc    Get all tables for authenticated user
  * @route   GET /api/tables
- * @access  Private / Public
+ * @access  Private
  */
 export const getTables = async (req, res, next) => {
   try {
-    let filter = {};
-    if (req.user) {
-      filter = { user: req.user._id };
-    } else {
-      const { merchantId, foodypayId } = req.query;
-      let targetUser = null;
-      if (merchantId && merchantId !== 'undefined') {
-        targetUser = await User.findById(merchantId).catch(() => null);
-      }
-      if (!targetUser && foodypayId && foodypayId !== 'undefined') {
-        targetUser = await User.findOne({ foodypayId }).catch(() => null);
-      }
-
-      if (targetUser) {
-        filter = { user: targetUser._id };
-      } else {
-        return res.json({ success: true, count: 0, data: [] });
-      }
-    }
-
-    const tables = await Table.find(filter).sort({ createdAt: 1 });
+    const tables = await Table.find({ user: req.user._id }).sort({ createdAt: 1 });
     res.json({
       success: true,
       count: tables.length,

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoodyPay Frontend Portal · Modular Application Suite</title>
+  <link rel="stylesheet" href="/assets/css/shared.css">
+  <style>
+    .portal-hero {
+      background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+      color: #FFF;
+      padding: 48px 20px 40px;
+      text-align: center;
+      border-bottom-left-radius: 28px;
+      border-bottom-right-radius: 28px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    .portal-grid {
+      max-width: 1080px;
+      margin: -24px auto 60px;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .app-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      margin-bottom: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="portal-hero">
+    <div style="display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,0.1);padding:6px 14px;border-radius:99px;font-size:12px;font-weight:700;color:#CBD5E1;margin-bottom:16px">
+      <span style="width:8px;height:8px;border-radius:50%;background:#22C55E;box-shadow:0 0 8px #22C55E"></span>
+      FoodyPay Production Platform Active
+    </div>
+    <h1 style="font-size:32px;font-weight:900;letter-spacing:-0.5px">Frontend Application Suite</h1>
+    <p style="font-size:15px;color:#94A3B8;max-width:540px;margin:8px auto 0;line-height:1.5">
+      Select an application portal below. All interfaces are synchronized in real-time with the Node.js primary engine.
+    </p>
+  </header>
+
+  <main class="portal-grid">
+    <!-- 1. Waiter Order Terminal -->
+    <div class="fp-card" style="border-top:4px solid #2563EB">
+      <div class="app-icon" style="background:#EFF6FF;color:#2563EB">🤵</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 style="font-size:18px;font-weight:900">Waiter Mobile Terminal</h3>
+        <span class="fp-badge blue">JWT Secured</span>
+      </div>
+      <p style="font-size:13.5px;color:#64748B;margin:8px 0 16px;line-height:1.5">
+        Mobile-optimized terminal for staff to take orders, manage dining tables, and trigger silent physical KOT printouts on Reception.
+      </p>
+      <div style="display:flex;gap:10px">
+        <a href="/waiter" class="fp-btn primary" style="flex:1;text-decoration:none">Open Terminal</a>
+        <a href="/login" class="fp-btn outline" style="text-decoration:none">Login</a>
+      </div>
+    </div>
+
+    <!-- 2. Customer QR Menu & Live Tracking -->
+    <div class="fp-card" style="border-top:4px solid #EA580C">
+      <div class="app-icon" style="background:#FFF7ED;color:#EA580C">📱</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 style="font-size:18px;font-weight:900">Customer Digital QR Menu</h3>
+        <span class="fp-badge yellow">Live Tracking</span>
+      </div>
+      <p style="font-size:13.5px;color:#64748B;margin:8px 0 16px;line-height:1.5">
+        Scannable table menu with live kitchen cooking tracking, self-ordering, special coupons, and order claiming.
+      </p>
+      <a href="/menu/FP-624358/Table-1" class="fp-btn dark" style="width:100%;text-decoration:none">Preview Table 1 Menu</a>
+    </div>
+
+    <!-- 3. Reception POS & Billing -->
+    <div class="fp-card" style="border-top:4px solid #16A34A">
+      <div class="app-icon" style="background:#F0FDF4;color:#16A34A">🖥️</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 style="font-size:18px;font-weight:900">Reception POS &amp; Billing</h3>
+        <span class="fp-badge green">Desktop / Web</span>
+      </div>
+      <p style="font-size:13.5px;color:#64748B;margin:8px 0 16px;line-height:1.5">
+        Full-featured Cashier POS, Dine-In table grid, thermal hardware spooling, delivery/pickup, and live cloud synchronization.
+      </p>
+      <a href="/" class="fp-btn outline" style="width:100%;text-decoration:none">Launch POS Dashboard</a>
+    </div>
+
+    <!-- 4. Kitchen Display System (KDS) -->
+    <div class="fp-card" style="border-top:4px solid #F59E0B">
+      <div class="app-icon" style="background:#FEF3C7;color:#D97706">👨‍🍳</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 style="font-size:18px;font-weight:900">Kitchen Display (KDS)</h3>
+        <span class="fp-badge yellow">Realtime</span>
+      </div>
+      <p style="font-size:13.5px;color:#64748B;margin:8px 0 16px;line-height:1.5">
+        Live KOT ticket board for chefs and kitchen staff with cooking timers and instant audio chime notifications.
+      </p>
+      <a href="/kitchen" class="fp-btn outline" style="width:100%;text-decoration:none">Open Kitchen Board</a>
+    </div>
+  </main>
+
+</body>
+</html>

@@ -12,18 +12,18 @@ const connectDB = async () => {
     return conn;
   } catch (error) {
     if (mongoUri !== FALLBACK_ATLAS_URI) {
-      console.warn(`⚠️ Primary MongoDB connection failed (${error.message}). Retrying with Cloud Atlas fallback cluster...`);
+      console.warn(`⚠️ Primary MongoDB connection failed (${error.message}). Retrying with Cloud Atlas cluster...`);
       try {
         const connFallback = await mongoose.connect(FALLBACK_ATLAS_URI, {
           serverSelectionTimeoutMS: 5000,
         });
-        console.log(`✅ MongoDB Primary Database Connected via Cloud Atlas: ${connFallback.connection.host}`);
+        console.log(`✅ MongoDB Connected via Cloud Atlas Cluster: ${connFallback.connection.host}`);
         return connFallback;
       } catch (fbErr) {
-        console.error(`❌ MongoDB Database Connection Error: ${fbErr.message}`);
+        console.error(`❌ MongoDB Connection Error: ${fbErr.message}`);
       }
     } else {
-      console.error(`❌ MongoDB Database Connection Error: ${error.message}`);
+      console.error(`❌ MongoDB Connection Error: ${error.message}`);
     }
   }
 };

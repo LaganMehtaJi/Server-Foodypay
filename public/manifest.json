@@ -1,0 +1,15 @@
+{
+  "name": "Foodypay Digital Menu",
+  "short_name": "Foodypay",
+  "start_url": "/menu/FP-624358/2",
+  "display": "standalone",
+  "background_color": "#112338",
+  "theme_color": "#112338",
+  "icons": [
+    {
+      "src": "/Logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ]
+}

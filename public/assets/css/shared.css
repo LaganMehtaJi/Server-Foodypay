@@ -1,0 +1,82 @@
+:root {
+  --primary: #EA580C;
+  --primary-hover: #C2410C;
+  --primary-light: #FFEDD5;
+  --dark: #0F172A;
+  --dark-surface: #1E293B;
+  --border: #E2E8F0;
+  --text: #0F172A;
+  --text-muted: #64748B;
+  --success: #16A34A;
+  --warning: #EAB308;
+  --info: #2563EB;
+  --danger: #EF4444;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 6px 16px -2px rgba(15,23,42,0.08);
+  --shadow-lg: 0 20px 30px -8px rgba(15,23,42,0.12);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: #F8FAFC;
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.fp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.fp-badge.yellow { background: #FEF9C3; color: #854D0E; border: 1px solid #FDE047; }
+.fp-badge.blue { background: #DBEAFE; color: #1E40AF; border: 1px solid #93C5FD; }
+.fp-badge.green { background: #DCFCE7; color: #166534; border: 1px solid #86EFAC; }
+.fp-badge.red { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+
+.fp-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 16px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.fp-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.fp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+}
+.fp-btn:active { transform: scale(0.98); }
+.fp-btn.primary { background: var(--primary); color: #FFF; }
+.fp-btn.dark { background: var(--dark); color: #FFF; }
+.fp-btn.yellow { background: #FACC15; color: #713F12; }
+.fp-btn.outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }

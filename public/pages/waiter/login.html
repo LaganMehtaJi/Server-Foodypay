@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waiter Terminal Login · FoodyPay</title>
+  <link rel="stylesheet" href="/assets/css/shared.css">
+  <style>
+    body {
+      background: radial-gradient(circle at top right, #1E293B, #0F172A);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .login-box {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      padding: 36px 28px;
+      width: 100%;
+      max-width: 400px;
+      color: #FFF;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      text-align: center;
+    }
+    .form-group {
+      text-align: left;
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 800;
+      color: #94A3B8;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    input {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: #FFF;
+      font-size: 14.5px;
+      font-weight: 700;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus {
+      border-color: #38BDF8;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-box">
+    <div style="font-size:44px;margin-bottom:12px">🤵</div>
+    <h2 style="font-size:22px;font-weight:900;margin-bottom:6px">Waiter Terminal Login</h2>
+    <p style="font-size:13px;color:#94A3B8;margin-bottom:24px">Authenticate with your Restaurant ID, Employee ID &amp; PIN</p>
+
+    <div class="form-group">
+      <label>Restaurant / Merchant ID</label>
+      <input type="text" id="merchantIdInput" placeholder="e.g. FP-624358 or SYS-007KX1" value="FP-624358">
+    </div>
+
+    <div class="form-group">
+      <label>Waiter / Employee ID</label>
+      <input type="text" id="employeeIdInput" placeholder="e.g. W-01, waiter-rahul" autofocus>
+    </div>
+
+    <div class="form-group">
+      <label>Passcode / PIN</label>
+      <input type="password" id="pinInput" placeholder="Enter PIN (e.g. 1234)" maxlength="20">
+    </div>
+
+    <button onclick="handleLogin()" id="btnLogin" class="fp-btn primary" style="width:100%;padding:13px;font-size:15px;margin-top:10px">
+      <span>🔓 Unlock Terminal (JWT Protected)</span>
+    </button>
+
+    <div id="statusMsg" style="margin-top:14px;font-size:13px;min-height:20px;font-weight:700"></div>
+
+    <div style="margin-top:20px;border-top:1px solid rgba(255,255,255,0.08);padding-top:16px;font-size:12px;color:#64748B">
+      Powered by FoodyPay Autonomous Engine
+    </div>
+  </div>
+
+  <script>
+    // Prefill from URL query if present
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('merchantId')) document.getElementById('merchantIdInput').value = params.get('merchantId');
+    if (params.get('waiterId')) document.getElementById('employeeIdInput').value = params.get('waiterId');
+
+    async function handleLogin() {
+      const merchantId = document.getElementById('merchantIdInput').value.trim();
+      const employeeId = document.getElementById('employeeIdInput').value.trim();
+      const pin = document.getElementById('pinInput').value.trim();
+      const btn = document.getElementById('btnLogin');
+      const status = document.getElementById('statusMsg');
+
+      if (!employeeId) {
+        status.textContent = '⚠️ Please enter Employee ID';
+        status.style.color = '#F87171';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>Verifying credentials…</span>';
+      status.textContent = '';
+
+      try {
+        const res = await fetch('/api/staff/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ foodypayId: merchantId, employeeId, pin })
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+          throw new Error(data.message || 'Login failed');
+        }
+
+        if (data.token) {
+          localStorage.setItem('fp_waiter_jwt', data.token);
+        }
+
+        status.textContent = `✅ Welcome ${data.data.name}! Redirecting…`;
+        status.style.color = '#4ADE80';
+
+        setTimeout(() => {
+          window.location.href = `/waiter/${encodeURIComponent(merchantId)}/${encodeURIComponent(data.data.employeeId)}`;
+        }, 600);
+      } catch (err) {
+        status.textContent = `❌ ${err.message}`;
+        status.style.color = '#F87171';
+        btn.disabled = false;
+        btn.innerHTML = '<span>🔓 Unlock Terminal (JWT Protected)</span>';
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleLogin();
+    });
+  </script>
+</body>
+</html>
