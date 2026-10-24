@@ -177,10 +177,7 @@ app.get([
   '/menu/:uniqueId/:table/waiter/:waiterId',
   '/:uniqueId/waiter/:waiterId'
 ], (req, res) => {
-  const waiterFile = fs.existsSync(path.join(__dirname, 'public', 'waiter.html'))
-    ? path.join(__dirname, 'public', 'waiter.html')
-    : path.join(crmDir, 'waiter.html');
-  res.sendFile(waiterFile);
+  res.sendFile(path.join(__dirname, 'public', 'customer-menu.html'));
 });
 
 // Customer / Client Table QR Routes: domain/client/:merchantId/:table or domain/order/:merchantId/:table
@@ -197,10 +194,7 @@ app.get([
   '/menu/:uniqueId/:table',
   '/menu/:uniqueId'
 ], (req, res) => {
-  const orderFile = fs.existsSync(path.join(__dirname, 'public', 'order.html'))
-    ? path.join(__dirname, 'public', 'order.html')
-    : path.join(crmDir, 'order.html');
-  res.sendFile(orderFile);
+  res.sendFile(path.join(__dirname, 'public', 'customer-menu.html'));
 });
 
 // Serve static public assets (customer menu, icons, styles)

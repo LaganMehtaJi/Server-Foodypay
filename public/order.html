@@ -2,951 +2,3899 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Customer Table Order · FoodyPay</title>
-  <link rel="icon" type="image/x-icon" href="Logo.ico">
-  <link rel="icon" type="image/png" href="Logo.png">
-  <link rel="apple-touch-icon" href="Logo.png">
+  <title>Foodypay Digital Menu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#112338">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <style>
     :root {
-      --pri: #ea580c;
-      --pri-dark: #c2410c;
-      --pri-light: #fff4ed;
-      --bg: #090d16;
-      --card-bg: #151d2f;
-      --border: #26334d;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --veg: #22c55e;
-      --nonveg: #ef4444;
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body {
-      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      padding-bottom: calc(75px + var(--safe-bottom));
-      user-select: none;
+      --primary: #FF4F17;
+      --primary-dark: #E03E0B;
+      --primary-gradient: linear-gradient(135deg, #FF5E14 0%, #FF3008 100%);
+      --primary-soft: #FFF3EB;
+      --veg: #16A34A;
+      --veg-bg: #ECFDF5;
+      --nonveg: #DC2626;
+      --nonveg-bg: #FEF2F2;
+      --dark: #0F172A;
+      --header-bg: #112338;
+      --header-dark: #0A1926;
+      --search-bg: #1B354D;
+      --slate: #475569;
+      --muted: #94A3B8;
+      --border: #E2E8F0;
+      --bg: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 22px;
+      --shadow-sm: 0 2px 6px rgba(0,0,0,0.03);
+      --shadow-md: 0 8px 24px rgba(0,0,0,0.06);
     }
 
-    /* APP DOWNLOAD BANNER (10-SEC REAPPEAR RULE) */
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: #E8EEF5;
+      color: var(--dark);
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+    body {
+      padding-bottom: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* PHONE APP WRAPPER */
+    .app-viewport {
+      max-width: 440px;
+      margin: 0 auto;
+      background: var(--bg);
+      min-height: 100vh;
+      position: relative;
+      box-shadow: 0 0 40px rgba(0,0,0,0.08);
+      padding-bottom: 110px;
+    }
+
+    /* TOP APP DOWNLOAD BANNER */
     .app-download-bar {
-      background: linear-gradient(135deg, #1e293b, #0f172a);
-      border-bottom: 1.5px solid rgba(234, 88, 12, 0.4);
-      padding: 8px 12px;
+      background: linear-gradient(90deg, #091522 0%, #102438 100%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 14px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
       gap: 10px;
       position: sticky;
       top: 0;
-      z-index: 60;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
-      transition: transform 0.3s ease, opacity 0.3s ease;
+      z-index: 95;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .app-download-bar.hiding {
-      transform: translateY(-100%);
       opacity: 0;
-    }
-    .app-dl-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
+      transform: translateY(-100%);
+      margin-top: -64px;
+      pointer-events: none;
     }
     .app-dl-close {
-      background: rgba(255,255,255,0.1);
+      background: none;
       border: none;
-      color: #94a3b8;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
+      color: #799AB6;
+      font-size: 13px;
+      font-weight: 800;
+      width: 22px;
+      height: 22px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 13px;
       cursor: pointer;
+      border-radius: 50%;
       flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+    .app-dl-close:active {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
     }
     .app-dl-logo {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      object-fit: contain;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #FF4F17 0%, #FF2600 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
       flex-shrink: 0;
+      box-shadow: 0 3px 8px rgba(255, 79, 23, 0.4);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .app-dl-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .app-dl-info {
+      flex: 1;
+      min-width: 0;
     }
     .app-dl-title {
-      font-size: 12.5px;
+      font-size: 13px;
       font-weight: 800;
-      color: #fff;
+      color: #FFFFFF;
       display: flex;
       align-items: center;
       gap: 5px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      line-height: 1.2;
     }
     .app-dl-tag {
-      background: #22c55e;
-      color: #000;
+      background: #22C55E;
+      color: #fff;
       font-size: 9px;
       font-weight: 900;
       padding: 1px 5px;
       border-radius: 4px;
+      letter-spacing: 0.3px;
     }
     .app-dl-desc {
       font-size: 11px;
-      color: #94a3b8;
+      color: #94A3B8;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      margin-top: 2px;
     }
-    .btn-app-install {
-      background: linear-gradient(135deg, #ea580c, #c2410c);
+    .btn-app-download {
+      background: var(--primary-gradient);
       color: #fff;
       border: none;
-      padding: 6px 12px;
+      padding: 7px 14px;
       border-radius: 99px;
-      font-size: 11.5px;
+      font-size: 12px;
       font-weight: 800;
       cursor: pointer;
+      box-shadow: 0 2px 10px rgba(255, 79, 23, 0.4);
       flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(234,88,12,0.4);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: transform 0.15s;
+    }
+    .btn-app-download:active {
+      transform: scale(0.93);
     }
 
-    /* RESTAURANT HEADER */
-    header {
-      background: #111827;
-      border-bottom: 1px solid var(--border);
+    /* WAITER TERMINAL BAR */
+    .waiter-top-bar {
+      background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+      color: #fff;
       padding: 10px 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
-    }
-    .brand-wrap {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-    }
-    .brand-logo {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      object-fit: contain;
-      flex-shrink: 0;
-    }
-    .brand-name {
-      font-size: 15px;
-      font-weight: 800;
-      color: #fff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .table-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: rgba(234, 88, 12, 0.18);
-      border: 1px solid rgba(234, 88, 12, 0.4);
-      color: #fb923c;
-      font-size: 11.5px;
-      font-weight: 800;
-      padding: 3px 8px;
-      border-radius: 6px;
-    }
-    .btn-call-waiter {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid var(--border);
-      color: #cbd5e1;
-      padding: 6px 10px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-
-    /* SEARCH & CATEGORIES */
-    .nav-bar {
+      border-bottom: 2px solid #6366F1;
       position: sticky;
-      top: 48px;
-      z-index: 40;
-      background: rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border);
-      padding: 8px 12px;
+      top: 0;
+      z-index: 56;
+      box-shadow: 0 4px 14px rgba(30, 27, 75, 0.4);
     }
-    .search-input-wrap {
-      position: relative;
-      margin-bottom: 8px;
+    .waiter-role-chip {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      color: #A5B4FC;
+      text-transform: uppercase;
     }
-    .search-input {
-      width: 100%;
-      background: #1e293b;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 8px 12px 8px 34px;
-      color: #fff;
-      font-size: 13px;
-      outline: none;
-      font-family: inherit;
-    }
-    .search-icon {
-      position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 16px;
-      height: 16px;
-      stroke: var(--text-muted);
-    }
-    .cat-scroll {
-      display: flex;
-      gap: 6px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-      scrollbar-width: none;
-    }
-    .cat-scroll::-webkit-scrollbar { display: none; }
-    .cat-chip {
-      flex-shrink: 0;
-      background: #1e293b;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      border-radius: 99px;
-      padding: 5px 12px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .cat-chip.active {
-      background: #ea580c;
-      border-color: #ea580c;
-      color: #fff;
-    }
-
-    /* DISHES GRID */
-    .catalog-container {
-      padding: 12px;
-      flex: 1;
-    }
-    .dishes-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 12px;
-    }
-    @media(min-width: 600px) {
-      .dishes-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
-    }
-    .dish-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-    .dish-card-img-wrap {
-      height: 115px;
-      width: 100%;
-      background: #090d16;
-      position: relative;
-      overflow: hidden;
-    }
-    .dish-card-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .diet-dot {
-      position: absolute;
-      top: 6px;
-      left: 6px;
-      width: 16px;
-      height: 16px;
-      background: #fff;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-    }
-    .diet-dot.veg::after {
-      content: "";
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #16a34a;
-    }
-    .diet-dot.nonveg::after {
-      content: "";
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #dc2626;
-    }
-    .dish-body {
-      padding: 10px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-    .dish-title {
+    .waiter-name-title {
       font-size: 13.5px;
       font-weight: 800;
-      color: #fff;
-      margin-bottom: 2px;
-      line-height: 1.25;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 1px;
     }
-    .dish-cat-name {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-bottom: 8px;
+    .waiter-avatar-icon {
+      font-size: 15px;
     }
-    .dish-variants {
+    .waiter-tag-id {
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      font-size: 10.5px;
+      padding: 1px 6px;
+      border-radius: 6px;
+      color: #E0E7FF;
+      font-weight: 700;
+    }
+    .waiter-table-col {
       display: flex;
       flex-direction: column;
-      gap: 5px;
-      margin-top: auto;
+      align-items: flex-end;
     }
-    .var-row {
+    .waiter-tbl-pill {
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+      padding: 5px 10px;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      text-align: right;
+      transition: all 0.2s ease;
+    }
+    .waiter-tbl-pill:hover, .waiter-tbl-pill:active {
+      background: rgba(255, 255, 255, 0.25);
+    }
+    .waiter-tbl-lbl {
+      font-size: 9.5px;
+      color: #C7D2FE;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .waiter-tbl-val {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 1px;
+    }
+    .waiter-tbl-val b {
+      font-size: 13px;
+      font-weight: 900;
+      color: #FFFFFF;
+    }
+    .waiter-tbl-arrow {
+      font-size: 9.5px;
+      background: #EA580C;
+      color: #fff;
+      padding: 1.5px 6px;
+      border-radius: 4px;
+      font-weight: 800;
+    }
+
+    /* Waiter Tables Modal Styles */
+    .waiter-area-block {
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 14px;
+      border: 1px solid #E2E8F0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .waiter-area-title {
+      font-size: 12.5px;
+      font-weight: 900;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(15, 23, 42, 0.6);
-      padding: 4px 8px;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
     }
-    .var-name {
-      font-size: 11.5px;
-      font-weight: 700;
-      color: #cbd5e1;
+    .waiter-tables-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
     }
-    .var-price {
-      font-size: 12px;
-      font-weight: 800;
-      color: #fb923c;
-    }
-    .btn-add-var {
-      background: #ea580c;
-      color: #fff;
-      border: none;
-      width: 24px;
-      height: 24px;
-      border-radius: 6px;
-      font-size: 15px;
-      font-weight: 900;
+    .waiter-tbl-card {
+      background: #F8FAFC;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 12px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
+      min-height: 72px;
     }
-    .qty-counter {
+    .waiter-tbl-card:active {
+      transform: scale(0.96);
+    }
+    .waiter-tbl-card.selected {
+      border-color: #EA580C;
+      background: #FFF7ED;
+      box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.3);
+    }
+    .waiter-tbl-num {
+      font-size: 16px;
+      font-weight: 900;
+      color: #0F172A;
+    }
+    .waiter-tbl-card.selected .waiter-tbl-num {
+      color: #EA580C;
+    }
+    .waiter-tbl-status-badge {
+      font-size: 10px;
+      font-weight: 800;
+      margin-top: 4px;
+      padding: 2px 6px;
+      border-radius: 99px;
+    }
+    .waiter-tbl-status-badge.blank {
+      color: #64748B;
+      background: #E2E8F0;
+    }
+    .waiter-tbl-status-badge.active {
+      color: #1D4ED8;
+      background: #DBEAFE;
+      border: 1px solid #93C5FD;
+    }
+
+    /* WAITER MODE OVERRIDES & BOTTOM NAV REMOVAL */
+    body.is-waiter-mode .bottom-dock-nav,
+    body.is-waiter-mode #bottomDockNav {
+      display: none !important;
+    }
+    body.is-waiter-mode .cart-summary-dock {
+      bottom: 14px !important;
+      z-index: 99 !important;
+    }
+
+    /* Waiter Tables Dashboard Grid */
+    .waiter-tables-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .waiter-area-section {
+      background: #FFFFFF;
+      border-radius: 18px;
+      border: 1px solid #E2E8F0;
+      padding: 16px 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.03);
+    }
+    .waiter-area-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #F1F5F9;
+    }
+    .waiter-area-title-text {
+      font-size: 14px;
+      font-weight: 900;
+      color: #0F172A;
       display: flex;
       align-items: center;
       gap: 6px;
     }
-    .btn-qty {
-      background: #334155;
-      color: #fff;
-      border: none;
-      width: 22px;
-      height: 22px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
+    .waiter-grid-layout {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
     }
-    .qty-val {
-      font-size: 12px;
-      font-weight: 800;
-      color: #fff;
-      min-width: 14px;
-      text-align: center;
+    @media (min-width: 680px) {
+      .waiter-grid-layout {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+    @media (min-width: 1024px) {
+      .waiter-grid-layout {
+        grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      }
     }
 
-    /* BOTTOM CART BAR */
-    .bottom-cart-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(15, 23, 42, 0.98);
-      backdrop-filter: blur(14px);
-      border-top: 1px solid var(--border);
-      padding: 10px 14px calc(10px + var(--safe-bottom));
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      z-index: 100;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
-    }
-    .bottom-cart-bar.on {
-      display: flex;
-    }
-    .cart-summary {
+    /* Table Cards in Waiter Mode */
+    .waiter-table-box {
+      background: #FFFFFF;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 14px;
+      padding: 12px 10px;
+      box-sizing: border-box;
+      width: 100%;
+      min-width: 0;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
+      min-height: 110px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
     }
-    .cart-tbl-badge {
+    .waiter-table-box:active {
+      transform: scale(0.97);
+    }
+    .waiter-table-box.blank {
+      border: 1.5px dashed #CBD5E1;
+      background: #FAFAFA;
+    }
+    .waiter-table-box.occupied {
+      background: #EFF6FF;
+      border: 1.5px solid #60A5FA;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.12);
+    }
+    .waiter-tb-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+    }
+    .waiter-tb-number {
+      font-size: 20px;
+      font-weight: 900;
+      color: #0F172A;
+    }
+    .waiter-table-box.occupied .waiter-tb-number {
+      color: #1D4ED8;
+    }
+    .waiter-tb-badge {
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 99px;
+    }
+    .waiter-tb-badge.blank {
+      color: #64748B;
+      background: #E2E8F0;
+    }
+    .waiter-tb-badge.ordering {
+      color: #1D4ED8;
+      background: #DBEAFE;
+      border: 1px solid #93C5FD;
+    }
+    .waiter-tb-badge.kot {
+      color: #854D0E;
+      background: #FEF9C3;
+      border: 1px solid #EAB308;
+    }
+    .waiter-tb-badge.bill {
+      color: #15803D;
+      background: #DCFCE7;
+      border: 1px solid #22C55E;
+    }
+    .waiter-tb-amount {
+      font-size: 16px;
+      font-weight: 900;
+      color: #0F172A;
+      margin: 4px 0 2px;
+    }
+    .waiter-tb-items-count {
+      font-size: 11px;
+      color: #64748B;
+      font-weight: 600;
+    }
+    .waiter-tb-actions {
+      width: 100%;
+      box-sizing: border-box;
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .waiter-tb-btn {
+      flex: 1;
+      min-width: 0;
+      padding: 7px 4px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      box-sizing: border-box;
       font-size: 11px;
       font-weight: 800;
-      color: #ea580c;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .cart-total-text {
-      font-size: 18px;
-      font-weight: 900;
-      color: #fff;
-    }
-    .btn-place-order {
-      background: linear-gradient(135deg, #ea580c, #c2410c);
-      color: #fff;
+      border-radius: 6px;
       border: none;
-      border-radius: 12px;
-      padding: 12px 20px;
-      font-size: 14px;
-      font-weight: 800;
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      box-shadow: 0 4px 14px rgba(234, 88, 12, 0.4);
+      justify-content: center;
+      gap: 3px;
+    }
+    .waiter-tb-btn.primary {
+      background: #EA580C;
+      color: #fff;
+    }
+    .waiter-tb-btn.blue {
+      background: #2563EB;
+      color: #fff;
+    }
+    .waiter-tb-btn.outline {
+      background: #fff;
+      color: #1E293B;
+      border: 1px solid #CBD5E1;
     }
 
-    /* MODALS */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(6px);
-      z-index: 200;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-    .modal-overlay.on {
-      display: flex;
-    }
-    .modal-box {
-      background: #1e293b;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      width: 100%;
-      max-width: 440px;
-      padding: 20px;
+    /* TOP HEADER (DARK NAVY ROUNDED) */
+    .hero-header {
+      background: linear-gradient(180deg, var(--header-dark) 0%, var(--header-bg) 100%);
       color: #fff;
-      max-height: 85vh;
-      display: flex;
-      flex-direction: column;
+      padding: 18px 18px 20px;
+      border-bottom-left-radius: 28px;
+      border-bottom-right-radius: 28px;
+      box-shadow: 0 10px 30px rgba(10, 25, 38, 0.25);
+      position: sticky;
+      top: 0;
+      z-index: 45;
     }
-    .modal-header {
+    .hero-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 14px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--border);
     }
-    .modal-title {
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .brand-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FF3B30 0%, #E60000 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(230, 0, 0, 0.4);
+      flex-shrink: 0;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,0.2);
+      position: relative;
+    }
+    .brand-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .brand-avatar-fallback {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #FF3B30 0%, #D62828 100%);
+      color: #fff;
+      font-weight: 900;
+      font-size: 11px;
+      letter-spacing: -0.5px;
+      text-transform: lowercase;
+    }
+    .brand-avatar-fallback span.leaf {
+      position: absolute;
+      top: 5px;
+      left: 10px;
+      width: 12px;
+      height: 6px;
+      background: #4ADE80;
+      border-radius: 10px 0 10px 0;
+      transform: rotate(-25deg);
+    }
+    .brand-details {
+      min-width: 0;
+    }
+    .brand-name {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .verified-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 17px;
+      height: 17px;
+      background: #00A3FF;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 900;
+      box-shadow: 0 2px 6px rgba(0, 163, 255, 0.45);
+    }
+    .live-badge {
+      font-size: 11.5px;
+      color: #34D399;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 2px;
+    }
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      background: #10B981;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 0 2px rgba(16,185,129,0.3);
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16,185,129,0.7); }
+      70% { transform: scale(1.1); box-shadow: 0 0 0 5px rgba(16,185,129,0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+    }
+    
+    /* TOP USER PROFILE AVATAR */
+    .profile-glow-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      padding: 2px;
+      background: linear-gradient(135deg, #FF7A00 0%, #FF3D00 100%);
+      box-shadow: 0 0 12px rgba(255, 107, 0, 0.45);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: transform 0.2s ease;
+    }
+    .profile-glow-wrap:active {
+      transform: scale(0.94);
+    }
+    .profile-glow-wrap img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* SEARCH BAR & CONTROLS */
+    .search-row {
+      display: flex;
+      align-items: center;
+      background: var(--search-bg);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 99px;
+      padding: 5px 8px 5px 14px;
+      gap: 8px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.25);
+    }
+    .search-icon {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: #86A7C3;
+      stroke-width: 2.3;
+      flex-shrink: 0;
+    }
+    .search-input-field {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 13.5px;
+      font-family: inherit;
+      min-width: 0;
+    }
+    .search-input-field::placeholder {
+      color: #799AB6;
+      font-size: 13px;
+    }
+    .search-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .search-ctrl-btn {
+      background: transparent;
+      border: none;
+      color: #94B5D1;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .search-ctrl-btn:hover, .search-ctrl-btn:active {
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+    }
+    .search-ctrl-btn.active {
+      color: #FF5E14;
+      background: rgba(255, 94, 20, 0.2);
+    }
+
+    /* HORIZONTAL CATEGORY PILLS */
+    .cats-wrapper {
+      padding: 14px 16px 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      gap: 9px;
+    }
+    .cats-wrapper::-webkit-scrollbar { display: none; }
+    
+    .cat-pill {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      color: #334155;
+      padding: 8px 16px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      flex-shrink: 0;
+    }
+    .cat-pill:active { transform: scale(0.96); }
+    .cat-pill.active {
+      background: #112338;
+      color: #FFFFFF;
+      border-color: #112338;
+      box-shadow: 0 4px 14px rgba(17, 35, 56, 0.25);
+    }
+
+
+
+    /* SECTION HEADER */
+    .section-header-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #0F172A;
+      margin: 16px 16px 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: -0.2px;
+    }
+    .section-counter-badge {
+      font-size: 13px;
+      color: #64748B;
+      font-weight: 600;
+    }
+
+    /* MENU DISH CARDS */
+    .dishes-container {
+      padding: 4px 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .dish-card {
+      background: #FFFFFF;
+      border-radius: 20px;
+      border: 1px solid #EEF2F6;
+      padding: 16px 16px 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+      position: relative;
+    }
+
+    .dish-info-col {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dish-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    /* Square Veg/Nonveg indicator */
+    .diet-box {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid var(--veg);
+      flex-shrink: 0;
+    }
+    .diet-box.veg { border-color: var(--veg); }
+    .diet-box.nonveg { border-color: var(--nonveg); }
+    .diet-box.veg::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--veg);
+    }
+    .diet-box.nonveg::after {
+      content: '';
+      width: 0;
+      height: 0;
+      border-left: 3.5px solid transparent;
+      border-right: 3.5px solid transparent;
+      border-bottom: 5.5px solid var(--nonveg);
+    }
+    .diet-text {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+    .diet-text.veg { color: var(--veg); }
+    .diet-text.nonveg { color: var(--nonveg); }
+
+    .popular-chip {
+      background: #FFF7ED;
+      color: #EA580C;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 99px;
+      border: 1px solid #FFEDD5;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .dish-name {
       font-size: 16px;
       font-weight: 800;
+      color: #0F172A;
+      margin-top: 2px;
+      line-height: 1.3;
     }
-    .btn-close {
+
+    .dish-pricing-row {
+      font-size: 16px;
+      font-weight: 900;
+      color: #0F172A;
+      margin-top: 3px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+    }
+    .dish-pricing-row small {
+      font-size: 12px;
+      color: #64748B;
+      font-weight: 600;
+    }
+
+    .portion-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748B;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .portion-pills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .portion-pill {
+      background: #F8FAFC;
+      border: 1px solid #CBD5E1;
+      color: #334155;
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .portion-pill.selected {
+      background: #FFF5F1;
+      border-color: #FF5E14;
+      color: #FF4F17;
+      font-weight: 800;
+    }
+
+    .dish-desc-text {
+      font-size: 11.5px;
+      color: #64748B;
+      line-height: 1.45;
+      margin-top: 2px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* RIGHT COLUMN (PHOTO + ADD BUTTON) */
+    .dish-action-col {
+      width: 104px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      flex-shrink: 0;
+    }
+    .dish-photo-wrap {
+      width: 98px;
+      height: 84px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #F1F5F9;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      position: relative;
+      margin-bottom: 8px;
+    }
+    .dish-photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .dish-photo-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+    }
+
+    /* + ADD BUTTON */
+    .btn-add-dish {
+      background: #FFFFFF;
+      border: 1.5px solid #FF4F17;
+      color: #FF4F17;
+      font-weight: 800;
+      font-size: 13px;
+      border-radius: 99px;
+      padding: 6px 18px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(255, 79, 23, 0.12);
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 90px;
+    }
+    .btn-add-dish:active {
+      transform: scale(0.94);
+      background: #FF4F17;
+      color: #FFFFFF;
+    }
+
+    /* QTY STEPPER */
+    .qty-stepper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--primary-gradient);
+      border-radius: 99px;
+      width: 90px;
+      height: 32px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(255, 79, 23, 0.35);
+    }
+    .qty-btn {
       background: none;
       border: none;
-      color: var(--text-muted);
-      font-size: 20px;
+      color: #fff;
+      font-size: 17px;
+      font-weight: 900;
+      width: 28px;
+      height: 100%;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+    .qty-btn:active { background: rgba(0,0,0,0.15); }
+    .qty-number {
+      color: #fff;
+      font-weight: 900;
+      font-size: 13.5px;
+      user-select: none;
+    }
+
+    /* BOTTOM FLOATING CART BAR */
+    .cart-summary-dock {
+      position: fixed;
+      bottom: 86px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 408px;
+      background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 20px;
+      box-shadow: 0 14px 40px rgba(15, 23, 42, 0.45);
+      border: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 50;
+      animation: cartPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes cartPop {
+      from { transform: translate(-50%, 30px); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+    .cart-price-large {
+      font-size: 17px;
+      font-weight: 900;
+      color: #4ADE80;
+    }
+    .cart-count-sub {
+      font-size: 11.5px;
+      color: #94A3B8;
+      font-weight: 600;
+    }
+    .btn-view-cart {
+      background: var(--primary-gradient);
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 13.5px;
+      font-weight: 800;
+      border-radius: 99px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 14px rgba(255, 79, 23, 0.45);
+      transition: transform 0.15s;
+    }
+    .btn-view-cart:active { transform: scale(0.96); }
+
+    /* CUSTOM BOTTOM DOCK NAVIGATION BAR */
+    /* Note: "Profile" and "Nearby Stores" REMOVED per user instructions */
+    .bottom-dock-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 440px;
+      background: #FFFFFF;
+      height: 74px;
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      box-shadow: 0 -6px 26px rgba(0, 0, 0, 0.08);
+      border-top: 1px solid #F1F5F9;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 10px;
+      z-index: 48;
+    }
+
+    .nav-dock-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #64748B;
+      font-family: inherit;
+      width: 64px;
+      transition: color 0.15s;
+    }
+    .nav-dock-item svg {
+      width: 22px;
+      height: 22px;
+      stroke-width: 2.1;
+      stroke: currentColor;
+      fill: none;
+      transition: transform 0.15s;
+    }
+    .nav-dock-item span {
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .nav-dock-item.active {
+      color: #FF4F17;
+    }
+    .nav-dock-item:active svg {
+      transform: scale(0.9);
+    }
+
+    /* CENTER ELEVATED QR SCAN BUTTON */
+    .nav-scan-wrapper {
+      position: relative;
+      top: -18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      font-family: inherit;
+      z-index: 52;
+    }
+    .nav-scan-circle {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #162E45 0%, #0D1E2D 100%);
+      border: 4px solid #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 20px rgba(13, 30, 45, 0.35);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .nav-scan-wrapper:active .nav-scan-circle {
+      transform: scale(0.92);
+    }
+    .nav-scan-circle svg {
+      width: 24px;
+      height: 24px;
+      stroke: #FFFFFF;
+      stroke-width: 2.2;
+      fill: none;
+    }
+    .nav-scan-wrapper span {
+      font-size: 11px;
+      font-weight: 800;
+      color: #0F172A;
+      margin-top: 4px;
+    }
+
+    /* CHECKOUT MODAL DRAWER */
+    .sheet-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(5px);
+      z-index: 100;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .sheet-modal {
+      background: #FFFFFF;
+      width: 100%;
+      max-width: 480px;
+      border-top-left-radius: 28px;
+      border-top-right-radius: 28px;
+      padding: 16px 20px 32px;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.25);
+      animation: sheetUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes sheetUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .sheet-drag-handle {
+      width: 42px;
+      height: 4px;
+      background: #CBD5E1;
+      border-radius: 99px;
+      margin: 0 auto 14px;
+    }
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      border-bottom: 1px solid #F1F5F9;
+      padding-bottom: 12px;
+    }
+    .sheet-title {
+      font-size: 18px;
+      font-weight: 900;
+      color: #0F172A;
+    }
+    .sheet-close-btn {
+      background: #F1F5F9;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 14px;
+      font-weight: 900;
+      color: #64748B;
+      cursor: pointer;
+    }
+
+    .cart-items-scroll {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .order-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px dashed #E2E8F0;
+    }
+    .order-item-left b {
+      font-size: 14px;
+      color: #0F172A;
+      display: block;
+    }
+    .order-item-left small {
+      font-size: 12px;
+      color: #64748B;
+    }
+    .order-item-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .order-line-price {
+      font-weight: 800;
+      font-size: 14.5px;
+      color: #0F172A;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+      margin-bottom: 5px;
+    }
+    .form-group input {
+      width: 100%;
+      border: 1px solid #CBD5E1;
+      background: #F8FAFC;
+      border-radius: 12px;
+      padding: 9px 12px;
+      font-size: 13.5px;
+      font-family: inherit;
+      outline: none;
+    }
+    .form-group input:focus {
+      border-color: #FF5E14;
+      background: #FFFFFF;
+    }
+    .quick-notes-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .quick-note-pill {
+      background: #F1F5F9;
+      border: 1px solid #E2E8F0;
+      font-size: 11px;
+      font-weight: 700;
+      color: #475569;
+      padding: 3px 8px;
+      border-radius: 99px;
+      cursor: pointer;
+    }
+    .quick-note-pill:active { background: #E2E8F0; }
+
+    .bill-card {
+      background: #F8FAFC;
+      border-radius: 14px;
+      padding: 12px;
+      border: 1px solid #E2E8F0;
+      margin-bottom: 14px;
+    }
+    .bill-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #64748B;
+      margin-bottom: 6px;
+    }
+    .bill-line.grand-total {
+      font-size: 16px;
+      font-weight: 900;
+      color: #0F172A;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #E2E8F0;
+      margin-bottom: 0;
+    }
+
+    .payment-notice {
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      border-radius: 12px;
+      padding: 9px 12px;
+      font-size: 12px;
+      color: #1E40AF;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .btn-submit-order {
+      width: 100%;
+      background: var(--primary-gradient);
+      color: #fff;
+      border: none;
+      padding: 13px;
+      border-radius: 99px;
+      font-size: 15px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(255, 79, 23, 0.35);
+      transition: transform 0.15s;
+    }
+    .btn-submit-order:active { transform: scale(0.98); }
+
+    /* COUPONS MODAL DRAWER */
+    .coupon-card {
+      background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+      border: 1.5px dashed #FB923C;
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .coupon-code-badge {
+      background: #EA580C;
+      color: #fff;
+      font-weight: 900;
+      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+    .coupon-desc {
+      font-size: 12px;
+      color: #7C2D12;
+      font-weight: 600;
+    }
+    .btn-apply-coupon {
+      background: #FFFFFF;
+      color: #EA580C;
+      border: 1.5px solid #EA580C;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 800;
+      border-radius: 99px;
+      cursor: pointer;
+    }
+    .btn-apply-coupon.applied {
+      background: #16A34A;
+      color: #fff;
+      border-color: #16A34A;
+    }
+
+    /* TABLE QR MODAL */
+    .qr-info-card {
+      text-align: center;
+      padding: 18px 10px;
+    }
+    .qr-code-box {
+      width: 150px;
+      height: 150px;
+      margin: 12px auto;
+      background: #FFFFFF;
+      border: 2px solid #E2E8F0;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    }
+    .qr-code-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* TOAST ALERT */
+    .toast-msg {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-30px);
+      background: #0F172A;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 700;
+      z-index: 200;
+      opacity: 0;
+      transition: all 0.25s ease;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      pointer-events: none;
+    }
+    .toast-msg.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
     }
   </style>
 </head>
 <body>
+<div class="app-viewport">
 
-  <!-- APP DOWNLOAD BANNER (10-SEC DISMISS REAPPEAR TIMER) -->
+  <!-- TOP APP DOWNLOAD BANNER (Both Customer & Waiter App Install) -->
   <div class="app-download-bar" id="appDownloadBanner">
-    <div class="app-dl-left">
-      <button class="app-dl-close" onclick="dismissAppBanner()" title="Close banner" aria-label="Dismiss">✕</button>
-      <img src="Logo.png" alt="App Logo" class="app-dl-logo" onerror="this.src='https://api.foodypay.online/Logo.png'">
-      <div style="min-width:0">
-        <div class="app-dl-title" id="appDlTitle">
-          <span id="appDlName">FoodyPay App</span>
-          <span class="app-dl-tag">FREE</span>
-        </div>
-        <div class="app-dl-desc">Fast ordering, live tracking &amp; bill</div>
-      </div>
+    <button class="app-dl-close" onclick="dismissAppBanner()" title="Close banner" aria-label="Dismiss">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+    <div class="app-dl-logo">
+      <img src="/Logo.png" alt="FoodyPay App" onerror="this.src='https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=100&q=80'">
     </div>
-    <button class="btn-app-install" onclick="handleAppInstall()">Install App</button>
+    <div class="app-dl-info">
+      <div class="app-dl-title" id="appDlTitle">FoodyPay App <span class="app-dl-tag" id="appDlTag">FREE</span></div>
+      <div class="app-dl-desc" id="appDlDesc">Fast ordering, live tracking &amp; bill</div>
+    </div>
+    <button class="btn-app-download" onclick="handleAppDownload()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      <span id="appDlBtnText">Install</span>
+    </button>
   </div>
 
-  <!-- RESTAURANT & TABLE HEADER -->
-  <header>
-    <div class="brand-wrap">
-      <img src="Logo.png" alt="Logo" class="brand-logo" onerror="this.src='https://api.foodypay.online/Logo.png'">
-      <div style="min-width:0">
-        <div class="brand-name" id="hdrStoreName">Snack Rack</div>
-        <div class="table-badge">
-          <span>🍽️</span>
-          <span id="hdrTableBadge">Table 01</span>
+  <!-- WAITER MODE MAIN TABLES SCREEN (DEFAULT FOR WAITER) -->
+  <div id="waiterTablesScreen" style="display:none;min-height:100vh;background:#F8FAFC;padding-bottom:30px">
+    <!-- Waiter Terminal Top Dashboard Header -->
+    <div style="background:linear-gradient(135deg, #0F172A 0%, #1E293B 100%);color:#fff;padding:20px 18px 16px;border-bottom-left-radius:24px;border-bottom-right-radius:24px;box-shadow:0 8px 24px rgba(15,23,42,0.25)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:44px;height:44px;border-radius:12px;background:#EA580C;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 12px rgba(234,88,12,0.4)">
+            🤵
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:800;color:#FB923C;letter-spacing:0.8px;text-transform:uppercase">WAITER ORDER TERMINAL</div>
+            <h2 style="margin:1px 0 0;font-size:17px;font-weight:900" id="waiterScreenName">Waiter Terminal</h2>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:2px">
+              <small style="color:#94A3B8;font-size:11.5px">ID: <code id="waiterScreenId" style="color:#FDBA74">waiter</code></small>
+              <span id="waiterAssignedBadge" style="display:none;background:rgba(234,88,12,0.25);border:1px solid rgba(251,146,60,0.5);color:#FDBA74;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px">
+                🎯 Assigned: <b id="waiterAssignedList" style="color:#fff">All</b>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button onclick="fetchLiveTableOrders(true)" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:12px;font-weight:700;padding:7px 12px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:4px">
+            🔄 Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Table Statistics Summary -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.1)">
+        <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:8px 6px;text-align:center">
+          <div style="font-size:9.5px;font-weight:700;color:#94A3B8">TOTAL</div>
+          <b id="statTotalTables" style="font-size:16px;color:#fff;font-weight:900">0</b>
+        </div>
+        <div style="background:rgba(59,130,246,0.18);border:1px solid rgba(59,130,246,0.3);border-radius:10px;padding:8px 6px;text-align:center">
+          <div style="font-size:9.5px;font-weight:700;color:#93C5FD">ORDERING</div>
+          <b id="statActiveTables" style="font-size:16px;color:#BFDBFE;font-weight:900">0</b>
+        </div>
+        <div style="background:rgba(234,179,8,0.18);border:1px solid rgba(234,179,8,0.3);border-radius:10px;padding:8px 6px;text-align:center">
+          <div style="font-size:9.5px;font-weight:700;color:#FDE047">KOT PRINTED</div>
+          <b id="statKotTables" style="font-size:16px;color:#FEF08A;font-weight:900">0</b>
+        </div>
+        <div style="background:rgba(16,185,129,0.14);border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:8px 6px;text-align:center">
+          <div style="font-size:9.5px;font-weight:700;color:#6EE7B7">BLANK (FREE)</div>
+          <b id="statBlankTables" style="font-size:16px;color:#A7F3D0;font-weight:900">0</b>
         </div>
       </div>
     </div>
 
-    <button class="btn-call-waiter" onclick="callWaiterAlert()">
-      <span>🔔</span>
-      <span>Call Waiter</span>
-    </button>
+    <!-- Area Filter Chips & Legend matching POS -->
+    <div style="padding:14px 18px 8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <div id="waiterAreaFilters" style="display:flex;gap:6px;overflow-x:auto"></div>
+      <div style="display:flex;gap:8px;font-size:11px;font-weight:700;color:#64748B;flex-wrap:wrap">
+        <span style="display:inline-flex;align-items:center;gap:4px"><i style="width:10px;height:10px;border-radius:3px;background:#fff;border:1px solid #cbd5e1;display:inline-block"></i> Blank</span>
+        <span style="display:inline-flex;align-items:center;gap:4px"><i style="width:10px;height:10px;border-radius:3px;background:#dbeafe;border:1px solid #93c5fd;display:inline-block"></i> Ordering (Blue)</span>
+        <span style="display:inline-flex;align-items:center;gap:4px"><i style="width:10px;height:10px;border-radius:3px;background:#fef9c3;border:1px solid #eab308;display:inline-block"></i> KOT Printed (Yellow)</span>
+        <span style="display:inline-flex;align-items:center;gap:4px"><i style="width:10px;height:10px;border-radius:3px;background:#dcfce7;border:1px solid #22c55e;display:inline-block"></i> Bill Printed (Green)</span>
+      </div>
+    </div>
+
+    <!-- Tables Cards List Container -->
+    <div id="waiterTablesCardsContainer" class="waiter-tables-container" style="padding:10px 18px 40px"></div>
+  </div>
+
+  <!-- MENU VIEW WRAPPER -->
+  <div id="menuViewWrapper">
+    <!-- Waiter Menu Navigation Bar (Shown when taking order on a table) -->
+    <div id="waiterMenuTopBar" style="display:none;background:#0F172A;color:#fff;padding:12px 18px;position:sticky;top:0;z-index:60;box-shadow:0 4px 16px rgba(0,0,0,0.2);display:flex;justify-content:space-between;align-items:center">
+      <button onclick="showWaiterTablesScreen()" style="background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:6px 14px;border-radius:8px;font-size:12.5px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+        <span>←</span> <span>Tables</span>
+      </button>
+      <div style="text-align:center">
+        <div style="font-size:10px;color:#FB923C;font-weight:800;letter-spacing:0.5px">SERVING TABLE</div>
+        <b id="waiterMenuCurrentTable" style="font-size:15px;color:#fff">Table 1</b>
+      </div>
+      <div style="font-size:11.5px;color:#94A3B8;font-weight:700;background:rgba(255,255,255,0.08);padding:5px 9px;border-radius:8px">
+        🤵 <span id="waiterMenuNamePill">Rahul</span>
+      </div>
+    </div>
+
+    <!-- Active Running Order Banner on Table -->
+    <div id="waiterExistingOrderBanner" style="display:none;margin:12px 18px 0;background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:14px;padding:12px 14px;color:#1E40AF">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <b style="font-size:13px;display:flex;align-items:center;gap:5px"><span>🔵</span> Table Has Running Order</b>
+          <div style="font-size:12px;color:#1D4ED8;margin-top:2px" id="waiterExistingOrderInfo">₹0 · 0 items</div>
+        </div>
+        <button onclick="openTableOrderDetailsModal(currentTable)" style="background:#2563EB;color:#fff;border:none;padding:6px 12px;border-radius:8px;font-size:11.5px;font-weight:800;cursor:pointer">
+          View / Edit
+        </button>
+      </div>
+    </div>
+
+
+
+  <!-- TOP HEADER (DARK SLATE/NAVY WITH CURVED BOTTOM) -->
+  <header class="hero-header">
+    <div class="hero-top">
+      <div class="brand-wrap">
+        <div class="brand-avatar" id="storeLogoWrap">
+          <div class="brand-avatar-fallback">
+            <span class="leaf"></span>
+            <span>logo</span>
+          </div>
+        </div>
+        <div class="brand-details">
+          <div class="brand-name">
+            <span id="storeNameText">Foodypay</span>
+            <span class="verified-badge" title="Verified Foodypay Partner">✓</span>
+          </div>
+          <div class="live-badge">
+            <span class="pulse-dot"></span>
+            <span>Kitchen Open • Fast Service</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Right User Profile Avatar -->
+      <div class="profile-glow-wrap" onclick="openProfileDialog()" title="Customer Table Profile">
+        <img id="userProfileImg" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Profile">
+      </div>
+    </div>
+
+    <!-- SEARCH & QUICK CONTROLS BAR -->
+    <div class="search-row">
+      <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" class="search-input-field" id="dishSearchInput" placeholder="Search dishes (e.g. Tikka, Ch)" oninput="handleSearch(this.value)">
+      
+      <div class="search-controls">
+        <!-- Sort Toggle Icon (⇅) -->
+        <button class="search-ctrl-btn" id="sortBtn" onclick="toggleSort()" title="Sort by price">
+          ⇅
+        </button>
+        <!-- Grid / Category Toggle Icon (⊞) -->
+        <button class="search-ctrl-btn" id="categoryScrollBtn" onclick="scrollToCategories()" title="Jump to Categories">
+          ⊞
+        </button>
+        <!-- Filter Sliders Icon (⊶ / Veg Toggle) -->
+        <button class="search-ctrl-btn" id="filterSliderBtn" onclick="toggleVegFilter()" title="Veg Filter">
+          ⊶
+        </button>
+      </div>
+    </div>
   </header>
 
-  <!-- SEARCH & CATEGORIES -->
-  <div class="nav-bar">
-    <div class="search-input-wrap">
-      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="search" id="menuSearch" class="search-input" placeholder="Search dishes, drinks, momos..." oninput="handleSearch(this.value)">
-    </div>
-    <div class="cat-scroll" id="catScroll">
-      <button class="cat-chip active" onclick="filterCat('All')">All Items</button>
-    </div>
-  </div>
+  <!-- LIVE TABLE ORDER TRACKER & CLAIM BANNER (Dine-In Realtime Tracking upon QR Scan) -->
+  <style>
+    .live-pulse-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #EAB308;
+      display: inline-block;
+      box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7);
+      animation: livePulseAnim 1.8s infinite;
+    }
+    @keyframes livePulseAnim {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(234, 179, 8, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+    }
+    .lot-card {
+      margin: 12px 16px 6px;
+      background: #FFFFFF;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+  </style>
 
-  <!-- DISHES GRID -->
-  <div class="catalog-container">
-    <div class="dishes-grid" id="dishesGrid">
-      <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">
-        ⏳ Loading digital menu...
+  <div id="customerLiveOrderTracker" class="lot-card" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="live-pulse-dot" id="lotStatusDot"></span>
+          <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.5px;color:#CA8A04" id="lotStatusBadge">Cooking in Kitchen</span>
+        </div>
+        <h4 style="margin:4px 0 0;font-size:15px;font-weight:900;color:#0F172A" id="lotGreetingText">
+          Running Order on <span id="lotTableName" style="color:#EA580C">Table 1</span>
+        </h4>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:18px;font-weight:900;color:#0F172A" id="lotTotalAmount">₹0</div>
+        <div style="font-size:11px;color:#64748B;font-weight:700" id="lotItemsSummary">0 items</div>
       </div>
     </div>
-  </div>
 
-  <!-- BOTTOM STICKY CART BAR -->
-  <div class="bottom-cart-bar" id="bottomCartBar">
-    <div class="cart-summary" onclick="openCheckoutModal()">
-      <div class="cart-tbl-badge" id="cartTableBadge">TABLE 01 · 0 ITEMS</div>
-      <div class="cart-total-text" id="cartTotalText">₹0</div>
+    <!-- Timeline Progress Bar -->
+    <div style="margin:12px 0 6px;display:flex;align-items:center;gap:4px">
+      <div style="flex:1;height:5px;border-radius:99px;background:#2563EB" id="lotStep1"></div>
+      <div style="flex:1;height:5px;border-radius:99px;background:#EAB308" id="lotStep2"></div>
+      <div style="flex:1;height:5px;border-radius:99px;background:#E2E8F0" id="lotStep3"></div>
     </div>
-    <button class="btn-place-order" onclick="openCheckoutModal()">
-      <span>View Order</span>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-    </button>
-  </div>
+    <div style="display:flex;justify-content:space-between;font-size:10.5px;font-weight:700;color:#64748B;margin-bottom:12px">
+      <span id="lotLabelStep1" style="color:#2563EB">Order Placed</span>
+      <span id="lotLabelStep2" style="color:#CA8A04">Cooking in Kitchen</span>
+      <span id="lotLabelStep3">Ready / Bill</span>
+    </div>
 
-  <!-- CHECKOUT & ORDER REVIEW MODAL -->
-  <div class="modal-overlay" id="checkoutModal">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h3 class="modal-title">Review Table Order</h3>
-        <button class="btn-close" onclick="closeCheckoutModal()">✕</button>
-      </div>
-      <div style="font-size:12px;color:#fb923c;font-weight:800;margin-bottom:10px" id="reviewTableHeading">TABLE 01</div>
-      
-      <div style="flex:1;overflow-y:auto;max-height:36vh;margin-bottom:12px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:8px 0" id="cartItemsList"></div>
+    <!-- Items Quick Preview (Expandable) -->
+    <div id="lotItemsListAccordion" style="max-height:400px;overflow-y:auto;transition:max-height 0.3s ease;border-top:1px dashed #E2E8F0;padding-top:8px;margin-top:8px">
+      <div id="lotItemsListContent" style="padding-top:8px;display:flex;flex-direction:column;gap:6px;font-size:12px;color:#334155"></div>
+    </div>
 
-      <div style="margin-bottom:8px">
-        <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:3px">Your Name (Optional):</label>
-        <input id="custName" placeholder="e.g. Rahul, Priya..." style="width:100%;padding:8px 10px;background:#0f172a;border:1px solid var(--border);border-radius:8px;color:#fff;font-size:12px;outline:none">
-      </div>
+    <!-- Action Buttons -->
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <button id="lotAddMoreBtn" onclick="scrollToMenu()" style="flex:1;min-width:120px;background:#0F172A;border:none;color:#fff;padding:9px 12px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 2px 8px rgba(15,23,42,0.2)">
+        <span>+ Add More Items</span>
+      </button>
 
-      <div style="margin-bottom:12px">
-        <label style="font-size:11px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:3px">Cooking Instructions / Note:</label>
-        <input id="orderNote" placeholder="e.g. Less spicy, extra sauce..." style="width:100%;padding:8px 10px;background:#0f172a;border:1px solid var(--border);border-radius:8px;color:#fff;font-size:12px;outline:none">
-      </div>
-
-      <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:900;margin-bottom:14px">
-        <span>Total Amount (Inc. GST):</span>
-        <span style="color:#22c55e" id="reviewTotalAmount">₹0</span>
-      </div>
-
-      <button id="btnSubmitOrder" onclick="submitCustomerOrder()" style="width:100%;background:linear-gradient(135deg,#ea580c,#c2410c);color:#fff;border:none;padding:12px;border-radius:12px;font-size:14.5px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
-        <span>Send Order to Kitchen</span>
+      <button id="lotClaimOrderBtn" onclick="openClaimOrderModal()" style="flex:1.3;min-width:130px;background:#EA580C;border:none;color:#fff;padding:9px 12px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 2px 6px rgba(234,88,12,0.25)">
+        <span>Link My Details to Bill</span>
       </button>
     </div>
   </div>
 
-  <script>
-    // URL Params & Path Parser: /client/:merchantId/:table or /order/:merchantId/:table
-    const pathParts = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/');
-    let pathMerchant = '';
-    let pathTable = '';
-    const firstSegment = (pathParts[0] || '').toLowerCase();
-    if (pathParts.length >= 2 && (firstSegment === 'client' || firstSegment === 'order' || firstSegment === 'table-order')) {
-      if (pathParts[1] && !pathParts[1].endsWith('.html')) {
-        pathMerchant = decodeURIComponent(pathParts[1]);
+  <!-- CATEGORY PILLS BAR -->
+  <div class="cats-wrapper" id="catsBar">
+    <button class="cat-pill active" onclick="selectCategory('All', this)">All Items</button>
+    <button class="cat-pill" onclick="selectCategory('Starters', this)">Starters</button>
+    <button class="cat-pill" onclick="selectCategory('Main Course', this)">Main Courses</button>
+    <button class="cat-pill" onclick="selectCategory('Drinks', this)">Drinks</button>
+    <button class="cat-pill" onclick="selectCategory('Dessert', this)">Dessert</button>
+  </div>
+
+
+
+  <!-- SECTION TITLE (e.g. Main Courses (3)) -->
+  <div id="sectionHeaderWrap">
+    <div class="section-header-title" id="dynamicSectionTitle">
+      <span>Main Courses</span>
+      <span class="section-counter-badge" id="sectionItemCount">(3)</span>
+    </div>
+  </div>
+
+  <!-- DISHES LIST CONTAINER -->
+  <main class="dishes-container" id="menuContainer">
+    <div style="text-align:center;padding:50px 10px;color:#94a3b8">
+      <div style="font-size:36px;margin-bottom:10px">⏳</div>
+      <b style="font-size:15px;color:#475569">Loading delicious menu…</b>
+      <p style="font-size:12px;margin-top:4px">Fetching live items for your table</p>
+    </div>
+  </main>
+
+  <!-- FLOATING CART SUMMARY DOCK (Appears above the bottom nav when cart has items) -->
+  <div class="cart-summary-dock" id="cartFloatDock" style="display:none">
+    <div>
+      <div class="cart-price-large" id="cartTotalText">₹0</div>
+      <div class="cart-count-sub" id="cartCountText">0 items selected</div>
+    </div>
+    <button class="btn-view-cart" onclick="openCheckoutModal()">
+      <span>View Order</span>
+      <span>→</span>
+    </button>
+  </div>
+
+  <!-- CUSTOM BOTTOM DOCK NAVIGATION BAR -->
+  <!-- 'Profile' and 'Nearby Stores' are REMOVED per user instructions -->
+  <nav class="bottom-dock-nav" id="bottomDockNav">
+    <!-- 1. Home -->
+    <button class="nav-dock-item active" id="navHomeBtn" onclick="handleNavHome()">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span>Home</span>
+    </button>
+
+    <!-- 2. Coupons -->
+    <button class="nav-dock-item" id="navCouponsBtn" onclick="openCouponsModal()">
+      <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+      <span>Coupons</span>
+    </button>
+
+    <!-- 3. QR Scan (Elevated center circle button) -->
+    <button class="nav-scan-wrapper" id="navScanBtn" onclick="openQrScanModal()">
+      <div class="nav-scan-circle">
+        <svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><rect x="7" y="7" width="10" height="10" rx="2"></rect></svg>
+      </div>
+      <span>QR Scan</span>
+    </button>
+
+    <!-- 4. My Order / Bill -->
+    <button class="nav-dock-item" id="navOrdersBtn" onclick="openCheckoutModal()">
+      <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+      <span>My Order</span>
+    </button>
+  </nav>
+
+  </div><!-- /menuViewWrapper -->
+</div><!-- /app-viewport -->
+
+<!-- CHECKOUT ORDER MODAL DRAWER -->
+<div class="sheet-overlay" id="checkoutModal" style="display:none" onclick="if(event.target===this)closeCheckoutModal()">
+  <div class="sheet-modal">
+    <div class="sheet-drag-handle"></div>
+    <div class="sheet-header">
+      <div>
+        <div class="sheet-title">Order Summary</div>
+        <small style="color:#64748B;font-size:12.5px">Serving at: <b id="modalTableBadge" style="color:var(--primary)">Table 2</b></small>
+      </div>
+      <button class="sheet-close-btn" onclick="closeCheckoutModal()">✕</button>
+    </div>
+
+    <div class="cart-items-scroll" id="modalItemsList"></div>
+
+    <!-- GUEST DETAILS -->
+    <div class="form-group">
+      <label>Your Name (Optional)</label>
+      <input type="text" id="custName" placeholder="Enter name (e.g. Rahul Sharma)" autocomplete="name">
+    </div>
+
+    <div class="form-group">
+      <label>Mobile Number (Optional for order SMS)</label>
+      <input type="tel" id="custPhone" placeholder="Enter 10-digit number" autocomplete="tel">
+    </div>
+
+    <div class="form-group">
+      <label>Cooking Requests / Instructions</label>
+      <input type="text" id="orderNote" placeholder="e.g. Less spicy, extra butter, hot">
+      <div class="quick-notes-wrap">
+        <span class="quick-note-pill" onclick="appendNote('Make it spicy 🌶️')">🌶️ Spicy</span>
+        <span class="quick-note-pill" onclick="appendNote('Less oil / light')">🥗 Less oil</span>
+        <span class="quick-note-pill" onclick="appendNote('No onion & garlic')">🧅 No onion/garlic</span>
+        <span class="quick-note-pill" onclick="appendNote('Serve extra tissues')">🧻 Extra tissues</span>
+      </div>
+    </div>
+
+    <!-- BILL DETAILS -->
+    <div class="bill-card">
+      <div class="bill-line">
+        <span>Item Subtotal</span>
+        <span id="billSubtotal">₹0</span>
+      </div>
+      <div class="bill-line" id="discountRow" style="display:none;color:#16A34A;font-weight:700">
+        <span>Coupon Discount (<span id="appliedCouponCode">COUPON</span>)</span>
+        <span id="billDiscount">-₹0</span>
+      </div>
+      <div class="bill-line" id="taxRow" style="display:none">
+        <span>Taxes &amp; GST (<span id="billTaxRate">5%</span>)</span>
+        <span id="billTax">₹0</span>
+      </div>
+      <div class="bill-line grand-total">
+        <span>Total Amount</span>
+        <span id="billTotal" style="color:var(--primary)">₹0</span>
+      </div>
+    </div>
+
+    <div class="payment-notice">
+      
+      <span>Payment on Table / Counter: Pay via UPI QR or Cash after food arrives</span>
+    </div>
+
+    <button class="btn-submit-order" id="btnPlaceOrder" onclick="placeOrder()">
+      <span>Confirm &amp; Send to Kitchen</span>
+    </button>
+  </div>
+</div>
+
+<!-- ORDER CONFIRMATION MODAL -->
+<div class="sheet-overlay" id="successModal" style="display:none">
+  <div class="sheet-modal" style="border-radius:26px;text-align:center;padding:26px 20px">
+    <div style="margin-bottom:8px"><svg style="width:48px;height:48px;color:#16a34a;stroke:currentColor;fill:none;stroke-width:2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+    <h2 style="font-size:20px;font-weight:900;color:var(--dark);margin-bottom:6px">Order Sent to Kitchen!</h2>
+    <p style="color:#64748B;font-size:13.5px;margin-bottom:16px">The chef has received your order and started preparing it fresh.</p>
+
+    <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:16px;padding:14px;margin-bottom:16px">
+      <div style="font-size:12px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:0.5px">Order Token</div>
+      <b style="font-size:24px;color:#15803D;letter-spacing:-0.5px" id="confirmedOrderId">#FP-1088</b>
+      <div style="font-size:13px;font-weight:800;color:#166534;margin-top:4px" id="confirmedTable">Table: Table 2</div>
+    </div>
+
+    <button class="btn-submit-order" style="background:#0F172A;margin-top:10px" onclick="resetAfterOrder()">
+      <span>+ Add More Items to Table</span>
+    </button>
+  </div>
+</div>
+
+<!-- WAITER TABLE ORDER DETAILS & EDIT MODAL -->
+<div class="sheet-overlay" id="tableOrderDetailsModal" style="display:none" onclick="if(event.target===this)closeTableOrderDetailsModal()">
+  <div class="sheet-modal" style="max-height:88vh;display:flex;flex-direction:column;padding:0;overflow:hidden;border-top-left-radius:24px;border-top-right-radius:24px">
+    <div style="padding:16px 20px;border-bottom:1px solid #E2E8F0;background:#fff;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:11px;font-weight:800;color:#2563EB;letter-spacing:0.5px">ACTIVE TABLE ORDER</div>
+        <h3 style="margin:2px 0 0;font-size:17px;font-weight:900;color:#0F172A" id="todModalTableTitle">Table 1</h3>
+      </div>
+      <button onclick="closeTableOrderDetailsModal()" style="border:none;background:#F1F5F9;width:32px;height:32px;border-radius:50%;font-size:15px;font-weight:800;color:#64748B;cursor:pointer">✕</button>
+    </div>
+
+    <div style="flex:1;overflow-y:auto;padding:16px;background:#F8FAFC">
+      <div style="background:#fff;border:1px solid #E2E8F0;border-radius:14px;padding:12px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <span style="font-size:11px;color:#64748B;font-weight:700">CURRENT BILL</span>
+          <div style="font-size:20px;font-weight:900;color:#0F172A" id="todModalTotal">₹0</div>
+        </div>
+        <div style="text-align:right">
+          <span style="font-size:11px;color:#64748B;font-weight:700">STATUS</span>
+          <div style="font-size:12px;font-weight:800;color:#2563EB" id="todModalStatus">Ordering</div>
+        </div>
+      </div>
+
+      <div style="font-size:12px;font-weight:800;color:#64748B;margin-bottom:8px;text-transform:uppercase">Ordered Dishes (Add / Delete / Edit)</div>
+      <div id="todModalItemsList" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+
+    <div style="padding:14px 18px;background:#fff;border-top:1px solid #E2E8F0;display:flex;gap:8px;flex-wrap:wrap">
+      <button onclick="startAddingMoreDishesToTable()" style="flex:1;min-width:130px;background:#EA580C;color:#fff;border:none;padding:11px 12px;border-radius:10px;font-size:12.5px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px">
+        <span>➕ Add Dishes</span>
+      </button>
+      <button onclick="printKotFromActiveModal()" style="flex:1;min-width:130px;background:#FEF08A;color:#854D0E;border:1.5px solid #FACC15;padding:11px 12px;border-radius:10px;font-size:12.5px;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 1px 3px rgba(234,179,8,0.2)">
+        <span>🖨️ Print KOT</span>
+      </button>
+      <button onclick="saveActiveOrderChanges()" style="background:#0F172A;color:#fff;border:none;padding:11px 13px;border-radius:10px;font-size:12.5px;font-weight:800;cursor:pointer">
+        💾 Save
+      </button>
+      <button onclick="cancelActiveTableOrder()" style="background:#FEE2E2;color:#EF4444;border:1px solid #FECACA;padding:11px 12px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer" title="Cancel this order">
+        🗑️ Clear
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- COUPONS MODAL DRAWER -->
+<div class="sheet-overlay" id="couponsModal" style="display:none" onclick="if(event.target===this)closeCouponsModal()">
+  <div class="sheet-modal">
+    <div class="sheet-drag-handle"></div>
+    <div class="sheet-header">
+      <div>
+        <div class="sheet-title">Special Offers &amp; Coupons</div>
+        <small style="color:#64748B;font-size:12px">Available discounts for your table order</small>
+      </div>
+      <button class="sheet-close-btn" onclick="closeCouponsModal()">✕</button>
+    </div>
+
+    <div id="couponsListContainer">
+      <!-- Coupon 1 -->
+      <div class="coupon-card">
+        <div>
+          <div class="coupon-code-badge">FOODY50</div>
+          <div class="coupon-desc">Get 50% OFF up to ₹100 on orders above ₹200</div>
+        </div>
+        <button class="btn-apply-coupon" onclick="applyCoupon('FOODY50', 50, 100, 200, this)">Apply</button>
+      </div>
+      <!-- Coupon 2 -->
+      <div class="coupon-card">
+        <div>
+          <div class="coupon-code-badge">FLAT20</div>
+          <div class="coupon-desc">Flat 20% discount on all main course dishes</div>
+        </div>
+        <button class="btn-apply-coupon" onclick="applyCoupon('FLAT20', 20, 200, 150, this)">Apply</button>
+      </div>
+      <!-- Coupon 3 -->
+      <div class="coupon-card">
+        <div>
+          <div class="coupon-code-badge">WELCOME</div>
+          <div class="coupon-desc">Instant ₹40 OFF on your first dining order</div>
+        </div>
+        <button class="btn-apply-coupon" onclick="applyCoupon('WELCOME', 0, 40, 100, this, 40)">Apply</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- CUSTOMER PROFILE UPDATE MODAL DRAWER -->
+<div class="sheet-overlay" id="customerProfileModal" style="display:none" onclick="if(event.target===this)closeProfileDialog()">
+  <div class="sheet-modal" style="max-height:85vh">
+    <div class="sheet-drag-handle"></div>
+    <div class="sheet-header" style="align-items:center">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#FF4F17,#EA580C);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;box-shadow:0 4px 12px rgba(234,88,12,0.3)" id="profileModalAvatar">👤</div>
+        <div>
+          <div class="sheet-title" style="margin:0;font-size:18px">Update Profile</div>
+          <small style="color:#64748B;font-size:12px">Dining at: <b id="profileModalTableBadge" style="color:var(--primary)">Table 1</b></small>
+        </div>
+      </div>
+      <button class="sheet-close-btn" onclick="closeProfileDialog()">✕</button>
+    </div>
+
+    <div style="padding:16px 20px 28px">
+      <div class="form-group" style="margin-bottom:14px">
+        <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px">Your Full Name</label>
+        <input type="text" id="profileInputName" placeholder="e.g. Rahul Sharma" style="width:100%;padding:12px 14px;border:1.5px solid #E2E8F0;border-radius:12px;font-size:14px;font-weight:600;outline:none;background:#F8FAFC">
+      </div>
+
+      <div class="form-group" style="margin-bottom:14px">
+        <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px">Mobile Number (For WhatsApp bill & updates)</label>
+        <div style="display:flex;align-items:center;border:1.5px solid #E2E8F0;border-radius:12px;background:#F8FAFC;overflow:hidden">
+          <span style="padding:12px 12px;font-size:14px;font-weight:700;color:#64748B;border-right:1px solid #E2E8F0;background:#F1F5F9">+91</span>
+          <input type="tel" id="profileInputPhone" placeholder="10-digit mobile number" maxlength="10" style="flex:1;padding:12px 14px;border:none;background:transparent;font-size:14px;font-weight:600;outline:none">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:18px">
+        <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px">Dining Food Preference</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <button type="button" class="diet-pref-btn" id="dietPrefAll" onclick="setProfileDietPref('all')" style="padding:10px 6px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #EA580C;background:#FFF7ED;color:#EA580C">🍽️ All Items</button>
+          <button type="button" class="diet-pref-btn" id="dietPrefVeg" onclick="setProfileDietPref('veg')" style="padding:10px 6px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #E2E8F0;background:#fff;color:#16A34A">🟢 Veg Only</button>
+          <button type="button" class="diet-pref-btn" id="dietPrefNonveg" onclick="setProfileDietPref('nonveg')" style="padding:10px 6px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #E2E8F0;background:#fff;color:#DC2626">🔴 Non-Veg</button>
+        </div>
+      </div>
+
+      <button type="button" onclick="saveCustomerProfile()" style="width:100%;padding:14px;background:linear-gradient(135deg,#FF4F17,#EA580C);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(234,88,12,0.3);display:flex;align-items:center;justify-content:center;gap:8px">
+        <span>Save Profile</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- QR SCAN / TABLE SWITCHER MODAL -->
+<div class="sheet-overlay" id="qrScanModal" style="display:none" onclick="if(event.target===this)closeQrScanModal()">
+  <div class="sheet-modal">
+    <div class="sheet-drag-handle"></div>
+    <div class="sheet-header">
+      <div>
+        <div class="sheet-title">QR Scan &amp; Table Info</div>
+        <small style="color:#64748B;font-size:12px">Scan another QR code or verify your table</small>
+      </div>
+      <button class="sheet-close-btn" onclick="closeQrScanModal()">✕</button>
+    </div>
+
+    <div class="qr-info-card">
+      <div style="font-size:14px;color:#475569;margin-bottom:4px">You are currently seated at:</div>
+      <div style="font-size:22px;font-weight:900;color:var(--primary)" id="qrActiveTableText">Table 2</div>
+
+      <div class="qr-code-box">
+        <img id="tableQrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://api.foodypay.online/menu/FP-624358/2" alt="QR Code">
+      </div>
+
+      <p style="font-size:12.5px;color:#64748B;margin:10px 0 16px">Point your mobile camera at any table QR sticker to automatically switch dining tables.</p>
+
+      <button class="btn-submit-order" style="background:#0F172A" onclick="openNativeCameraScan()">
+        <span>📷 Open Camera Scanner</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- CLAIM ORDER & LINK CUSTOMER DETAILS MODAL -->
+<div class="sheet-overlay" id="claimOrderModal" style="display:none" onclick="if(event.target===this)closeClaimOrderModal()">
+  <div class="sheet-modal" style="max-height:85vh;border-top-left-radius:24px;border-top-right-radius:24px">
+    <div class="sheet-drag-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div>
+        <div style="font-size:11px;font-weight:800;color:#EA580C;letter-spacing:0.5px">LINK BILL DETAILS</div>
+        <h3 style="margin:2px 0 0;font-size:18px;font-weight:900;color:#0F172A">Claim Table Order</h3>
+      </div>
+      <button onclick="closeClaimOrderModal()" style="border:none;background:#F1F5F9;width:32px;height:32px;border-radius:50%;font-size:14px;font-weight:800;color:#64748B;cursor:pointer">✕</button>
+    </div>
+
+    <p style="font-size:12.5px;color:#64748B;line-height:1.4;margin:0 0 16px">
+      Ye table order aapke naam par link ho jayega. Bill aur WhatsApp digital receipt aapki details par generate hogi.
+    </p>
+
+    <div class="form-group" style="text-align:left;margin-bottom:12px">
+      <label style="font-size:12px;font-weight:800;color:#334155">Your Full Name *</label>
+      <input type="text" id="claimCustName" placeholder="e.g. Rahul Sharma" style="font-weight:700" required>
+    </div>
+
+    <div class="form-group" style="text-align:left;margin-bottom:12px">
+      <label style="font-size:12px;font-weight:800;color:#334155">Mobile Number (For WhatsApp / SMS Bill Receipt) *</label>
+      <input type="tel" id="claimCustPhone" placeholder="e.g. 9876543210" maxlength="10" style="font-weight:700">
+    </div>
+
+    <div class="form-group" style="text-align:left;margin-bottom:16px">
+      <label style="font-size:12px;font-weight:800;color:#334155">Special Note / Instructions</label>
+      <input type="text" id="claimCustNote" placeholder="e.g. Extra spicy, no onions">
+    </div>
+
+    <button onclick="submitClaimOrder()" class="btn-submit-order" style="background:#EA580C;margin-top:4px">
+      <span>✅ Save My Details &amp; Link Bill</span>
+    </button>
+  </div>
+</div>
+
+<!-- WAITER PIN / ID LOGIN MODAL -->
+<div class="sheet-overlay" id="waiterLoginModal" style="display:none">
+  <div class="sheet-modal" style="text-align:center;max-width:390px;margin:0 auto;border-radius:24px;padding:24px 20px">
+    <div class="sheet-drag-handle"></div>
+    <div style="width:54px;height:54px;border-radius:16px;background:#FFF4ED;color:#EA580C;display:flex;align-items:center;justify-content:center;margin:6px auto 12px;border:1.5px solid #FED7AA;box-shadow:0 4px 14px rgba(234,88,12,0.15)">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </div>
+    <h3 style="font-size:18px;font-weight:900;color:#0F172A;margin:0 0 4px" id="waiterLoginTitle">Waiter Terminal Login</h3>
+    <p style="font-size:12.5px;color:#64748B;margin:0 0 16px">Security PIN enter karke terminal unlock karein</p>
+
+    <div class="form-group" style="text-align:left;display:none" id="merchantIdGroup">
+      <label style="font-size:11.5px;font-weight:800;color:#334155">Merchant / Outlet ID</label>
+      <input type="text" id="inputMerchantId" placeholder="e.g. FP-445920" style="font-weight:700" readonly>
+    </div>
+
+    <div class="form-group" style="text-align:left">
+      <label style="font-size:11.5px;font-weight:800;color:#334155">Waiter / Employee ID</label>
+      <input type="text" id="inputWaiterId" placeholder="e.g. waiter-rahul" style="font-weight:700;background:#F8FAFC" autocomplete="username">
+    </div>
+
+    <div class="form-group" style="text-align:left">
+      <label style="font-size:11.5px;font-weight:800;color:#334155">Security PIN</label>
+      <input type="password" id="inputWaiterPin" placeholder="● ● ● ●" maxlength="6" inputmode="numeric" pattern="[0-9]*" style="font-size:22px;letter-spacing:8px;text-align:center;font-weight:900;padding:10px;border:2px solid #EA580C;border-radius:12px;background:#FFF8F4" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitWaiterLogin()">
+    </div>
+
+    <button class="btn-submit-order" style="background:#EA580C;margin-top:14px;box-shadow:0 4px 15px rgba(234,88,12,0.35)" onclick="submitWaiterLogin()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      <span>Unlock Waiter Terminal</span>
+    </button>
+  </div>
+</div>
+
+<!-- WAITER VISUAL TABLES MODAL (Restaurant & Cafe Area Tables) -->
+<div class="sheet-overlay" id="waiterTableModal" style="display:none" onclick="if(event.target===this)closeWaiterTableModal()">
+  <div class="sheet-modal" style="max-height:86vh;display:flex;flex-direction:column;padding:0;overflow:hidden;border-top-left-radius:24px;border-top-right-radius:24px">
+    <div style="padding:16px 20px;border-bottom:1px solid #E2E8F0;background:#fff;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <h3 style="margin:0;font-size:17px;font-weight:900;color:#0F172A;display:flex;align-items:center;gap:6px">
+          <span>🍽️</span> Select Dining Table
+        </h3>
+        <p style="margin:2px 0 0;font-size:12px;color:#64748B">Choose table to punch customer order</p>
+      </div>
+      <button onclick="closeWaiterTableModal()" style="border:none;background:#F1F5F9;width:32px;height:32px;border-radius:50%;font-size:15px;font-weight:800;color:#64748B;cursor:pointer">✕</button>
+    </div>
+
+    <!-- Active Tables View -->
+    <div id="waiterTablesList" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;background:#F8FAFC">
+      <!-- Generated dynamically based on storeData.areas -->
+    </div>
+
+    <div style="padding:14px 20px;background:#fff;border-top:1px solid #E2E8F0;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:12.5px;color:#64748B">Serving Table: <b id="waiterModalSelectedName" style="color:#EA580C;font-size:13px">Table 1</b></span>
+      <button onclick="closeWaiterTableModal()" style="background:#EA580C;color:#fff;border:none;padding:9px 20px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer">
+        Confirm
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST MESSAGE NOTIFICATION -->
+<div class="toast-msg" id="toastMessage">Notification</div>
+
+<script>
+  // App State
+  let merchantUniqueId = 'FP-624358';
+  let currentTable = 'Table 2';
+  let storeData = null;
+  let catalogProducts = [];
+  let activeCategory = 'All';
+  let searchQuery = '';
+  let vegOnly = false;
+  let sortByPriceAsc = null; // null: normal, true: asc, false: desc
+
+  // Waiter Order Terminal State
+  let isWaiterMode = false;
+  let currentWaiterId = '';
+  let currentWaiterName = '';
+  let currentWaiterJwt = localStorage.getItem('fp_waiter_jwt') || '';
+
+  // Selected variant index per dish: dishId -> variantIndex
+  const selectedVariants = new Map();
+
+  // Cart: cartKey -> { product, variantName, price, qty }
+  const cart = new Map();
+
+  // Applied Coupon state
+  let appliedDiscount = 0;
+  let activeCouponName = '';
+
+  // High Quality Curated Food Photos for popular dishes
+  const FOOD_IMAGE_MAP = {
+    'dal makhani': 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=400&q=80',
+    'paneer tikka': 'https://images.unsplash.com/photo-1567184109191-37764e7fadd9?auto=format&fit=crop&w=400&q=80',
+    'paneer tikka masala': 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=400&q=80',
+    'tikka': 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=400&q=80',
+    'butter naan': 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=400&q=80',
+    'cold coffee': 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=400&q=80',
+    'gulab jamun': 'https://images.unsplash.com/photo-1605197148784-06c825a0b731?auto=format&fit=crop&w=400&q=80',
+    'pizza': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400&q=80',
+    'burger': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80',
+    'biryani': 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=400&q=80'
+  };
+
+  const CATEGORY_ICONS = {
+    'All': '☀️',
+    'Starters': '🥔',
+    'Main Course': '🍲',
+    'Main Courses': '🍲',
+    'Drinks': '🧋',
+    'Beverages': '🧋',
+    'Dessert': '🍯',
+    'Desserts': '🍯',
+    'Breads': '🫓',
+    'Rice': '🍚',
+    'Snacks': '🍟',
+    'Pizza': '🍕',
+    'Burgers': '🍔',
+  };
+
+  function getCuratedFoodImage(dishName, userImg) {
+    if (userImg && userImg.trim()) return userImg;
+    const nameLower = (dishName || '').toLowerCase().trim();
+    for (const [key, url] of Object.entries(FOOD_IMAGE_MAP)) {
+      if (nameLower.includes(key)) return url;
+    }
+    return '';
+  }
+
+  function getFallbackEmoji(name, cat) {
+    const n = (name || '').toLowerCase();
+    if (n.includes('dal') || n.includes('makhani')) return '🍲';
+    if (n.includes('paneer') || n.includes('tikka')) return '🍢';
+    if (n.includes('naan') || n.includes('roti') || n.includes('bread')) return '🫓';
+    if (n.includes('coffee') || n.includes('shake') || n.includes('drink')) return '🧋';
+    if (n.includes('jamun') || n.includes('sweet') || n.includes('halwa')) return '🍯';
+    if (n.includes('pizza')) return '🍕';
+    if (n.includes('burger')) return '🍔';
+    return CATEGORY_ICONS[cat] || '🍽️';
+  }
+
+  // Toast alert
+  function showToast(msg) {
+    const toast = document.getElementById('toastMessage');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // Parse URL parameters & Waiter routes
+  function parseRouteParams() {
+    const url = new URL(window.location.href);
+    const qId = url.searchParams.get('id') || url.searchParams.get('uniqueId') || url.searchParams.get('foodypayId');
+    const qTable = url.searchParams.get('table');
+
+    const parts = window.location.pathname.split('/').filter(Boolean);
+    // Supported routes:
+    // 1. /menu/:uniqueId/waiter/:waiterId
+    // 2. /menu/:uniqueId/:table/waiter/:waiterId
+    // 3. /waiter/:uniqueId/:waiterId
+    // 4. /waiter/:uniqueId
+    // 5. /:uniqueId/waiter/:waiterId
+    // 6. /menu/:uniqueId/:table
+    // 7. /menu/:uniqueId
+    if (parts[0] === 'client' || parts[0] === 'order' || parts[0] === 'table-order') {
+      if (parts[1]) merchantUniqueId = decodeURIComponent(parts[1]);
+      if (parts[2]) currentTable = decodeURIComponent(parts[2]);
+    } else if (parts[0] === 'menu') {
+      merchantUniqueId = decodeURIComponent(parts[1] || 'FP-624358');
+      if (parts[2] === 'waiter') {
+        isWaiterMode = true;
+        if (parts[3]) currentWaiterId = decodeURIComponent(parts[3]);
+      } else if (parts[3] === 'waiter') {
+        currentTable = decodeURIComponent(parts[2]);
+        isWaiterMode = true;
+        if (parts[4]) currentWaiterId = decodeURIComponent(parts[4]);
+      } else if (parts[2]) {
+        currentTable = decodeURIComponent(parts[2]);
       }
-      if (pathParts[2]) {
-        pathTable = decodeURIComponent(pathParts[2]);
+    } else if (parts[0] === 'waiter') {
+      isWaiterMode = true;
+      if (parts[1]) merchantUniqueId = decodeURIComponent(parts[1]);
+      if (parts[2]) currentWaiterId = decodeURIComponent(parts[2]);
+    } else if (parts[1] === 'waiter') {
+      merchantUniqueId = decodeURIComponent(parts[0]);
+      isWaiterMode = true;
+      if (parts[2]) currentWaiterId = decodeURIComponent(parts[2]);
+    } else if (qId) {
+      merchantUniqueId = qId;
+    }
+
+    const qWaiter = url.searchParams.get('waiter') || url.searchParams.get('waiterId');
+    if (qWaiter) {
+      isWaiterMode = true;
+      currentWaiterId = qWaiter;
+    }
+
+    if (qTable) currentTable = qTable;
+
+    const cleanTable = currentTable.toLowerCase().startsWith('table') ? currentTable : `Table ${currentTable}`;
+    currentTable = cleanTable;
+
+    const qName = url.searchParams.get('name') || url.searchParams.get('restName') || url.searchParams.get('storeName');
+    if (qName) {
+      const cleanName = decodeURIComponent(qName).trim();
+      if (cleanName) {
+        document.getElementById('storeNameText').textContent = cleanName;
+        document.title = `${cleanName} - Digital Menu`;
+        updateStoreLogoInitial(cleanName);
       }
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const merchantId = pathMerchant || urlParams.get('merchant') || urlParams.get('foodypayId') || urlParams.get('uniqueId') || urlParams.get('id') || 'FP-445920';
-    const rawTable = pathTable || urlParams.get('table') || urlParams.get('t') || 'Table 01';
-    const storeName = urlParams.get('name') || urlParams.get('store') || 'Snack Rack';
+    document.getElementById('modalTableBadge').textContent = currentTable;
+    document.getElementById('qrActiveTableText').textContent = currentTable;
+    document.getElementById('tableQrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(window.location.href)}`;
+  }
 
-    // Normalize table
-    let currentTable = rawTable.toLowerCase().startsWith('table') ? rawTable : `Table ${rawTable}`;
-
-    // App state
-    let allProducts = [];
-    let allCats = [];
-    let activeCat = 'All';
-    let searchQuery = '';
-    let cart = new Map();
-    let gstRate = 5;
-    let appBannerTimer = null;
-    let deferredPrompt = null;
-
-    // Set Header Info
-    document.getElementById('hdrStoreName').textContent = storeName;
-    document.getElementById('hdrTableBadge').textContent = currentTable;
-    document.getElementById('appDlName').textContent = `${storeName} App`;
-    document.title = `${storeName} · ${currentTable} Menu`;
-
-    // 10-Second App Download Reappear Rule
-    function checkAppInstallStatus() {
-      const isInstalled = localStorage.getItem('fp_app_installed') === 'true' || window.matchMedia('(display-mode: standalone)').matches;
-      if (isInstalled) {
-        const b = document.getElementById('appDownloadBanner');
-        if (b) b.style.display = 'none';
-      }
+  function updateStoreLogoInitial(name, logoUrl) {
+    const wrap = document.getElementById('storeLogoWrap');
+    if (!wrap) return;
+    if (logoUrl) {
+      wrap.innerHTML = `<img src="${logoUrl}" alt="${name}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`;
+    } else {
+      const initial = (name || 'F').trim().charAt(0).toUpperCase();
+      wrap.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-weight:900;font-size:20px;border-radius:12px;box-shadow:0 3px 10px rgba(234,88,12,0.3)">${initial}</div>`;
     }
+  }
 
-    function dismissAppBanner() {
-      const b = document.getElementById('appDownloadBanner');
-      if (!b) return;
-      b.classList.add('hiding');
-      setTimeout(() => { b.style.display = 'none'; }, 300);
+  // Waiter Order Terminal Handlers
+  let liveRunningOrders = {};
+  let fullOrdersList = [];
+  let waiterSelectedAreaFilter = 'All';
+  let activeEditingOrder = null;
+  let currentWaiterAssignedTables = [];
 
-      // Reappear after 10 seconds if user has not downloaded/installed
-      if (appBannerTimer) clearTimeout(appBannerTimer);
-      appBannerTimer = setTimeout(() => {
-        const isInstalled = localStorage.getItem('fp_app_installed') === 'true' || window.matchMedia('(display-mode: standalone)').matches;
-        if (!isInstalled && b) {
-          b.style.display = 'flex';
-          void b.offsetWidth;
-          b.classList.remove('hiding');
+  async function initWaiterMode() {
+    if (!isWaiterMode) return;
+
+    // Apply waiter mode body class (automatically hides bottom dock nav and app download banner)
+    document.body.classList.add('is-waiter-mode');
+
+    const btmDock = document.getElementById('bottomDockNav');
+    if (btmDock) btmDock.style.display = 'none';
+    checkAppDownloadStatus();
+
+    // 1. Try restoring session from saved Waiter JWT
+    if (currentWaiterJwt) {
+      try {
+        const meRes = await fetch('/api/staff/waiter/me', {
+          headers: { 'Authorization': 'Bearer ' + currentWaiterJwt }
+        });
+        const meData = await meRes.json();
+        if (meData.success && meData.waiter) {
+          const waiterEmpId = (meData.waiter.employeeId || '').toLowerCase();
+          const targetEmpId = (currentWaiterId || '').toLowerCase();
+          if (!targetEmpId || waiterEmpId === targetEmpId) {
+            currentWaiterId = meData.waiter.employeeId;
+            currentWaiterName = meData.waiter.name;
+            currentWaiterAssignedTables = meData.waiter.assignedTables || [];
+            showToast(`Welcome, ${currentWaiterName}!`);
+            showWaiterTablesScreen();
+            return;
+          }
+        } else {
+          currentWaiterJwt = '';
+          localStorage.removeItem('fp_waiter_jwt');
         }
-      }, 10000);
+      } catch (err) {
+        console.warn('JWT verification error:', err);
+      }
     }
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
+    if (!currentWaiterId) {
+      promptWaiterPinLogin();
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/staff/waiter/${encodeURIComponent(merchantUniqueId)}/${encodeURIComponent(currentWaiterId)}`);
+      const json = await res.json();
+      if (json.success && json.data) {
+        currentWaiterName = json.data.name;
+        currentWaiterId = json.data.employeeId;
+        currentWaiterAssignedTables = Array.isArray(json.data.assignedTables) ? json.data.assignedTables : [];
+      }
+    } catch (e) {
+      console.warn('Waiter check error:', e);
+    }
+
+    // Require PIN login upon QR scan
+    promptWaiterPinLogin();
+  }
+
+  function promptWaiterPinLogin() {
+    const modal = document.getElementById('waiterLoginModal');
+    if (!modal) return;
+    const mInput = document.getElementById('inputMerchantId');
+    if (mInput) mInput.value = merchantUniqueId;
+    const wInput = document.getElementById('inputWaiterId');
+    if (wInput) wInput.value = currentWaiterId || '';
+    const pinInput = document.getElementById('inputWaiterPin');
+    if (pinInput) {
+      pinInput.value = '';
+      setTimeout(() => pinInput.focus(), 300);
+    }
+    const titleEl = document.getElementById('waiterLoginTitle');
+    if (titleEl) {
+      titleEl.innerHTML = currentWaiterName
+        ? `Unlock for <b>${currentWaiterName}</b>`
+        : 'Waiter Terminal Login';
+    }
+    modal.style.display = 'flex';
+  }
+
+  function showWaiterTablesScreen() {
+    isWaiterMode = true;
+    document.body.classList.add('is-waiter-mode');
+
+    const tablesScreen = document.getElementById('waiterTablesScreen');
+    const menuWrapper = document.getElementById('menuViewWrapper');
+    const bottomNav = document.getElementById('bottomDockNav');
+    const cartDock = document.getElementById('cartFloatDock');
+
+    if (tablesScreen) tablesScreen.style.display = 'block';
+    if (menuWrapper) menuWrapper.style.display = 'none';
+    if (bottomNav) bottomNav.style.display = 'none';
+    if (cartDock) cartDock.style.display = 'none';
+
+    const sName = document.getElementById('waiterScreenName');
+    if (sName) sName.textContent = currentWaiterName || currentWaiterId || 'Waiter';
+    const sId = document.getElementById('waiterScreenId');
+    if (sId) sId.textContent = currentWaiterId || 'Terminal';
+
+    const assBadge = document.getElementById('waiterAssignedBadge');
+    const assList = document.getElementById('waiterAssignedList');
+    if (assBadge && assList) {
+      if (currentWaiterAssignedTables && currentWaiterAssignedTables.length > 0) {
+        assBadge.style.display = 'inline-block';
+        assList.textContent = currentWaiterAssignedTables.join(', ');
+      } else {
+        assBadge.style.display = 'none';
+      }
+    }
+
+    fetchLiveTableOrders(false);
+  }
+
+  function showWaiterMenuScreen(tableName) {
+    currentTable = tableName;
+    const tablesScreen = document.getElementById('waiterTablesScreen');
+    const menuWrapper = document.getElementById('menuViewWrapper');
+    const waiterMenuTop = document.getElementById('waiterMenuTopBar');
+    const bottomNav = document.getElementById('bottomDockNav');
+
+    if (tablesScreen) tablesScreen.style.display = 'none';
+    if (menuWrapper) menuWrapper.style.display = 'block';
+    if (waiterMenuTop) waiterMenuTop.style.display = 'flex';
+    if (bottomNav) bottomNav.style.display = 'none';
+
+    const curDisplay = document.getElementById('waiterMenuCurrentTable');
+    if (curDisplay) curDisplay.textContent = currentTable;
+    const curPill = document.getElementById('waiterMenuNamePill');
+    if (curPill) curPill.textContent = currentWaiterName || currentWaiterId;
+    const tblBadge = document.getElementById('modalTableBadge');
+    if (tblBadge) tblBadge.textContent = currentTable;
+    const qrTable = document.getElementById('qrActiveTableText');
+    if (qrTable) qrTable.textContent = currentTable;
+
+    // Check if table has running order
+    const normKey = currentTable.toLowerCase().trim();
+    const cleanKey = normKey.replace(/^table\s*/i, '').trim();
+    const existing = liveRunningOrders[normKey] || liveRunningOrders[cleanKey] || liveRunningOrders[`table ${cleanKey}`];
+    const banner = document.getElementById('waiterExistingOrderBanner');
+    if (banner) {
+      if (existing) {
+        banner.style.display = 'block';
+        const infoEl = document.getElementById('waiterExistingOrderInfo');
+        if (infoEl) infoEl.textContent = `Running Bill: ₹${existing.total} · Status: ${existing.status || 'Ordering'}`;
+      } else {
+        banner.style.display = 'none';
+      }
+    }
+
+    renderMenu();
+    updateCartBar();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  async function fetchLiveTableOrders(showNotice) {
+    try {
+      const res = await fetch(`/api/orders/public?foodypayId=${encodeURIComponent(merchantUniqueId)}`);
+      const json = await res.json();
+      liveRunningOrders = {};
+      fullOrdersList = [];
+      if (json.success && Array.isArray(json.data)) {
+        fullOrdersList = json.data;
+        const evaluatedTables = new Set();
+        json.data.forEach(ord => {
+          if (ord && ord.table) {
+            const raw = String(ord.table).toLowerCase().trim();
+            const clean = raw.replace(/^table\s*/i, '').trim();
+
+            if (evaluatedTables.has(clean)) return;
+            evaluatedTables.add(clean);
+
+            const isSettled = (ord.status === 'settled' || ord.status === 'completed' || ord.status === 'cancelled');
+            const hasItems = Array.isArray(ord.items) && ord.items.length > 0 && Number(ord.total || 0) > 0;
+            if (isSettled || !hasItems) return;
+
+
+
+            const val = {
+              _id: ord._id,
+              orderId: ord.orderId,
+              customer: ord.customer,
+              phone: ord.phone,
+              items: ord.items || [],
+              total: ord.total || 0,
+              subtotal: ord.subtotal || 0,
+              status: ord.status || 'ordering',
+              kotPrinted: !!(ord.kotPrinted || ord.placedBy === 'Waiter' || ord.status === 'kot_printed'),
+              billPrinted: !!(ord.billPrinted || ord.status === 'bill_printed'),
+              waiterName: ord.waiterName || '',
+              placedBy: ord.placedBy || '',
+              createdAt: ord.createdAt
+            };
+            liveRunningOrders[raw] = val;
+            liveRunningOrders[clean] = val;
+            liveRunningOrders[`table ${clean}`] = val;
+          }
+        });
+      }
+      renderWaiterTablesDashboard();
+      if (showNotice) showToast('🔄 Tables refreshed');
+    } catch (e) {
+      renderWaiterTablesDashboard();
+    }
+  }
+
+  // Periodic Auto-Sync with POS & Other Waiters (every 1.5 seconds)
+  setInterval(() => {
+    if (isWaiterMode) {
+      fetchLiveTableOrders(false);
+    }
+  }, 1500);
+
+  function renderWaiterTablesDashboard() {
+    const container = document.getElementById('waiterTablesCardsContainer');
+    if (!container) return;
+
+    const areas = (storeData && Array.isArray(storeData.areas) && storeData.areas.length > 0)
+      ? storeData.areas
+      : [
+          { name: 'Restaurant', tables: [{ name: '1' }, { name: '2' }, { name: '3' }, { name: '4' }, { name: '5' }, { name: '6' }] },
+          { name: 'Cafe', tables: [{ name: 'T1' }, { name: 'T2' }, { name: 'T3' }] }
+        ];
+
+    // Helper to test if a table is assigned to the current waiter
+    const isTableAssigned = (tName) => {
+      if (!currentWaiterAssignedTables || !currentWaiterAssignedTables.length) return true;
+      const cleanTarget = String(tName || '').trim().toLowerCase().replace(/^table\s*/i, '').trim();
+      return currentWaiterAssignedTables.some(assigned => {
+        const cleanAssigned = String(assigned).trim().toLowerCase().replace(/^table\s*/i, '').trim();
+        return cleanAssigned === cleanTarget || cleanTarget.includes(cleanAssigned) || cleanAssigned.includes(cleanTarget);
+      });
+    };
+
+    // Calculate Stats
+    let totalTablesCount = 0;
+    let orderingCount = 0;
+    let kotCount = 0;
+
+    areas.forEach(a => {
+      (a.tables || []).forEach(t => {
+        const rawName = String(t.name || t.id || '1');
+        if (!isTableAssigned(rawName)) return;
+
+        totalTablesCount++;
+        const norm = rawName.toLowerCase().trim();
+        const clean = norm.replace(/^table\s*/i, '').trim();
+        const ord = liveRunningOrders[norm] || liveRunningOrders[clean] || liveRunningOrders[`table ${clean}`];
+        if (ord && Array.isArray(ord.items) && ord.items.length > 0 && Number(ord.total || 0) > 0) {
+          const rawStatus = String(ord.status || '').toLowerCase();
+          const isKot = !!(ord.kotPrinted || rawStatus === 'kot_printed' || rawStatus === 'preparing');
+          if (isKot) {
+            kotCount++;
+          } else {
+            orderingCount++;
+          }
+        }
+      });
     });
 
-    function handleAppInstall() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choice) => {
-          if (choice.outcome === 'accepted') {
-            localStorage.setItem('fp_app_installed', 'true');
-            const b = document.getElementById('appDownloadBanner');
-            if (b) b.style.display = 'none';
-          }
-          deferredPrompt = null;
-        });
-      } else {
-        localStorage.setItem('fp_app_installed', 'true');
-        const b = document.getElementById('appDownloadBanner');
-        if (b) b.style.display = 'none';
-        alert('App Installed to Home Screen!');
-      }
+    const blankCount = Math.max(0, totalTablesCount - (orderingCount + kotCount));
+    const statTot = document.getElementById('statTotalTables');
+    if (statTot) statTot.textContent = totalTablesCount;
+    const statAct = document.getElementById('statActiveTables');
+    if (statAct) statAct.textContent = orderingCount;
+    const statKot = document.getElementById('statKotTables');
+    if (statKot) statKot.textContent = kotCount;
+    const statBlk = document.getElementById('statBlankTables');
+    if (statBlk) statBlk.textContent = blankCount;
+
+    // Render Area Filters
+    const areaFiltersWrap = document.getElementById('waiterAreaFilters');
+    if (areaFiltersWrap) {
+      const areaList = ['All', ...areas.map(a => a.name || 'Hall')];
+      areaFiltersWrap.innerHTML = areaList.map(ar => `
+        <button onclick="setWaiterAreaFilter('${ar}')" style="padding:6px 14px;border-radius:99px;font-size:12px;font-weight:700;border:1.5px solid ${waiterSelectedAreaFilter === ar ? '#EA580C' : '#CBD5E1'};background:${waiterSelectedAreaFilter === ar ? '#EA580C' : '#fff'};color:${waiterSelectedAreaFilter === ar ? '#fff' : '#475569'};cursor:pointer;white-space:nowrap">
+          ${ar === 'All' ? '🍽️ All Areas' : ar}
+        </button>
+      `).join('');
     }
 
-    // Call Waiter Alert
-    async function callWaiterAlert() {
-      alert(`🔔 Waiter called for ${currentTable}! Staff has been notified.`);
-      const apiBase = getApiBase();
-      try {
-        await fetch(`${apiBase}/orders/public/claim`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ foodypayId: merchantId, table: currentTable, message: `Guest at ${currentTable} requested assistance` })
-        });
-      } catch(e) {}
+    // Filter Areas
+    const visibleAreas = (waiterSelectedAreaFilter === 'All')
+      ? areas
+      : areas.filter(a => (a.name || '').toLowerCase() === waiterSelectedAreaFilter.toLowerCase());
+
+    let html = '';
+    visibleAreas.forEach(area => {
+      const areaName = area.name || 'Dining Area';
+      const allTables = area.tables || [];
+      const tables = allTables.filter(t => isTableAssigned(t.name || t.id));
+
+      if (!tables.length) return;
+
+      html += `
+        <div class="waiter-area-section">
+          <div class="waiter-area-header">
+            <div class="waiter-area-title-text">
+              <span>📍</span> <span>${areaName}</span>
+            </div>
+            <span style="font-size:11.5px;font-weight:700;color:#64748B">${tables.length} Tables</span>
+          </div>
+
+          <div class="waiter-grid-layout">
+            ${tables.map(t => {
+              const rawName = String(t.name || t.id || '1');
+              const displayName = rawName.toLowerCase().startsWith('table') ? rawName : `Table ${rawName}`;
+              const norm = rawName.toLowerCase().trim();
+              const clean = norm.replace(/^table\s*/i, '').trim();
+
+              const order = liveRunningOrders[norm] || liveRunningOrders[clean] || liveRunningOrders[`table ${clean}`];
+              const isOccupied = !!(order && Array.isArray(order.items) && order.items.length > 0 && Number(order.total || 0) > 0);
+
+              if (isOccupied) {
+                const orderTime = order.createdAt ? new Date(order.createdAt).getTime() : Date.now();
+                const elapsedMins = Math.max(0, Math.floor((Date.now() - orderTime) / 60000));
+                const rawStatus = String(order.status || '').toLowerCase();
+                const isBill = !!(order.billPrinted || rawStatus === 'bill_printed' || rawStatus === 'billed');
+                const isKot = !isBill && !!(order.kotPrinted || rawStatus === 'kot_printed' || rawStatus === 'preparing');
+
+                let cardBg = '#dbeafe';
+                let cardBorder = '#93c5fd';
+                let badgeClass = 'ordering';
+                let badgeText = '● Ordering';
+                let statusLabel = `${elapsedMins} min · Ordering`;
+
+                if (isBill) {
+                  cardBg = '#dcfce7';
+                  cardBorder = '#22c55e';
+                  badgeClass = 'bill';
+                  badgeText = '🧾 Bill printed';
+                  statusLabel = `${elapsedMins} min · Bill printed`;
+                } else if (isKot) {
+                  cardBg = '#fef9c3';
+                  cardBorder = '#eab308';
+                  badgeClass = 'kot';
+                  badgeText = `⏱ ${elapsedMins} min · KOT printed`;
+                  statusLabel = `${elapsedMins} min · KOT printed`;
+                }
+
+                const itemsCount = (order.items || []).reduce((sum, it) => sum + (Number(it.qty) || 1), 0);
+                const itemsNames = (order.items || []).slice(0, 2).map(it => `${it.qty}x ${it.name}`).join(', ');
+                const itemsSum = (order.items || []).reduce((sum, it) => sum + ((Number(it.price !== undefined ? it.price : it.p) || 0) * (Number(it.qty) || 1)), 0);
+                const cardDisplayTotal = (itemsSum > 0) ? Math.max(0, itemsSum - Number(order.discount || 0)) : Number(order.total || 0);
+
+                return `
+                  <div class="waiter-table-box occupied" style="background:${cardBg};border:1.5px solid ${cardBorder}" onclick="showWaiterMenuScreen('${displayName}')">
+                    <div class="waiter-tb-top">
+                      <div class="waiter-tb-number" style="color:#0f172a">${rawName}</div>
+                      <span class="waiter-tb-badge ${badgeClass}">${badgeText}</span>
+                    </div>
+
+                    <div style="margin:4px 0">
+                      <div class="waiter-tb-amount" style="font-size:16px;font-weight:900;color:#0f172a">₹${cardDisplayTotal}</div>
+                      <div style="font-size:11.5px;font-weight:700;color:#334155">${order.waiterName ? `🤵 ${order.waiterName} · ` : ''}${statusLabel}</div>
+                      <div class="waiter-tb-items-count">${itemsCount} items ${itemsNames ? `· <small style="color:#475569">${itemsNames}</small>` : ''}</div>
+                    </div>
+
+                    <div class="waiter-tb-actions" onclick="event.stopPropagation()">
+                      <button class="waiter-tb-btn primary" onclick="showWaiterMenuScreen('${displayName}')">
+                        <span>➕ Add</span>
+                      </button>
+                      <button class="waiter-tb-btn" onclick="triggerRemoteKotPrint('${displayName}')" style="background:#FEF08A;color:#854D0E;border:1.5px solid #FACC15;font-weight:900" title="Print KOT on Reception Printer">
+                        <span>🖨️ KOT</span>
+                      </button>
+                      <button class="waiter-tb-btn blue" onclick="openTableOrderDetailsModal('${displayName}')">
+                        <span>✏️ View</span>
+                      </button>
+                    </div>
+                  </div>
+                `;
+              } else {
+                return `
+                  <div class="waiter-table-box blank" style="background:#fff;border:1.5px solid #e2e8f0" onclick="showWaiterMenuScreen('${displayName}')">
+                    <div class="waiter-tb-top">
+                      <div class="waiter-tb-number" style="color:#0f172a">${rawName}</div>
+                      <span class="waiter-tb-badge blank">Blank</span>
+                    </div>
+
+                    <div style="margin:8px 0;color:#94A3B8;font-size:12px;font-weight:600">
+                      Ready for guests
+                    </div>
+
+                    <div class="waiter-tb-actions">
+                      <button class="waiter-tb-btn primary" style="width:100%" onclick="event.stopPropagation();showWaiterMenuScreen('${displayName}')">
+                        <span>+ Take Order</span>
+                      </button>
+                    </div>
+                  </div>
+                `;
+              }
+            }).join('')}
+          </div>
+        </div>
+      `;
+    });
+
+    if (!html) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:40px 20px;color:#94a3b8">
+          <div style="font-size:40px;margin-bottom:8px">🍽️</div>
+          <b style="color:#475569;font-size:15px">No Assigned Tables in this Area</b>
+          <p style="font-size:12px;margin:4px 0 0">Select another area or contact your manager to update table assignments.</p>
+        </div>
+      `;
+      return;
     }
 
-    // API Base URL Detection
-    function getApiBase() {
-      if (window.location.protocol === 'file:') return 'https://api.foodypay.online/api';
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return window.location.port === '3000' ? 'http://localhost:3000/api' : 'https://api.foodypay.online/api';
-      }
-      return `${window.location.origin}/api`;
+    container.innerHTML = html;
+  }
+
+  function setWaiterAreaFilter(ar) {
+    waiterSelectedAreaFilter = ar;
+    renderWaiterTablesDashboard();
+  }
+
+  function openTableOrderDetailsModal(tableName) {
+    const norm = tableName.toLowerCase().trim();
+    const clean = norm.replace(/^table\s*/i, '').trim();
+    const order = liveRunningOrders[norm] || liveRunningOrders[clean] || liveRunningOrders[`table ${clean}`];
+
+    if (!order) {
+      showToast(`No running order found on ${tableName}`);
+      return;
     }
 
-    // Load Menu from API
-    async function loadMenu() {
-      const apiBase = getApiBase();
-      try {
-        const res = await fetch(`${apiBase}/crm/public-menu?foodypayId=${encodeURIComponent(merchantId)}`);
-        const json = await res.json();
-        if (json.success && json.data) {
-          allProducts = json.data.products || [];
-          allCats = json.data.categories || [];
-          gstRate = Number(json.data.gstPercent !== undefined ? json.data.gstPercent : 5);
-          renderCategories();
-          renderDishes();
-        } else {
-          fallbackMenu();
-        }
-      } catch (e) {
-        console.warn('API error, using fallback:', e);
-        fallbackMenu();
-      }
+    activeEditingOrder = JSON.parse(JSON.stringify(order));
+    activeEditingOrder.tableName = tableName;
+
+    document.getElementById('todModalTableTitle').textContent = `${tableName} (Order ${order.orderId || ''})`;
+    renderTableOrderItemsList();
+    document.getElementById('tableOrderDetailsModal').style.display = 'flex';
+  }
+
+  function closeTableOrderDetailsModal() {
+    document.getElementById('tableOrderDetailsModal').style.display = 'none';
+  }
+
+  function renderTableOrderItemsList() {
+    if (!activeEditingOrder) return;
+    const list = document.getElementById('todModalItemsList');
+    if (!list) return;
+
+    let subtotal = 0;
+    (activeEditingOrder.items || []).forEach(it => {
+      subtotal += (Number(it.price) || 0) * (Number(it.qty) || 1);
+    });
+    activeEditingOrder.total = subtotal;
+
+    document.getElementById('todModalTotal').textContent = `₹${subtotal}`;
+    document.getElementById('todModalStatus').textContent = activeEditingOrder.status || 'Ordering';
+
+    if (!activeEditingOrder.items || activeEditingOrder.items.length === 0) {
+      list.innerHTML = `
+        <div style="text-align:center;padding:24px 10px;color:#94A3B8">
+          <p style="margin:0 0 10px;font-size:13px">No items remaining in this order</p>
+          <button onclick="startAddingMoreDishesToTable()" class="waiter-tb-btn primary" style="padding:7px 16px">
+            + Add Dishes from Menu
+          </button>
+        </div>
+      `;
+      return;
     }
 
-    function fallbackMenu() {
-      allCats = ['Soups', 'Shakes & Beverages', 'Noodles', 'Momos', 'Fried Rice', 'Cold Drinks'];
-      allProducts = [
-        { id: 'p1', name: 'Lung Fung Soup', cat: 'Soups', diet: 'veg', vars: [{ n: 'Veg', p: 80 }, { n: 'Non-Veg', p: 100 }], img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=500' },
-        { id: 'p2', name: 'Manchow Soup', cat: 'Soups', diet: 'veg', vars: [{ n: 'Veg', p: 80 }, { n: 'Non-Veg', p: 100 }], img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=500' },
-        { id: 'p3', name: 'Cold Coffee', cat: 'Shakes & Beverages', diet: 'veg', vars: [{ n: 'Regular', p: 120 }], img: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=500' },
-        { id: 'p4', name: 'Chocolate Shake', cat: 'Shakes & Beverages', diet: 'veg', vars: [{ n: 'Regular', p: 120 }], img: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500' },
-        { id: 'p5', name: 'Veg Hakka Noodles', cat: 'Noodles', diet: 'veg', vars: [{ n: 'Half', p: 80 }, { n: 'Full', p: 140 }], img: 'https://images.unsplash.com/photo-1612927601601-6638404737ce?w=500' },
-        { id: 'p6', name: 'Steam Veg Momos', cat: 'Momos', diet: 'veg', vars: [{ n: '6 pcs', p: 90 }, { n: '10 pcs', p: 140 }], img: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=500' }
-      ];
-      renderCategories();
-      renderDishes();
-    }
+    list.innerHTML = activeEditingOrder.items.map((it, idx) => `
+      <div style="background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center">
+        <div style="flex:1;min-width:0;padding-right:8px">
+          <b style="font-size:13.5px;color:#0F172A;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${it.name}</b>
+          <div style="font-size:11.5px;color:#64748B;margin-top:2px">
+            ₹${it.price} each ${it.v ? `· <small>${it.v}</small>` : ''}
+          </div>
+        </div>
 
-    function renderCategories() {
-      const box = document.getElementById('catScroll');
-      box.innerHTML = `<button class="cat-chip ${activeCat==='All'?'active':''}" onclick="filterCat('All')">All Items (${allProducts.length})</button>` +
-        allCats.map(c => `
-          <button class="cat-chip ${activeCat===c?'active':''}" onclick="filterCat('${c.replace(/'/g, "\\'")}')">${c}</button>
-        `).join('');
-    }
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="display:flex;align-items:center;background:#F1F5F9;border-radius:8px;padding:2px">
+            <button onclick="changeOrderItemQty(${idx}, -1)" style="border:none;background:#fff;color:#0F172A;width:26px;height:26px;border-radius:6px;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.1)">-</button>
+            <span style="min-width:24px;text-align:center;font-weight:900;font-size:13px">${it.qty}</span>
+            <button onclick="changeOrderItemQty(${idx}, 1)" style="border:none;background:#fff;color:#0F172A;width:26px;height:26px;border-radius:6px;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.1)">+</button>
+          </div>
 
-    function filterCat(c) {
-      activeCat = c;
-      renderCategories();
-      renderDishes();
-    }
+          <div style="font-weight:900;font-size:13.5px;color:#0F172A;min-width:48px;text-align:right">
+            ₹${(Number(it.price) || 0) * (Number(it.qty) || 1)}
+          </div>
 
-    function handleSearch(q) {
-      searchQuery = (q || '').toLowerCase().trim();
-      renderDishes();
-    }
+          <button onclick="deleteOrderItem(${idx})" style="border:none;background:none;color:#EF4444;font-size:16px;cursor:pointer;padding:4px" title="Delete item">
+            🗑️
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
 
-    function renderDishes() {
-      const box = document.getElementById('dishesGrid');
-      let filtered = allProducts.filter(p => {
-        const matchesCat = (activeCat === 'All') || (p.cat === activeCat);
-        const matchesQ = !searchQuery || (p.name + ' ' + p.cat).toLowerCase().includes(searchQuery);
-        return matchesCat && matchesQ;
+  function changeOrderItemQty(idx, delta) {
+    if (!activeEditingOrder || !activeEditingOrder.items[idx]) return;
+    activeEditingOrder.items[idx].qty = Math.max(1, (Number(activeEditingOrder.items[idx].qty) || 1) + delta);
+    renderTableOrderItemsList();
+  }
+
+  function deleteOrderItem(idx) {
+    if (!activeEditingOrder || !activeEditingOrder.items[idx]) return;
+    activeEditingOrder.items.splice(idx, 1);
+    renderTableOrderItemsList();
+  }
+
+  async function saveActiveOrderChanges() {
+    if (!activeEditingOrder || !activeEditingOrder._id) return;
+
+    try {
+      showToast('Saving order updates...');
+      const headers = { 'Content-Type': 'application/json' };
+      if (currentWaiterJwt) headers['Authorization'] = 'Bearer ' + currentWaiterJwt;
+
+      const res = await fetch(`/api/orders/public/${activeEditingOrder._id}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({
+          items: activeEditingOrder.items,
+          total: activeEditingOrder.total,
+          subtotal: activeEditingOrder.total,
+          waiterId: currentWaiterId,
+          waiterName: currentWaiterName
+        })
       });
 
-      if (!filtered.length) {
-        box.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">Koi dish nahi mili.</div>';
+      if (res.status === 401) {
+        showToast('🔒 Please login with your PIN to save order updates', 'error');
+        const mInput = document.getElementById('inputMerchantId');
+        if (mInput) mInput.value = merchantUniqueId;
+        document.getElementById('waiterLoginModal').style.display = 'flex';
         return;
       }
 
-      box.innerHTML = filtered.map(p => {
-        const isVeg = p.diet ? (p.diet === 'veg' || p.diet === 'both') : true;
-        const imgUrl = (p.img && p.img.trim()) ? p.img : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500';
-        const vars = (p.vars && p.vars.length) ? p.vars : [{ n: 'Regular', p: p.price || 0 }];
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'Update failed');
 
-        return `
-          <div class="dish-card">
-            <div class="dish-card-img-wrap">
-              <img src="${imgUrl}" alt="${p.name}" class="dish-card-img" loading="lazy">
-              <span class="diet-dot ${isVeg ? 'veg' : 'nonveg'}"></span>
-            </div>
-            <div class="dish-body">
-              <div class="dish-title">${p.name}</div>
-              <div class="dish-cat-name">${p.cat || 'Special'}</div>
-              <div class="dish-variants">
-                ${vars.map(v => {
-                  const cartKey = `${p.id}_${v.n}`;
-                  const currentQty = cart.has(cartKey) ? cart.get(cartKey).qty : 0;
-                  return `
-                    <div class="var-row">
-                      <div>
-                        <span class="var-name">${v.n}</span>
-                        <span class="var-price">₹${v.p}</span>
-                      </div>
-                      ${currentQty > 0 ? `
-                        <div class="qty-counter">
-                          <button class="btn-qty" onclick="changeQty('${p.id}', '${v.n}', ${v.p}, -1)">−</button>
-                          <span class="qty-val">${currentQty}</span>
-                          <button class="btn-qty" onclick="changeQty('${p.id}', '${v.n}', ${v.p}, 1)">+</button>
-                        </div>
-                      ` : `
-                        <button class="btn-add-var" onclick="changeQty('${p.id}', '${v.n}', ${v.p}, 1)">+</button>
-                      `}
-                    </div>
-                  `;
-                }).join('')}
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
+      showToast(`✅ Order updated for ${activeEditingOrder.tableName}!`);
+      closeTableOrderDetailsModal();
+      await fetchLiveTableOrders(false);
+    } catch (e) {
+      alert('Error updating order: ' + e.message);
     }
+  }
 
-    function changeQty(prodId, varName, price, delta) {
-      const cartKey = `${prodId}_${varName}`;
-      const prod = allProducts.find(x => x.id == prodId) || { id: prodId, name: 'Dish', cat: '' };
-      
-      let item = cart.get(cartKey);
-      if (!item && delta > 0) {
-        item = { product: prod, varName, price: Number(price), qty: 0 };
-        cart.set(cartKey, item);
-      }
-      if (item) {
-        item.qty += delta;
-        if (item.qty <= 0) cart.delete(cartKey);
-      }
-      renderDishes();
-      updateCartBar();
-    }
+  async function cancelActiveTableOrder() {
+    if (!activeEditingOrder || !activeEditingOrder._id) return;
+    if (!confirm(`Are you sure you want to clear/cancel order on ${activeEditingOrder.tableName}?`)) return;
 
-    function updateCartBar() {
-      let totalItems = 0;
-      let totalAmount = 0;
-      cart.forEach(item => {
-        totalItems += item.qty;
-        totalAmount += item.price * item.qty;
+    try {
+      const headers = {};
+      if (currentWaiterJwt) headers['Authorization'] = 'Bearer ' + currentWaiterJwt;
+
+      const res = await fetch(`/api/orders/public/${activeEditingOrder._id}`, {
+        method: 'DELETE',
+        headers
       });
 
-      const bar = document.getElementById('bottomCartBar');
-      if (totalItems > 0) {
-        bar.classList.add('on');
-        document.getElementById('cartTableBadge').textContent = `${currentTable.toUpperCase()} · ${totalItems} ITEMS`;
-        document.getElementById('cartTotalText').textContent = `₹${totalAmount.toFixed(0)}`;
+      if (res.status === 401) {
+        showToast('🔒 Please login with your PIN to cancel order', 'error');
+        const mInput = document.getElementById('inputMerchantId');
+        if (mInput) mInput.value = merchantUniqueId;
+        document.getElementById('waiterLoginModal').style.display = 'flex';
+        return;
+      }
+
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'Cancel failed');
+
+      showToast(`🗑️ Order cleared for ${activeEditingOrder.tableName}`);
+      closeTableOrderDetailsModal();
+      await fetchLiveTableOrders(false);
+      showWaiterTablesScreen();
+    } catch (e) {
+      alert('Error cancelling order: ' + e.message);
+    }
+  }
+
+  async function triggerRemoteKotPrint(tableName) {
+    const rawT = String(tableName || currentTable || '').trim();
+    const clean = rawT.replace(/^table\s*/i, '').trim();
+    const order = liveRunningOrders[rawT.toLowerCase()] || liveRunningOrders[clean.toLowerCase()] || liveRunningOrders[`table ${clean.toLowerCase()}`];
+
+    if (!order) {
+      showToast(`No running order found on ${rawT}`);
+      return;
+    }
+
+    try {
+      showToast(`🖨️ Sending KOT to Reception printer for ${rawT}...`);
+      const headers = { 'Content-Type': 'application/json' };
+      if (currentWaiterJwt) headers['Authorization'] = 'Bearer ' + currentWaiterJwt;
+
+      const res = await fetch('/api/print/remote-kot', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          table: rawT,
+          orderId: order.orderId || order._id,
+          foodypayId: merchantUniqueId,
+          waiterId: currentWaiterId,
+          waiterName: currentWaiterName
+        })
+      });
+
+      if (res.status === 401) {
+        showToast('🔒 Please login with your PIN to print KOT', 'error');
+        const mInput = document.getElementById('inputMerchantId');
+        if (mInput) mInput.value = merchantUniqueId;
+        document.getElementById('waiterLoginModal').style.display = 'flex';
+        return;
+      }
+
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'KOT print failed');
+
+      showToast(`✅ KOT printed at Reception for ${rawT}!`);
+      await fetchLiveTableOrders(false);
+    } catch (err) {
+      alert('KOT Print Error: ' + err.message);
+    }
+  }
+
+  /* ─────────────────────────────────────────────────────────
+     CUSTOMER DINE-IN LIVE ORDER TRACKING & CLAIMING
+  ───────────────────────────────────────────────────────── */
+  let customerActiveTableOrder = null;
+  let lotItemsExpanded = true;
+
+  async function fetchCustomerActiveTableOrder() {
+    if (isWaiterMode || !currentTable || !merchantUniqueId) return;
+
+    try {
+      const res = await fetch(`/api/orders/public?foodypayId=${encodeURIComponent(merchantUniqueId)}&table=${encodeURIComponent(currentTable)}&limit=1`);
+      const data = await res.json();
+      const active = (data && Array.isArray(data.data) && data.data.length > 0) ? data.data[0] : null;
+
+      if (active && active.status !== 'settled' && active.status !== 'completed' && active.status !== 'cancelled') {
+        customerActiveTableOrder = active;
+        renderCustomerLiveOrderTracker(active);
       } else {
-        bar.classList.remove('on');
+        customerActiveTableOrder = null;
+        const tracker = document.getElementById('customerLiveOrderTracker');
+        if (tracker) tracker.style.display = 'none';
+      }
+    } catch (err) {
+      console.warn('Customer table order fetch error:', err);
+    }
+  }
+
+  function renderCustomerLiveOrderTracker(order) {
+    const tracker = document.getElementById('customerLiveOrderTracker');
+    if (!tracker || !order) return;
+
+    tracker.style.display = 'block';
+    const tName = document.getElementById('lotTableName');
+    if (tName) tName.textContent = currentTable;
+
+    const totalEl = document.getElementById('lotTotalAmount');
+    if (totalEl) totalEl.textContent = `₹${order.total || 0}`;
+
+    const itemsCount = (order.items || []).reduce((sum, i) => sum + (Number(i.qty) || 1), 0);
+    const summaryEl = document.getElementById('lotItemsSummary');
+    if (summaryEl) summaryEl.textContent = `${itemsCount} item${itemsCount !== 1 ? 's' : ''}`;
+
+    // Timeline & status
+    const isReadyOrBill = (order.status === 'bill_printed' || order.status === 'billed');
+    const isCooking = (order.status === 'kot_printed' || order.kotPrinted || order.status === 'preparing');
+
+    const dot = document.getElementById('lotStatusDot');
+    const badge = document.getElementById('lotStatusBadge');
+    const s1 = document.getElementById('lotStep1');
+    const s2 = document.getElementById('lotStep2');
+    const s3 = document.getElementById('lotStep3');
+    const l1 = document.getElementById('lotLabelStep1');
+    const l2 = document.getElementById('lotLabelStep2');
+    const l3 = document.getElementById('lotLabelStep3');
+
+    if (isReadyOrBill) {
+      if (dot) dot.style.background = '#22C55E';
+      if (badge) { badge.textContent = 'Food Ready / Bill Generated'; badge.style.color = '#15803D'; }
+      if (s1) s1.style.background = '#22C55E';
+      if (s2) s2.style.background = '#22C55E';
+      if (s3) s3.style.background = '#22C55E';
+      if (l3) l3.style.color = '#15803D';
+    } else if (isCooking) {
+      if (dot) dot.style.background = '#EAB308';
+      if (badge) { badge.textContent = 'Cooking in Kitchen (KOT Placed)'; badge.style.color = '#CA8A04'; }
+      if (s1) s1.style.background = '#2563EB';
+      if (s2) s2.style.background = '#EAB308';
+      if (s3) s3.style.background = '#E2E8F0';
+      if (l2) l2.style.color = '#CA8A04';
+    } else {
+      if (dot) dot.style.background = '#2563EB';
+      if (badge) { badge.textContent = 'Order Placed with Reception'; badge.style.color = '#1D4ED8'; }
+      if (s1) s1.style.background = '#2563EB';
+      if (s2) s2.style.background = '#E2E8F0';
+      if (s3) s3.style.background = '#E2E8F0';
+      if (l1) l1.style.color = '#1D4ED8';
+    }
+
+    // Customer Greeting & Claim state
+    const greeting = document.getElementById('lotGreetingText');
+    const claimBtn = document.getElementById('lotClaimOrderBtn');
+    const hasRealCust = order.customer && order.customer !== 'Walk-in Guest' && !order.customer.startsWith('Diner (Served');
+
+    if (greeting) {
+      if (hasRealCust) {
+        greeting.innerHTML = `Hi <b>${escapeHtml(order.customer)}</b>! Order on <span style="color:#EA580C">${escapeHtml(currentTable)}</span>`;
+      } else {
+        greeting.innerHTML = `Running Order on <span style="color:#EA580C">${escapeHtml(currentTable)}</span>`;
       }
     }
 
-    function openCheckoutModal() {
-      if (!cart.size) return;
-      document.getElementById('reviewTableHeading').textContent = `${currentTable.toUpperCase()}`;
-      
-      const listEl = document.getElementById('cartItemsList');
-      let subtotal = 0;
-      let html = '';
+    if (claimBtn) {
+      claimBtn.innerHTML = hasRealCust ? '<span>Edit My Bill Details</span>' : '<span>Link My Details to Bill</span>';
+    }
 
-      cart.forEach(({ product, varName, price, qty }) => {
-        const itemTot = price * qty;
-        subtotal += itemTot;
-        html += `
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0">
-            <div>
-              <b style="font-size:13px;color:#fff">${product.name}</b>
-              <small style="color:var(--text-muted);display:block;font-size:11px">${varName} · ₹${price} × ${qty}</small>
-            </div>
-            <b style="font-size:13px;color:#fb923c">₹${itemTot}</b>
+    // Render dishes accordion content
+    const itemsContent = document.getElementById('lotItemsListContent');
+    if (itemsContent) {
+      itemsContent.innerHTML = (order.items || []).map(i => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0">
+          <span><b>${i.qty}x</b> ${escapeHtml(i.name)} <small style="color:#64748B">${i.v && i.v !== 'Regular' ? '· ' + escapeHtml(i.v) : ''}</small></span>
+          <b>₹${(Number(i.price) || 0) * (Number(i.qty) || 1)}</b>
+        </div>
+      `).join('');
+    }
+  }
+
+  function toggleLotItemsAccordion() {
+    const acc = document.getElementById('lotItemsListAccordion');
+    const btnText = document.getElementById('lotToggleItemsText');
+    if (!acc) return;
+    lotItemsExpanded = !lotItemsExpanded;
+    if (lotItemsExpanded) {
+      acc.style.maxHeight = '300px';
+      acc.style.paddingTop = '8px';
+      acc.style.marginTop = '8px';
+      if (btnText) btnText.textContent = '▲ Hide Dishes';
+    } else {
+      acc.style.maxHeight = '0';
+      acc.style.paddingTop = '0';
+      acc.style.marginTop = '0';
+      if (btnText) btnText.textContent = 'View Dishes';
+    }
+  }
+
+  function openClaimOrderModal() {
+    if (customerActiveTableOrder) {
+      const cName = document.getElementById('claimCustName');
+      const cPhone = document.getElementById('claimCustPhone');
+      const cNote = document.getElementById('claimCustNote');
+      if (cName && customerActiveTableOrder.customer && customerActiveTableOrder.customer !== 'Walk-in Guest') {
+        cName.value = customerActiveTableOrder.customer;
+      }
+      if (cPhone && customerActiveTableOrder.phone) {
+        cPhone.value = customerActiveTableOrder.phone;
+      }
+      if (cNote && customerActiveTableOrder.note) {
+        cNote.value = customerActiveTableOrder.note;
+      }
+    }
+    document.getElementById('claimOrderModal').style.display = 'flex';
+  }
+
+  function closeClaimOrderModal() {
+    document.getElementById('claimOrderModal').style.display = 'none';
+  }
+
+  async function submitClaimOrder() {
+    const nameInput = document.getElementById('claimCustName').value.trim();
+    const phoneInput = document.getElementById('claimCustPhone').value.trim();
+    const noteInput = document.getElementById('claimCustNote').value.trim();
+
+    if (!nameInput) {
+      alert('Please enter your Name so the bill is made in your name');
+      return;
+    }
+
+    try {
+      showToast('Saving your details to table order…');
+      const res = await fetch('/api/orders/public/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          foodypayId: merchantUniqueId,
+          table: currentTable,
+          orderId: customerActiveTableOrder ? customerActiveTableOrder._id : null,
+          customer: nameInput,
+          phone: phoneInput,
+          note: noteInput
+        })
+      });
+
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'Failed to claim order');
+
+      customerActiveTableOrder = data.data;
+      renderCustomerLiveOrderTracker(customerActiveTableOrder);
+      closeClaimOrderModal();
+      showToast(`✅ Table order linked to ${nameInput}! Bill will be made in your name.`);
+
+      // Also pre-fill customer fields in checkout modal
+      const chCust = document.getElementById('custName');
+      if (chCust) chCust.value = nameInput;
+      const chPhone = document.getElementById('custPhone');
+      if (chPhone) chPhone.value = phoneInput;
+    } catch (err) {
+      alert('Claim Error: ' + err.message);
+    }
+  }
+
+  async function printKotFromActiveModal() {
+    if (!activeEditingOrder) return;
+    const tbl = activeEditingOrder.tableName || activeEditingOrder.table;
+    await triggerRemoteKotPrint(tbl);
+    closeTableOrderDetailsModal();
+  }
+
+  function startAddingMoreDishesToTable() {
+    if (!activeEditingOrder) return;
+    const tbl = activeEditingOrder.tableName;
+    closeTableOrderDetailsModal();
+    showWaiterMenuScreen(tbl);
+  }
+
+  async function submitWaiterLogin() {
+    const mInput = document.getElementById('inputMerchantId');
+    const merchantId = (mInput ? mInput.value.trim() : '') || merchantUniqueId;
+    const waiterIdInput = document.getElementById('inputWaiterId').value.trim();
+    const pinInput = document.getElementById('inputWaiterPin').value.trim();
+
+    if (!waiterIdInput) {
+      alert('Please enter Waiter / Employee ID');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/staff/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ foodypayId: merchantId, employeeId: waiterIdInput, pin: pinInput })
+      });
+      const data = await res.json();
+      if (!data.success) {
+        alert(data.message || 'Login failed. Please verify Employee ID & PIN.');
+        return;
+      }
+
+      if (data.token) {
+        currentWaiterJwt = data.token;
+        localStorage.setItem('fp_waiter_jwt', data.token);
+      }
+
+      currentWaiterId = data.data.employeeId;
+      currentWaiterName = data.data.name;
+      currentWaiterAssignedTables = Array.isArray(data.data.assignedTables) ? data.data.assignedTables : [];
+
+      document.getElementById('waiterLoginModal').style.display = 'none';
+      showToast(`Welcome, ${currentWaiterName}!`);
+      showWaiterTablesScreen();
+    } catch (e) {
+      alert('Login error: ' + e.message);
+    }
+  }
+
+  // Load Menu Data from API
+  async function loadMenu() {
+    parseRouteParams();
+    const container = document.getElementById('menuContainer');
+
+    try {
+      const url = new URL(window.location.href);
+      const qName = url.searchParams.get('name') || url.searchParams.get('restName') || url.searchParams.get('storeName') || '';
+      const menuUrl = `/api/crm/menu/${encodeURIComponent(merchantUniqueId)}${qName ? '?name=' + encodeURIComponent(qName) : ''}`;
+      const res = await fetch(menuUrl);
+      const json = await res.json();
+
+      if (!json.success || !json.data) {
+        throw new Error(json.message || 'Menu catalog not found');
+      }
+
+      storeData = json.data;
+      const finalName = storeData.businessName || 'Food Outlet';
+      document.getElementById('storeNameText').textContent = finalName;
+      document.title = `${finalName} - Menu & Ordering`;
+      updateStoreLogoInitial(finalName, storeData.logo);
+
+      if (storeData.logo) {
+        document.getElementById('userProfileImg').src = storeData.logo;
+      }
+
+      catalogProducts = (storeData.products || []).filter(p => p && p.name);
+
+      // Default variants: 0
+      catalogProducts.forEach(p => {
+        const dishId = p.id || p.name;
+        if (!selectedVariants.has(dishId)) {
+          selectedVariants.set(dishId, 0);
+        }
+      });
+
+      renderCategories(storeData.categories || []);
+      renderMenu();
+
+      // Initialize Waiter Terminal Mode if requested
+      if (isWaiterMode) {
+        initWaiterMode();
+      }
+    } catch (err) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:60px 20px">
+          <div style="font-size:42px;margin-bottom:12px">⚠️</div>
+          <h3 style="color:#0f172a;margin-bottom:8px;font-size:18px">Unable to load menu</h3>
+          <p style="color:#64748b;font-size:13.5px;max-width:320px;margin:0 auto 16px">${err.message}</p>
+          <button onclick="location.reload()" style="background:var(--primary);color:#fff;border:none;padding:10px 24px;border-radius:99px;font-weight:800;font-size:13px;cursor:pointer">Retry</button>
+        </div>
+      `;
+    }
+  }
+
+  function renderCategories(categories) {
+    const catsBar = document.getElementById('catsBar');
+    let h = `<button class="cat-pill ${activeCategory === 'All' ? 'active' : ''}" onclick="selectCategory('All', this)">All Items</button>`;
+
+    const distinctCats = categories.length ? categories : Array.from(new Set(catalogProducts.map(p => p.cat || 'Main Course'))).filter(Boolean);
+    distinctCats.forEach(c => {
+      const icon = CATEGORY_ICONS[c] || '🍽️';
+      h += `<button class="cat-pill ${activeCategory === c ? 'active' : ''}" onclick="selectCategory('${c}', this)">${icon} ${c}</button>`;
+    });
+
+    catsBar.innerHTML = h;
+  }
+
+  function selectCategory(cat, el) {
+    activeCategory = cat;
+    document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+    if (el) el.classList.add('active');
+    renderMenu();
+  }
+
+  function handleSearch(val) {
+    searchQuery = (val || '').toLowerCase().trim();
+    renderMenu();
+  }
+
+  function toggleVegFilter() {
+    vegOnly = !vegOnly;
+    const btn = document.getElementById('filterSliderBtn');
+    btn.classList.toggle('active', vegOnly);
+    showToast(vegOnly ? '🟢 Veg Only Filter Applied' : 'All Dishes Shown');
+    renderMenu();
+  }
+
+  function toggleSort() {
+    const btn = document.getElementById('sortBtn');
+    if (sortByPriceAsc === null) {
+      sortByPriceAsc = true;
+      btn.classList.add('active');
+      showToast('Price: Low to High');
+    } else if (sortByPriceAsc === true) {
+      sortByPriceAsc = false;
+      btn.classList.add('active');
+      showToast('Price: High to Low');
+    } else {
+      sortByPriceAsc = null;
+      btn.classList.remove('active');
+      showToast('Default Sorting');
+    }
+    renderMenu();
+  }
+
+  function scrollToCategories() {
+    const cats = document.getElementById('catsBar');
+    cats.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function selectVariant(dishId, varIndex) {
+    selectedVariants.set(dishId, varIndex);
+    renderMenu();
+  }
+
+  function renderMenu() {
+    const container = document.getElementById('menuContainer');
+    let filtered = [...catalogProducts];
+
+    // Category filter
+    if (activeCategory !== 'All') {
+      filtered = filtered.filter(p => (p.cat || 'Main Course') === activeCategory);
+    }
+
+    // Veg filter
+    if (vegOnly) {
+      filtered = filtered.filter(p => p.diet === 'veg' || p.diet === 'both' || p.isVeg !== false);
+    }
+
+    // Search query
+    if (searchQuery) {
+      filtered = filtered.filter(p =>
+        (p.name || '').toLowerCase().includes(searchQuery) ||
+        (p.cat || '').toLowerCase().includes(searchQuery)
+      );
+    }
+
+    // Price Sort
+    if (sortByPriceAsc !== null) {
+      filtered.sort((a, b) => {
+        const pa = a.price || (a.vars && a.vars[0]?.p) || 0;
+        const pb = b.price || (b.vars && b.vars[0]?.p) || 0;
+        return sortByPriceAsc ? (pa - pb) : (pb - pa);
+      });
+    }
+
+    // Update section title badge
+    const headerTitle = activeCategory === 'All' ? 'All Items' : activeCategory;
+    const headerIcon = CATEGORY_ICONS[headerTitle] || '🍲';
+    document.getElementById('dynamicSectionTitle').innerHTML = `<span>${headerIcon} ${headerTitle}</span> <span class="section-counter-badge" id="sectionItemCount">(${filtered.length})</span>`;
+
+    if (!filtered.length) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:60px 10px;color:#94a3b8">
+          <div style="font-size:42px;margin-bottom:10px">🔍</div>
+          <b style="font-size:16px;color:#475569">No matching dishes found</b>
+          <p style="font-size:13px;margin-top:4px">Try another search or reset filters</p>
+          <button onclick="document.getElementById('dishSearchInput').value='';handleSearch('');if(vegOnly)toggleVegFilter()" style="margin-top:14px;background:#112338;color:#fff;border:none;padding:8px 20px;border-radius:99px;font-size:13px;font-weight:700;cursor:pointer">Clear Filters</button>
+        </div>
+      `;
+      return;
+    }
+
+    let h = '';
+    filtered.forEach((dish, idx) => {
+      const dishId = dish.id || dish.name;
+      const isVeg = dish.diet ? (dish.diet === 'veg' || dish.diet === 'both') : (dish.isVeg !== false);
+      const isPopular = idx === 0 || idx === 1 || dish.isPopular;
+
+      const hasVars = Array.isArray(dish.vars) && dish.vars.length > 0;
+      const varIndex = selectedVariants.get(dishId) || 0;
+      const activeVar = hasVars ? (dish.vars[varIndex] || dish.vars[0]) : null;
+
+      const currentPrice = activeVar ? Number(activeVar.p || 0) : Number(dish.price || 0);
+      const currentVarName = activeVar ? (activeVar.n || 'Regular') : 'Regular';
+
+      const cartKey = `${dishId}__${currentVarName}`;
+      const inCart = cart.get(cartKey);
+      const currentQty = inCart ? inCart.qty : 0;
+
+      const photoUrl = getCuratedFoodImage(dish.name, dish.img);
+      const fallbackEmoji = getFallbackEmoji(dish.name, dish.cat);
+
+      // Portion buttons HTML
+      let portionsHtml = '';
+      if (hasVars && dish.vars.length > 1) {
+        portionsHtml = `
+          <div class="portion-title">Portion</div>
+          <div class="portion-pills-row">
+            ${dish.vars.map((v, i) => `
+              <button type="button" class="portion-pill ${i === varIndex ? 'selected' : ''}" onclick="selectVariant('${dishId}', ${i})">
+                ${v.n}: ₹${v.p}
+              </button>
+            `).join('')}
           </div>
         `;
-      });
+      }
 
-      const gst = +(subtotal * (gstRate / 100)).toFixed(2);
-      const grandTotal = subtotal + gst;
+      h += `
+        <div class="dish-card">
+          <div class="dish-info-col">
+            <div class="dish-meta-row">
+              <span class="diet-box ${isVeg ? 'veg' : 'nonveg'}"></span>
+              <span class="diet-text ${isVeg ? 'veg' : 'nonveg'}">${isVeg ? 'VEG' : 'NON-VEG'}</span>
+              ${isPopular ? `<span class="popular-chip">★ Popular</span>` : ''}
+            </div>
 
-      listEl.innerHTML = html;
-      document.getElementById('reviewTotalAmount').textContent = `₹${grandTotal.toFixed(0)}`;
-      document.getElementById('checkoutModal').classList.add('on');
+            <div class="dish-name">${dish.name}</div>
+
+            <div class="dish-pricing-row">
+              <span>₹${currentPrice}</span>
+              ${hasVars && dish.vars.length > 1 ? `<small>(${currentVarName})</small>` : ''}
+            </div>
+
+            ${portionsHtml}
+
+            <div class="dish-desc-text">
+              ${dish.desc || 'Freshly prepared with authentic ingredients on table order.'}
+            </div>
+          </div>
+
+          <div class="dish-action-col">
+            <div class="dish-photo-wrap">
+              ${photoUrl ? `
+                <img src="${photoUrl}" alt="${dish.name}" loading="lazy">
+              ` : `
+                <div class="dish-photo-fallback">${fallbackEmoji}</div>
+              `}
+            </div>
+
+            <div>
+              ${currentQty > 0 ? `
+                <div class="qty-stepper">
+                  <button type="button" class="qty-btn" onclick="updateQty('${dishId}', '${currentVarName}', -1)">−</button>
+                  <span class="qty-number">${currentQty}</span>
+                  <button type="button" class="qty-btn" onclick="updateQty('${dishId}', '${currentVarName}', 1)">+</button>
+                </div>
+              ` : `
+                <button type="button" class="btn-add-dish" onclick="updateQty('${dishId}', '${currentVarName}', 1)">
+                  + ADD
+                </button>
+              `}
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = h;
+    updateCartBar();
+  }
+
+  // Update Dish Quantity
+  function updateQty(dishId, varName, delta) {
+    const dish = catalogProducts.find(p => (p.id || p.name) === dishId);
+    if (!dish) return;
+
+    const hasVars = Array.isArray(dish.vars) && dish.vars.length > 0;
+    const variantObj = hasVars ? (dish.vars.find(v => v.n === varName) || dish.vars[0]) : null;
+    const price = variantObj ? Number(variantObj.p || 0) : Number(dish.price || 0);
+
+    const cartKey = `${dishId}__${varName}`;
+    const existing = cart.get(cartKey) || {
+      product: dish,
+      variantName: varName,
+      price: price,
+      qty: 0
+    };
+
+    const newQty = existing.qty + delta;
+
+    if (newQty <= 0) {
+      cart.delete(cartKey);
+    } else {
+      existing.qty = newQty;
+      existing.price = price;
+      cart.set(cartKey, existing);
     }
 
-    function closeCheckoutModal() {
-      document.getElementById('checkoutModal').classList.remove('on');
+    renderMenu();
+  }
+
+  // Update Cart Bar above Navigation
+  function updateCartBar() {
+    const dock = document.getElementById('cartFloatDock');
+    let totalQty = 0;
+    let subtotal = 0;
+
+    cart.forEach(({ price, qty }) => {
+      totalQty += qty;
+      subtotal += price * qty;
+    });
+
+    if (totalQty > 0) {
+      dock.style.display = 'flex';
+      const netTotal = Math.max(0, subtotal - appliedDiscount);
+      document.getElementById('cartTotalText').textContent = `₹${netTotal}`;
+      document.getElementById('cartCountText').textContent = `${totalQty} item${totalQty > 1 ? 's' : ''} for ${currentTable}`;
+    } else {
+      dock.style.display = 'none';
+    }
+  }
+
+  // Checkout Drawer
+  function openCheckoutModal() {
+    const modal = document.getElementById('checkoutModal');
+    const itemsList = document.getElementById('modalItemsList');
+
+    let h = '';
+    let subtotal = 0;
+
+    cart.forEach(({ product, variantName, price, qty }, cartKey) => {
+      const itemTotal = price * qty;
+      subtotal += itemTotal;
+      const dishId = product.id || product.name;
+
+      h += `
+        <div class="order-row">
+          <div class="order-item-left">
+            <b>${product.name}</b>
+            <small>${variantName ? variantName + ' · ' : ''}₹${price} each</small>
+          </div>
+          <div class="order-item-right">
+            <span class="order-line-price">₹${itemTotal}</span>
+            <div class="qty-stepper" style="transform:scale(0.85);margin-right:-6px">
+              <button type="button" class="qty-btn" onclick="updateQty('${dishId}', '${variantName}', -1);openCheckoutModal()">−</button>
+              <span class="qty-number">${qty}</span>
+              <button type="button" class="qty-btn" onclick="updateQty('${dishId}', '${variantName}', 1);openCheckoutModal()">+</button>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    itemsList.innerHTML = h || '<p style="color:#94a3b8;text-align:center;padding:20px 0">Your cart is empty</p>';
+
+    const taxRate = Number(storeData?.gstPercent !== undefined ? storeData.gstPercent : 5);
+    const discountedTotal = Math.max(0, subtotal - appliedDiscount);
+    
+    // Inclusive GST Rule (Matching Dashboard: Total = 80, Subtotal = 76.19, GST = 3.81)
+    let taxableSubtotal = discountedTotal;
+    let taxAmount = 0;
+    if (taxRate > 0) {
+      taxableSubtotal = +(discountedTotal / (1 + taxRate / 100)).toFixed(2);
+      taxAmount = +(discountedTotal - taxableSubtotal).toFixed(2);
+    }
+    const grandTotal = discountedTotal;
+
+    document.getElementById('billSubtotal').textContent = `₹${taxableSubtotal.toFixed(2)}`;
+    
+    // Discount row
+    if (appliedDiscount > 0) {
+      document.getElementById('discountRow').style.display = 'flex';
+      document.getElementById('appliedCouponCode').textContent = activeCouponName;
+      document.getElementById('billDiscount').textContent = `-₹${appliedDiscount}`;
+    } else {
+      document.getElementById('discountRow').style.display = 'none';
     }
 
-    async function submitCustomerOrder() {
-      if (!cart.size) return;
-      const btn = document.getElementById('btnSubmitOrder');
-      btn.disabled = true;
-      btn.innerHTML = '<span>⏳ Sending order to kitchen...</span>';
+    if (taxAmount > 0) {
+      document.getElementById('taxRow').style.display = 'flex';
+      document.getElementById('billTaxRate').textContent = `${taxRate}%`;
+      document.getElementById('billTax').textContent = `+₹${taxAmount.toFixed(2)}`;
+    } else {
+      document.getElementById('taxRow').style.display = 'none';
+    }
 
-      const items = [];
-      let subtotal = 0;
-      cart.forEach(({ product, varName, price, qty }) => {
-        subtotal += price * qty;
-        items.push({
-          pid: product.id || '',
-          name: product.name,
-          v: varName,
-          qty: Number(qty),
-          price: Number(price),
-          isVeg: product.diet ? (product.diet === 'veg' || product.diet === 'both') : true
-        });
+    document.getElementById('billTotal').textContent = `₹${grandTotal}`;
+
+    if (isWaiterMode) {
+      document.getElementById('modalTableBadge').textContent = `${currentTable} · Waiter: ${currentWaiterName}`;
+      document.getElementById('btnPlaceOrder').innerHTML = '<span>🚀 Send KOT to Kitchen (Punch)</span>';
+    } else {
+      document.getElementById('modalTableBadge').textContent = currentTable;
+      document.getElementById('btnPlaceOrder').innerHTML = '<span>Confirm &amp; Send to Kitchen</span>';
+    }
+
+    modal.style.display = 'flex';
+  }
+
+  function closeCheckoutModal() {
+    document.getElementById('checkoutModal').style.display = 'none';
+  }
+
+  function appendNote(txt) {
+    const input = document.getElementById('orderNote');
+    if (!input) return;
+    if (input.value.trim()) {
+      input.value = `${input.value.trim()}, ${txt}`;
+    } else {
+      input.value = txt;
+    }
+  }
+
+  // Submit Order to Kitchen
+  async function placeOrder() {
+    if (!cart.size) return;
+    const btn = document.getElementById('btnPlaceOrder');
+    btn.disabled = true;
+    btn.innerHTML = isWaiterMode ? '<span>⏳ Punching KOT order…</span>' : '<span>⏳ Sending order to kitchen…</span>';
+
+    const items = [];
+    let subtotal = 0;
+
+    cart.forEach(({ product, variantName, price, qty }) => {
+      subtotal += price * qty;
+      items.push({
+        pid: product.id || '',
+        name: product.name,
+        v: variantName || 'Regular',
+        qty: Number(qty),
+        price: Number(price),
+        isVeg: product.diet ? (product.diet === 'veg' || product.diet === 'both') : (product.isVeg !== false)
+      });
+    });
+
+    const discountedTotal = Math.max(0, subtotal - appliedDiscount);
+    const taxRate = Number(storeData?.gstPercent !== undefined ? storeData.gstPercent : 5);
+    const taxableSubtotal = taxRate > 0 ? +(discountedTotal / (1 + taxRate / 100)).toFixed(2) : discountedTotal;
+    const tax = taxRate > 0 ? +(discountedTotal - taxableSubtotal).toFixed(2) : 0;
+    const total = discountedTotal;
+    const customer = document.getElementById('custName').value.trim() || (isWaiterMode ? `Diner (Served by ${currentWaiterName})` : 'Walk-in Guest');
+    const phone = document.getElementById('custPhone').value.trim();
+    const note = document.getElementById('orderNote').value.trim();
+
+    const payload = {
+      foodypayId: merchantUniqueId,
+      table: currentTable,
+      type: 'Dine-In',
+      customer,
+      phone,
+      note,
+      items,
+      subtotal: taxableSubtotal,
+      discount: appliedDiscount,
+      tax,
+      total,
+      paymentMode: 'Cash',
+      paymentStatus: 'unpaid',
+      paymentLabel: 'Cash on Table / Counter',
+      waiterId: isWaiterMode ? currentWaiterId : '',
+      waiterName: isWaiterMode ? currentWaiterName : '',
+      placedBy: isWaiterMode ? 'Waiter' : 'Customer',
+      printKot: isWaiterMode
+    };
+
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (currentWaiterJwt) headers['Authorization'] = 'Bearer ' + currentWaiterJwt;
+
+      const res = await fetch('/api/orders/public', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload)
       });
 
-      const gst = +(subtotal * (gstRate / 100)).toFixed(2);
-      const total = subtotal + gst;
-      const custName = document.getElementById('custName').value.trim() || 'Walk-in Guest';
-      const note = document.getElementById('orderNote').value.trim();
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Failed to place order');
+      }
 
-      const payload = {
-        foodypayId: merchantId,
-        table: currentTable,
-        type: 'Dine-In',
-        customer: custName,
-        phone: '',
-        note: note,
-        items: items,
-        subtotal: subtotal,
-        discount: 0,
-        tax: gst,
-        total: total,
-        paymentMode: 'Cash',
-        paymentStatus: 'unpaid',
-        paymentLabel: 'Cash on Table / Counter',
-        placedBy: 'Customer',
-        printKot: true
-      };
+      const placedOrder = data.data || {};
+      document.getElementById('confirmedOrderId').textContent = placedOrder.orderId || '#FP-NEW';
+      document.getElementById('confirmedTable').textContent = `Table: ${currentTable}`;
 
-      const apiBase = getApiBase();
-      try {
-        const res = await fetch(`${apiBase}/orders/public`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert(`🎉 Order Placed Successfully for ${currentTable}!\nOrder #${data.data?.orderId || 'NEW'} sent to Kitchen.`);
-          cart.clear();
-          updateCartBar();
-          closeCheckoutModal();
-          renderDishes();
+      closeCheckoutModal();
+      cart.clear();
+      appliedDiscount = 0;
+      activeCouponName = '';
+      updateCartBar();
+
+      if (isWaiterMode) {
+        showToast(`Order punched & KOT printed at Reception for ${currentTable}!`);
+        setTimeout(() => {
+          showWaiterTablesScreen();
+        }, 500);
+      } else {
+        // Customer Mode: Auto-dismiss modal, show toast, and display the live running order!
+        showToast('Order Sent to Kitchen! Preparing fresh.');
+        document.getElementById('successModal').style.display = 'none';
+
+        // Fetch and show active running order on table
+        await fetchCustomerActiveTableOrder();
+
+        // Scroll smoothly to active order card
+        setTimeout(() => {
+          const tracker = document.getElementById('customerLiveOrderTracker');
+          if (tracker) {
+            tracker.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 200);
+      }
+    } catch (err) {
+      alert('Order submission error: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span>Confirm &amp; Send to Kitchen</span>';
+    }
+  }
+
+  function scrollToMenu() {
+    const target = document.getElementById('catsBar') || document.getElementById('dishesGridContainer');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  function resetAfterOrder() {
+    document.getElementById('successModal').style.display = 'none';
+    renderMenu();
+  }
+
+  // BOTTOM NAVIGATION HANDLERS
+  function handleNavHome() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    activeCategory = 'All';
+    searchQuery = '';
+    vegOnly = false;
+    document.getElementById('dishSearchInput').value = '';
+    document.getElementById('filterSliderBtn').classList.remove('active');
+    document.querySelectorAll('.cat-pill').forEach((p, idx) => p.classList.toggle('active', idx === 0));
+    renderMenu();
+  }
+
+  function openQrScanModal() {
+    document.getElementById('qrScanModal').style.display = 'flex';
+  }
+  function closeQrScanModal() {
+    document.getElementById('qrScanModal').style.display = 'none';
+  }
+
+  function openCouponsModal() {
+    document.getElementById('couponsModal').style.display = 'flex';
+  }
+  function closeCouponsModal() {
+    document.getElementById('couponsModal').style.display = 'none';
+  }
+
+  function applyCoupon(code, percent, maxDisc, minOrder, btnElement, flatAmt) {
+    let subtotal = 0;
+    cart.forEach(({ price, qty }) => subtotal += price * qty);
+
+    if (subtotal < minOrder) {
+      showToast(`Minimum order ₹${minOrder} required for ${code}`);
+      return;
+    }
+
+    if (flatAmt) {
+      appliedDiscount = flatAmt;
+    } else {
+      appliedDiscount = Math.min(maxDisc, Math.round((subtotal * percent) / 100));
+    }
+
+    activeCouponName = code;
+    showToast(`Coupon ${code} Applied! Saved ₹${appliedDiscount}`);
+    closeCouponsModal();
+    updateCartBar();
+    if (document.getElementById('checkoutModal').style.display === 'flex') {
+      openCheckoutModal();
+    }
+  }
+
+  function openNativeCameraScan() {
+    showToast('Point camera at table QR to change table');
+    closeQrScanModal();
+  }
+
+
+
+  
+  // Customer Profile Dialog Handlers
+  window.profileDietPref = 'all';
+
+  function openProfileDialog() {
+    const modal = document.getElementById('customerProfileModal');
+    if (!modal) return;
+
+    try {
+      const saved = JSON.parse(localStorage.getItem('fp_customer_profile') || '{}');
+      if (saved.name) document.getElementById('profileInputName').value = saved.name;
+      if (saved.phone) document.getElementById('profileInputPhone').value = saved.phone;
+      if (saved.diet) setProfileDietPref(saved.diet);
+      if (saved.name) {
+        document.getElementById('profileModalAvatar').textContent = saved.name.charAt(0).toUpperCase();
+      }
+    } catch(e) {}
+
+    const tableBadge = document.getElementById('profileModalTableBadge');
+    if (tableBadge) tableBadge.textContent = currentTable;
+    modal.style.display = 'flex';
+  }
+
+  function closeProfileDialog() {
+    const modal = document.getElementById('customerProfileModal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function setProfileDietPref(diet) {
+    window.profileDietPref = diet;
+    ['all', 'veg', 'nonveg'].forEach(d => {
+      const btn = document.getElementById('dietPref' + d.charAt(0).toUpperCase() + d.slice(1));
+      if (btn) {
+        if (d === diet) {
+          btn.style.borderColor = '#EA580C';
+          btn.style.background = '#FFF7ED';
+          btn.style.color = '#EA580C';
         } else {
-          alert(`❌ Order failed: ${data.message || 'Please retry'}`);
+          btn.style.borderColor = '#E2E8F0';
+          btn.style.background = '#fff';
+          btn.style.color = d === 'veg' ? '#16A34A' : (d === 'nonveg' ? '#DC2626' : '#0F172A');
         }
-      } catch (err) {
-        alert(`❌ Network error: ${err.message}. Please check connection.`);
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<span>Send Order to Kitchen</span>';
+      }
+    });
+
+    if (diet === 'veg') {
+      filterDiet = 'veg';
+      const b = document.getElementById('vegFilterBtn');
+      if (b) b.classList.add('active');
+    } else if (diet === 'nonveg') {
+      filterDiet = 'nonveg';
+      const b = document.getElementById('nonVegFilterBtn');
+      if (b) b.classList.add('active');
+    } else {
+      filterDiet = 'all';
+      const bv = document.getElementById('vegFilterBtn');
+      const bn = document.getElementById('nonVegFilterBtn');
+      if (bv) bv.classList.remove('active');
+      if (bn) bn.classList.remove('active');
+    }
+    renderMenu();
+  }
+
+  function saveCustomerProfile() {
+    const name = document.getElementById('profileInputName').value.trim();
+    const phone = document.getElementById('profileInputPhone').value.trim();
+    const diet = window.profileDietPref || 'all';
+
+    const profileData = { name, phone, diet };
+    localStorage.setItem('fp_customer_profile', JSON.stringify(profileData));
+
+    // Auto-fill checkout fields
+    const cName = document.getElementById('custName');
+    if (cName && name) cName.value = name;
+    const cPhone = document.getElementById('custPhone');
+    if (cPhone && phone) cPhone.value = phone;
+
+    // Update avatar UI at top right
+    if (name) {
+      const initial = name.charAt(0).toUpperCase();
+      const wrap = document.querySelector('.profile-glow-wrap');
+      if (wrap) {
+        wrap.innerHTML = '<div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#FF4F17,#EA580C);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;box-shadow:0 3px 10px rgba(234,88,12,0.35);border:2px solid #fff">' + initial + '</div>';
       }
     }
 
-    // Bootstrap
-    checkAppInstallStatus();
+    closeProfileDialog();
+    showToast('Profile saved successfully! 🎉');
+  }
+
+
+  // PWA & App Download Management
+  let deferredPrompt = null;
+  let appReappearTimer = null;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  window.addEventListener('appinstalled', () => {
+    localStorage.setItem('foodypay_app_downloaded', 'true');
+    if (appReappearTimer) clearTimeout(appReappearTimer);
+    removeAppBanner();
+  });
+
+  function isAppDownloadedOrStandalone() {
+    const isDownloaded = localStorage.getItem('foodypay_app_downloaded') === 'true';
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    return isDownloaded || isStandalone;
+  }
+
+  function configureAppBannerForMode() {
+    const titleEl = document.getElementById('appDlTitle');
+    const descEl = document.getElementById('appDlDesc');
+    const btnTextEl = document.getElementById('appDlBtnText');
+    if (!titleEl) return;
+
+    if (isWaiterMode) {
+      titleEl.innerHTML = `Waiter Terminal App <span class="app-dl-tag" style="background:#6366F1">WAITER</span>`;
+      if (descEl) descEl.textContent = 'Take table orders, print KOT & live sync';
+      if (btnTextEl) btnTextEl.textContent = 'Install App';
+    } else {
+      const storeName = storeData?.businessName || 'FoodyPay';
+      titleEl.innerHTML = `${storeName} App <span class="app-dl-tag" style="background:#22C55E">FREE</span>`;
+      if (descEl) descEl.textContent = 'Fast ordering, live tracking & bill';
+      if (btnTextEl) btnTextEl.textContent = 'Install App';
+    }
+  }
+
+  function checkAppDownloadStatus() {
+    configureAppBannerForMode();
+    if (isAppDownloadedOrStandalone()) {
+      const banner = document.getElementById('appDownloadBanner');
+      if (banner) banner.style.display = 'none';
+      return;
+    }
+    showAppBanner();
+  }
+
+  function showAppBanner() {
+    if (isAppDownloadedOrStandalone()) return;
+    const banner = document.getElementById('appDownloadBanner');
+    if (!banner) return;
+    configureAppBannerForMode();
+    banner.style.display = 'flex';
+    void banner.offsetWidth; // Force layout reflow
+    banner.classList.remove('hiding');
+  }
+
+  function dismissAppBanner() {
+    removeAppBanner();
+    // Schedule banner to reappear after exactly 10 seconds if user hasn't downloaded
+    if (appReappearTimer) clearTimeout(appReappearTimer);
+    appReappearTimer = setTimeout(() => {
+      if (!isAppDownloadedOrStandalone()) {
+        showAppBanner();
+      }
+    }, 10000);
+  }
+
+  function removeAppBanner() {
+    const banner = document.getElementById('appDownloadBanner');
+    if (!banner) return;
+    banner.classList.add('hiding');
+    setTimeout(() => {
+      banner.style.display = 'none';
+    }, 350);
+  }
+
+  function handleAppDownload() {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          localStorage.setItem('foodypay_app_downloaded', 'true');
+          if (appReappearTimer) clearTimeout(appReappearTimer);
+          removeAppBanner();
+          showToast('FoodyPay App Installed!');
+        } else {
+          // Re-trigger 10s timer if user dismissed native dialog
+          dismissAppBanner();
+        }
+        deferredPrompt = null;
+      });
+    } else {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      if (isIOS) {
+        showToast('Safari me Share button dabayein aur "Add to Home Screen" chunein');
+        dismissAppBanner();
+      } else {
+        localStorage.setItem('foodypay_app_downloaded', 'true');
+        if (appReappearTimer) clearTimeout(appReappearTimer);
+        removeAppBanner();
+        showToast('FoodyPay App Installed!');
+      }
+    }
+  }
+
+  // Initialize
+  window.addEventListener('DOMContentLoaded', () => {
+    checkAppDownloadStatus();
     loadMenu();
-  </script>
+    setTimeout(fetchCustomerActiveTableOrder, 600);
+    setInterval(fetchCustomerActiveTableOrder, 3500);
+  });
+</script>
 </body>
 </html>

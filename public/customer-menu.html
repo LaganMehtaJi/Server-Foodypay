@@ -1069,7 +1069,7 @@
       display: flex;
       align-items: center;
       justify-content: space-around;
-      padding: 0 20px;
+      padding: 0 10px;
       z-index: 48;
     }
 
@@ -1084,7 +1084,7 @@
       cursor: pointer;
       color: #64748B;
       font-family: inherit;
-      width: 76px;
+      width: 64px;
       transition: color 0.15s;
     }
     .nav-dock-item svg {
@@ -1713,7 +1713,13 @@
       <span>Home</span>
     </button>
 
-    <!-- 2. QR Scan (Elevated center circle button) -->
+    <!-- 2. Coupons -->
+    <button class="nav-dock-item" id="navCouponsBtn" onclick="openCouponsModal()">
+      <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+      <span>Coupons</span>
+    </button>
+
+    <!-- 3. QR Scan (Elevated center circle button) -->
     <button class="nav-scan-wrapper" id="navScanBtn" onclick="openQrScanModal()">
       <div class="nav-scan-circle">
         <svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><rect x="7" y="7" width="10" height="10" rx="2"></rect></svg>
@@ -1721,7 +1727,7 @@
       <span>QR Scan</span>
     </button>
 
-    <!-- 3. My Order / Bill -->
+    <!-- 4. My Order / Bill -->
     <button class="nav-dock-item" id="navOrdersBtn" onclick="openCheckoutModal()">
       <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
       <span>My Order</span>
@@ -1862,7 +1868,7 @@
 </div>
 
 <!-- COUPONS MODAL DRAWER -->
-<div class="sheet-overlay" id="couponsModal" style="display:none!important" onclick="if(event.target===this)closeCouponsModal()">
+<div class="sheet-overlay" id="couponsModal" style="display:none" onclick="if(event.target===this)closeCouponsModal()">
   <div class="sheet-modal">
     <div class="sheet-drag-handle"></div>
     <div class="sheet-header">
@@ -1898,6 +1904,52 @@
         </div>
         <button class="btn-apply-coupon" onclick="applyCoupon('WELCOME', 0, 40, 100, this, 40)">Apply</button>
       </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- CUSTOMER PROFILE UPDATE MODAL DRAWER -->
+<div class="sheet-overlay" id="customerProfileModal" style="display:none" onclick="if(event.target===this)closeProfileDialog()">
+  <div class="sheet-modal" style="max-height:85vh">
+    <div class="sheet-drag-handle"></div>
+    <div class="sheet-header" style="align-items:center">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#FF4F17,#EA580C);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;box-shadow:0 4px 12px rgba(234,88,12,0.3)" id="profileModalAvatar">👤</div>
+        <div>
+          <div class="sheet-title" style="margin:0;font-size:18px">Update Profile</div>
+          <small style="color:#64748B;font-size:12px">Dining at: <b id="profileModalTableBadge" style="color:var(--primary)">Table 1</b></small>
+        </div>
+      </div>
+      <button class="sheet-close-btn" onclick="closeProfileDialog()">✕</button>
+    </div>
+
+    <div style="padding:16px 20px 28px">
+      <div class="form-group" style="margin-bottom:14px">
+        <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px">Your Full Name</label>
+        <input type="text" id="profileInputName" placeholder="e.g. Rahul Sharma" style="width:100%;padding:12px 14px;border:1.5px solid #E2E8F0;border-radius:12px;font-size:14px;font-weight:600;outline:none;background:#F8FAFC">
+      </div>
+
+      <div class="form-group" style="margin-bottom:14px">
+        <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px">Mobile Number (For WhatsApp bill & updates)</label>
+        <div style="display:flex;align-items:center;border:1.5px solid #E2E8F0;border-radius:12px;background:#F8FAFC;overflow:hidden">
+          <span style="padding:12px 12px;font-size:14px;font-weight:700;color:#64748B;border-right:1px solid #E2E8F0;background:#F1F5F9">+91</span>
+          <input type="tel" id="profileInputPhone" placeholder="10-digit mobile number" maxlength="10" style="flex:1;padding:12px 14px;border:none;background:transparent;font-size:14px;font-weight:600;outline:none">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:18px">
+        <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px">Dining Food Preference</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <button type="button" class="diet-pref-btn" id="dietPrefAll" onclick="setProfileDietPref('all')" style="padding:10px 6px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #EA580C;background:#FFF7ED;color:#EA580C">🍽️ All Items</button>
+          <button type="button" class="diet-pref-btn" id="dietPrefVeg" onclick="setProfileDietPref('veg')" style="padding:10px 6px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #E2E8F0;background:#fff;color:#16A34A">🟢 Veg Only</button>
+          <button type="button" class="diet-pref-btn" id="dietPrefNonveg" onclick="setProfileDietPref('nonveg')" style="padding:10px 6px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #E2E8F0;background:#fff;color:#DC2626">🔴 Non-Veg</button>
+        </div>
+      </div>
+
+      <button type="button" onclick="saveCustomerProfile()" style="width:100%;padding:14px;background:linear-gradient(135deg,#FF4F17,#EA580C);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(234,88,12,0.3);display:flex;align-items:center;justify-content:center;gap:8px">
+        <span>Save Profile</span>
+      </button>
     </div>
   </div>
 </div>
@@ -2133,7 +2185,10 @@
     // 5. /:uniqueId/waiter/:waiterId
     // 6. /menu/:uniqueId/:table
     // 7. /menu/:uniqueId
-    if (parts[0] === 'menu') {
+    if (parts[0] === 'client' || parts[0] === 'order' || parts[0] === 'table-order') {
+      if (parts[1]) merchantUniqueId = decodeURIComponent(parts[1]);
+      if (parts[2]) currentTable = decodeURIComponent(parts[2]);
+    } else if (parts[0] === 'menu') {
       merchantUniqueId = decodeURIComponent(parts[1] || 'FP-624358');
       if (parts[2] === 'waiter') {
         isWaiterMode = true;
@@ -2278,7 +2333,6 @@
         : 'Waiter Terminal Login';
     }
     modal.style.display = 'flex';
-  }
   }
 
   function showWaiterTablesScreen() {
@@ -3635,9 +3689,96 @@
 
 
 
+  
+  // Customer Profile Dialog Handlers
+  window.profileDietPref = 'all';
+
   function openProfileDialog() {
-    showToast(`Table Order: ${currentTable} • Foodypay`);
+    const modal = document.getElementById('customerProfileModal');
+    if (!modal) return;
+
+    try {
+      const saved = JSON.parse(localStorage.getItem('fp_customer_profile') || '{}');
+      if (saved.name) document.getElementById('profileInputName').value = saved.name;
+      if (saved.phone) document.getElementById('profileInputPhone').value = saved.phone;
+      if (saved.diet) setProfileDietPref(saved.diet);
+      if (saved.name) {
+        document.getElementById('profileModalAvatar').textContent = saved.name.charAt(0).toUpperCase();
+      }
+    } catch(e) {}
+
+    const tableBadge = document.getElementById('profileModalTableBadge');
+    if (tableBadge) tableBadge.textContent = currentTable;
+    modal.style.display = 'flex';
   }
+
+  function closeProfileDialog() {
+    const modal = document.getElementById('customerProfileModal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function setProfileDietPref(diet) {
+    window.profileDietPref = diet;
+    ['all', 'veg', 'nonveg'].forEach(d => {
+      const btn = document.getElementById('dietPref' + d.charAt(0).toUpperCase() + d.slice(1));
+      if (btn) {
+        if (d === diet) {
+          btn.style.borderColor = '#EA580C';
+          btn.style.background = '#FFF7ED';
+          btn.style.color = '#EA580C';
+        } else {
+          btn.style.borderColor = '#E2E8F0';
+          btn.style.background = '#fff';
+          btn.style.color = d === 'veg' ? '#16A34A' : (d === 'nonveg' ? '#DC2626' : '#0F172A');
+        }
+      }
+    });
+
+    if (diet === 'veg') {
+      filterDiet = 'veg';
+      const b = document.getElementById('vegFilterBtn');
+      if (b) b.classList.add('active');
+    } else if (diet === 'nonveg') {
+      filterDiet = 'nonveg';
+      const b = document.getElementById('nonVegFilterBtn');
+      if (b) b.classList.add('active');
+    } else {
+      filterDiet = 'all';
+      const bv = document.getElementById('vegFilterBtn');
+      const bn = document.getElementById('nonVegFilterBtn');
+      if (bv) bv.classList.remove('active');
+      if (bn) bn.classList.remove('active');
+    }
+    renderMenu();
+  }
+
+  function saveCustomerProfile() {
+    const name = document.getElementById('profileInputName').value.trim();
+    const phone = document.getElementById('profileInputPhone').value.trim();
+    const diet = window.profileDietPref || 'all';
+
+    const profileData = { name, phone, diet };
+    localStorage.setItem('fp_customer_profile', JSON.stringify(profileData));
+
+    // Auto-fill checkout fields
+    const cName = document.getElementById('custName');
+    if (cName && name) cName.value = name;
+    const cPhone = document.getElementById('custPhone');
+    if (cPhone && phone) cPhone.value = phone;
+
+    // Update avatar UI at top right
+    if (name) {
+      const initial = name.charAt(0).toUpperCase();
+      const wrap = document.querySelector('.profile-glow-wrap');
+      if (wrap) {
+        wrap.innerHTML = '<div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#FF4F17,#EA580C);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;box-shadow:0 3px 10px rgba(234,88,12,0.35);border:2px solid #fff">' + initial + '</div>';
+      }
+    }
+
+    closeProfileDialog();
+    showToast('Profile saved successfully! 🎉');
+  }
+
 
   // PWA & App Download Management
   let deferredPrompt = null;
