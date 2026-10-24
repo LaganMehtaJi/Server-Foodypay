@@ -947,3 +947,91 @@ export const deleteOrder = async (req, res, next) => {
     next(error);
   }
 };
+
+
+// ==========================================
+// REAL-TIME WAITER CALL ASSISTANCE SYSTEM
+// ==========================================
+const activeWaiterCalls = new Map(); // merchantKey -> Array of calls
+
+/**
+ * @desc    Customer calls for Waiter assistance
+ * @route   POST /api/orders/public/call-waiter
+ * @access  Public
+ */
+export const callWaiter = async (req, res, next) => {
+  try {
+    const { foodypayId, merchantUniqueId, table } = req.body;
+    const cleanMerchant = String(merchantUniqueId || foodypayId || 'FP-624358').trim().toUpperCase();
+    const cleanTable = String(table || 'Table 08').trim();
+
+    if (!activeWaiterCalls.has(cleanMerchant)) {
+      activeWaiterCalls.set(cleanMerchant, []);
+    }
+    const calls = activeWaiterCalls.get(cleanMerchant);
+    const callObj = {
+      id: 'call_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+      table: cleanTable,
+      time: Date.now(),
+      status: 'pending'
+    };
+    calls.push(callObj);
+    if (calls.length > 60) calls.shift();
+
+    return res.json({
+      success: true,
+      message: 'Waiter alerted successfully',
+      call: callObj
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * @desc    Waiter terminal polls for active calls
+ * @route   GET /api/orders/public/waiter-calls
+ * @access  Public
+ */
+export const getWaiterCalls = async (req, res, next) => {
+  try {
+    const rawMerchant = req.query.foodypayId || req.query.merchantUniqueId || 'FP-624358';
+    const cleanMerchant = String(rawMerchant).trim().toUpperCase();
+    const calls = activeWaiterCalls.get(cleanMerchant) || [];
+    // Only pending calls from last 10 minutes
+    const cutoff = Date.now() - (10 * 60 * 1000);
+    const active = calls.filter(c => c.time > cutoff && c.status === 'pending');
+
+    return res.json({
+      success: true,
+      data: active
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * @desc    Waiter acknowledges / dismisses call
+ * @route   POST /api/orders/public/dismiss-waiter-call
+ * @access  Public
+ */
+export const dismissWaiterCall = async (req, res, next) => {
+  try {
+    const { foodypayId, merchantUniqueId, callId, table } = req.body;
+    const cleanMerchant = String(merchantUniqueId || foodypayId || 'FP-624358').trim().toUpperCase();
+    const calls = activeWaiterCalls.get(cleanMerchant) || [];
+    calls.forEach(c => {
+      if ((callId && c.id === callId) || (table && c.table.toLowerCase() === String(table).toLowerCase())) {
+        c.status = 'acknowledged';
+      }
+    });
+
+    return res.json({
+      success: true,
+      message: 'Call dismissed successfully'
+    });
+  } catch (err) {
+    next(err);
+  }
+};

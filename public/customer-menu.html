@@ -1158,6 +1158,101 @@
 
     /* CUSTOM BOTTOM DOCK NAVIGATION BAR */
     /* Note: "Profile" and "Nearby Stores" REMOVED per user instructions */
+    
+    /* WAITER INCOMING CALL NOTIFICATION MODAL & SOUND */
+    .waiter-call-modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: modalFadeIn 0.25s ease-out;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .waiter-call-modal-card {
+      background: #FFFFFF;
+      border-radius: 24px;
+      padding: 24px 20px;
+      max-width: 340px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      border: 3px solid #FF5E14;
+      animation: callBounce 0.6s infinite alternate cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes callBounce {
+      from { transform: translateY(0); box-shadow: 0 10px 30px rgba(255, 94, 20, 0.25); }
+      to { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(255, 94, 20, 0.5); }
+    }
+    .waiter-call-icon-wrap {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: #FFF2EB;
+      color: #FF5E14;
+      font-size: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      animation: bellRing 0.8s infinite ease-in-out;
+    }
+    @keyframes bellRing {
+      0%, 100% { transform: rotate(0); }
+      20% { transform: rotate(18deg); }
+      40% { transform: rotate(-18deg); }
+      60% { transform: rotate(12deg); }
+      80% { transform: rotate(-8deg); }
+    }
+    .waiter-call-title {
+      font-size: 18px;
+      font-weight: 900;
+      color: #0F172A;
+      letter-spacing: -0.2px;
+      margin-bottom: 6px;
+    }
+    .waiter-call-table-badge {
+      display: inline-block;
+      background: #FF5E14;
+      color: #FFFFFF;
+      font-size: 16px;
+      font-weight: 900;
+      padding: 6px 18px;
+      border-radius: 99px;
+      letter-spacing: 0.5px;
+      margin: 6px 0 10px;
+      box-shadow: 0 4px 14px rgba(255, 94, 20, 0.4);
+    }
+    .waiter-call-sub {
+      font-size: 12.5px;
+      color: #64748B;
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+    .btn-ack-waiter-call {
+      width: 100%;
+      background: linear-gradient(135deg, #16A34A 0%, #15803D 100%);
+      color: #FFFFFF;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);
+      transition: transform 0.15s;
+    }
+    .btn-ack-waiter-call:active {
+      transform: scale(0.96);
+    }
+
     .bottom-dock-nav {
       position: fixed;
       bottom: 0;
@@ -1843,19 +1938,13 @@
   <!-- CUSTOM BOTTOM DOCK NAVIGATION BAR -->
   <!-- 'Profile' and 'Nearby Stores' are REMOVED per user instructions -->
   <nav class="bottom-dock-nav" id="bottomDockNav">
-    <!-- 1. Home -->
-    <button class="nav-dock-item active" id="navHomeBtn" onclick="handleNavHome()">
-      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-      <span>Home</span>
-    </button>
-
-    <!-- 2. Coupons -->
+    <!-- 1. Coupons -->
     <button class="nav-dock-item" id="navCouponsBtn" onclick="openCouponsModal()">
       <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
       <span>Coupons</span>
     </button>
 
-    <!-- 3. QR Scan (Elevated center circle button) -->
+    <!-- 2. QR Scan (Elevated center circle button) -->
     <button class="nav-scan-wrapper" id="navScanBtn" onclick="openQrScanModal()">
       <div class="nav-scan-circle">
         <svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><rect x="7" y="7" width="10" height="10" rx="2"></rect></svg>
@@ -1863,7 +1952,7 @@
       <span>QR Scan</span>
     </button>
 
-    <!-- 4. My Order / Bill -->
+    <!-- 3. My Order / Bill -->
     <button class="nav-dock-item" id="navOrdersBtn" onclick="openCheckoutModal()">
       <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
       <span>My Order</span>
@@ -1874,6 +1963,19 @@
 </div><!-- /app-viewport -->
 
 <!-- CHECKOUT ORDER MODAL DRAWER -->
+<!-- INCOMING WAITER ASSISTANCE CALL MODAL (WITH SOUND ON WAITER APP) -->
+<div id="waiterIncomingCallModal" class="waiter-call-modal-overlay" style="display:none">
+  <div class="waiter-call-modal-card">
+    <div class="waiter-call-icon-wrap">🔔</div>
+    <div class="waiter-call-title">Assistance Requested!</div>
+    <div class="waiter-call-table-badge" id="waiterCallTableBadge">TABLE 08</div>
+    <p class="waiter-call-sub">Customer at this table has called for waiter service.</p>
+    <button type="button" class="btn-ack-waiter-call" onclick="acknowledgeWaiterCall()">
+      ✅ Attending Table / Stop Alert
+    </button>
+  </div>
+</div>
+
 <div class="sheet-overlay" id="checkoutModal" style="display:none" onclick="if(event.target===this)closeCheckoutModal()">
   <div class="sheet-modal" style="max-height:88vh">
     <div class="sheet-drag-handle"></div>
@@ -2680,6 +2782,7 @@
   setInterval(() => {
     if (isWaiterMode) {
       fetchLiveTableOrders(false);
+      pollWaiterAssistanceCalls();
     }
   }, 1500);
 
@@ -3341,9 +3444,16 @@
     }
   }
 
-  // Load Menu Data from API
-  async function loadMenu() {
+  // Load Menu Data from API - Guaranteed to fetch & display menu on Home
+  async function loadMenu(explicitMerchantId) {
     parseRouteParams();
+    if (explicitMerchantId) merchantUniqueId = explicitMerchantId;
+    if (!merchantUniqueId) {
+      merchantUniqueId = localStorage.getItem('fp_merchant_id') || sessionStorage.getItem('fp_merchant_id') || 'FP-624358';
+    }
+    if (!currentTable) {
+      currentTable = localStorage.getItem('fp_table_no') || sessionStorage.getItem('fp_table_no') || 'Table 08';
+    }
     const container = document.getElementById('menuContainer');
 
     try {
@@ -3389,7 +3499,7 @@
       // Guarantee catalog displays upon QR scan!
       if (!catalogProducts || !catalogProducts.length) {
         storeData = {
-          businessName: 'Snack Rack',
+          businessName: 'La Bella Vista',
           gstPercent: 5,
           categories: ['Soups', 'Shakes & Beverages', 'Noodles', 'Momos', 'Fried Rice', 'Cold Drinks'],
           products: [
@@ -3472,27 +3582,209 @@
     renderMenu();
   }
 
-// Call Waiter Alert
-  function callWaiterAlert() {
-    const tbl = (currentTable || 'Table 08').toUpperCase();
-    showToast(`🔔 Waiter alerted for ${tbl}! Staff is arriving shortly.`);
-    if (merchantUniqueId) {
-      try {
-        fetch('/api/orders/public/claim', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'call_waiter',
-            merchantUniqueId: merchantUniqueId,
-            table: tbl,
-            time: new Date().toISOString()
-          })
-        }).catch(() => {});
-      } catch(e) {}
+// ===============================================
+  // REAL-TIME WAITER CALL & AUDIO CHIME ALERT SYSTEM
+  // ===============================================
+  let waiterAudioContext = null;
+  let waiterCallSoundInterval = null;
+  let currentActiveCallId = null;
+  let acknowledgedCalls = new Set();
+
+  // Play crisp, loud service bell chime using Web Audio API
+  function playWaiterBellChime() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      if (!waiterAudioContext) {
+        waiterAudioContext = new AudioCtx();
+      }
+      if (waiterAudioContext.state === 'suspended') {
+        waiterAudioContext.resume();
+      }
+
+      const now = waiterAudioContext.currentTime;
+
+      // Helper function to synthesize a resonant brass bell harmonic
+      const ringBell = (baseFreq, startOffset, duration) => {
+        const harmonics = [1, 2.01, 3.01, 4.2];
+        const weights = [0.6, 0.35, 0.2, 0.1];
+
+        harmonics.forEach((h, idx) => {
+          const osc = waiterAudioContext.createOscillator();
+          const gain = waiterAudioContext.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(baseFreq * h, now + startOffset);
+
+          gain.gain.setValueAtTime(0, now + startOffset);
+          gain.gain.linearRampToValueAtTime(weights[idx] * 0.8, now + startOffset + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + startOffset + duration);
+
+          osc.connect(gain);
+          gain.connect(waiterAudioContext.destination);
+
+          osc.start(now + startOffset);
+          osc.stop(now + startOffset + duration);
+        });
+      };
+
+      // Two-tone Service Bell: "DING - DONG - DING"
+      ringBell(987.77, 0, 0.8);      // B5
+      ringBell(1318.51, 0.35, 1.1);  // E6
+      ringBell(987.77, 0.85, 0.9);   // B5
+      ringBell(1567.98, 1.2, 1.4);   // G6
+
+      // Vibrate mobile device if supported
+      if (navigator.vibrate) {
+        navigator.vibrate([250, 100, 250, 100, 400]);
+      }
+
+      // Voice announcement if speech synthesis is available
+      if ('speechSynthesis' in window && (!window.speechSynthesis.speaking)) {
+        const tName = document.getElementById('waiterCallTableBadge')?.textContent || 'Table';
+        const msg = new SpeechSynthesisUtterance('Assistance requested at ' + tName);
+        msg.rate = 1.05;
+        window.speechSynthesis.speak(msg);
+      }
+    } catch (e) {
+      console.warn('Audio chime note:', e);
     }
   }
 
-  function addHeroSpecialDish() {
+  // Triggered on Waiter App when an incoming customer call is detected
+  function triggerWaiterIncomingCallAlert(callId, tableNum) {
+    if (acknowledgedCalls.has(callId)) return;
+    currentActiveCallId = callId;
+
+    const modal = document.getElementById('waiterIncomingCallModal');
+    const badge = document.getElementById('waiterCallTableBadge');
+    if (badge) badge.textContent = (tableNum || 'TABLE 08').toUpperCase();
+    if (modal) modal.style.display = 'flex';
+
+    // Play initial chime
+    playWaiterBellChime();
+
+    // Repeat chime every 3.5 seconds until acknowledged
+    if (waiterCallSoundInterval) clearInterval(waiterCallSoundInterval);
+    waiterCallSoundInterval = setInterval(playWaiterBellChime, 3500);
+  }
+
+  // Waiter clicks "Attending / Stop Alert"
+  function acknowledgeWaiterCall() {
+    const modal = document.getElementById('waiterIncomingCallModal');
+    if (modal) modal.style.display = 'none';
+
+    if (waiterCallSoundInterval) {
+      clearInterval(waiterCallSoundInterval);
+      waiterCallSoundInterval = null;
+    }
+
+    if (currentActiveCallId) {
+      acknowledgedCalls.add(currentActiveCallId);
+      // Dismiss on backend
+      fetch('/api/orders/public/dismiss-waiter-call', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          merchantUniqueId: merchantUniqueId,
+          callId: currentActiveCallId
+        })
+      }).catch(() => {});
+    }
+
+    showToast('✅ Call acknowledged! Attending table.');
+  }
+
+  // Poll for waiter assistance calls on the Waiter App
+  async function pollWaiterAssistanceCalls() {
+    if (!isWaiterMode) return;
+    try {
+      const res = await fetch(`/api/orders/public/waiter-calls?merchantUniqueId=${encodeURIComponent(merchantUniqueId || 'FP-624358')}`);
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+        // Find latest pending unacknowledged call
+        const unacked = json.data.filter(c => !acknowledgedCalls.has(c.id));
+        if (unacked.length > 0) {
+          const latest = unacked[unacked.length - 1];
+          triggerWaiterIncomingCallAlert(latest.id, latest.table);
+        }
+      }
+    } catch (e) {
+      // Offline fallback: check localStorage
+      try {
+        const raw = localStorage.getItem('fp_latest_waiter_call');
+        if (raw) {
+          const call = JSON.parse(raw);
+          if (call && call.time && (Date.now() - call.time < 60000) && !acknowledgedCalls.has(call.id)) {
+            triggerWaiterIncomingCallAlert(call.id, call.table);
+          }
+        }
+      } catch(err) {}
+    }
+  }
+
+  // Setup Instant Inter-Tab / Local Broadcast for immediate sound
+  try {
+    if (window.BroadcastChannel) {
+      const bc = new BroadcastChannel('foodypay_waiter_channel');
+      bc.onmessage = (evt) => {
+        if (isWaiterMode && evt.data && evt.data.action === 'call_waiter') {
+          triggerWaiterIncomingCallAlert(evt.data.id, evt.data.table);
+        }
+      };
+    }
+    window.addEventListener('storage', (e) => {
+      if (isWaiterMode && e.key === 'fp_latest_waiter_call' && e.newValue) {
+        try {
+          const call = JSON.parse(e.newValue);
+          if (call && call.table) {
+            triggerWaiterIncomingCallAlert(call.id, call.table);
+          }
+        } catch(err) {}
+      }
+    });
+  } catch(e) {}
+
+  // Customer triggers "🔔 Call Waiter"
+  function callWaiterAlert() {
+    const tbl = (currentTable || 'Table 08').toUpperCase();
+    const btn = document.querySelector('.btn-call-waiter');
+    if (btn) {
+      btn.innerHTML = '<span>⏳</span> <span>Calling...</span>';
+      setTimeout(() => {
+        btn.innerHTML = '<span>✓</span> <span>Alert Sent</span>';
+        setTimeout(() => {
+          btn.innerHTML = '<span>🔔</span> <span>Call Waiter</span>';
+        }, 3500);
+      }, 500);
+    }
+
+    showToast(`🔔 Waiter alerted for ${tbl}! Staff is arriving shortly.`);
+
+    const callPayload = {
+      action: 'call_waiter',
+      id: 'call_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+      merchantUniqueId: merchantUniqueId || 'FP-624358',
+      table: tbl,
+      time: Date.now()
+    };
+
+    // Instant local broadcast to waiter app
+    try {
+      localStorage.setItem('fp_latest_waiter_call', JSON.stringify(callPayload));
+      if (window.BroadcastChannel) {
+        new BroadcastChannel('foodypay_waiter_channel').postMessage(callPayload);
+      }
+    } catch(e) {}
+
+    // Send to backend endpoint
+    fetch('/api/orders/public/call-waiter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(callPayload)
+    }).catch(() => {});
+  }
+
+    function addHeroSpecialDish() {
     if (!catalogProducts || !catalogProducts.length) return;
     const specialDish = catalogProducts.find(p => p.isPopular || p.isSpecial) || catalogProducts[0];
     if (specialDish) {

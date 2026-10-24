@@ -429,10 +429,7 @@ export const getLiveSales = async (req, res, next) => {
  */
 export const getPublicMenu = async (req, res, next) => {
   try {
-    const rawId = req.params.uniqueId || req.query.foodypayId || req.query.uniqueId;
-    if (!rawId) {
-      return res.status(400).json({ success: false, message: 'Merchant Unique ID is required' });
-    }
+    const rawId = req.params.uniqueId || req.query.foodypayId || req.query.uniqueId || 'FP-624358';
     const cleanId = String(rawId).trim();
     const cleanUpper = cleanId.toUpperCase();
     const stripped = cleanUpper.replace(/^FP[-_]?/i, '').trim();
