@@ -13,6 +13,9 @@ import {
   updateOrderStatus,
   markOrderSeen,
   deleteOrder,
+  callWaiter,
+  getWaiterCalls,
+  dismissWaiterCall,
 } from '../controllers/orderController.js';
 import { protect, optionalWaiterProtect, protectWaiter } from '../middlewares/authMiddleware.js';
 
