@@ -357,8 +357,8 @@ export const getPublicOrders = async (req, res, next) => {
         ]
       }).catch(() => null);
     }
-    if (!targetUser && (!foodypayId || foodypayId === 'undefined')) {
-      targetUser = (await User.findOne({ foodypayId: 'FP-624358' })) || (await User.findOne({}));
+    if (!targetUser) {
+      targetUser = (await User.findOne({ foodypayId: 'FP-624358' }).catch(() => null)) || (await User.findOne({}).catch(() => null));
     }
 
     if (targetUser) {
@@ -556,6 +556,8 @@ export const updatePublicOrder = async (req, res, next) => {
       order.status = 'settled';
     }
     if (paymentMode) order.paymentMode = paymentMode;
+    if (req.body.paymentStatus) order.paymentStatus = req.body.paymentStatus;
+    if (req.body.paymentLabel) order.paymentLabel = req.body.paymentLabel;
 
     order.updatedAt = new Date().toISOString();
     await order.save();

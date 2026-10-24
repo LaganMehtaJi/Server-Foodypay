@@ -1820,11 +1820,14 @@
       <div>
         <div style="display:flex;align-items:center;gap:6px">
           <span class="live-pulse-dot" id="lotStatusDot"></span>
-          <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.5px;color:#CA8A04" id="lotStatusBadge">Cooking in Kitchen</span>
+          <span style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.5px;color:#2563EB" id="lotStatusBadge">Order Placed</span>
         </div>
         <h4 style="margin:4px 0 0;font-size:15px;font-weight:900;color:#0F172A" id="lotGreetingText">
-          Running Order on <span id="lotTableName" style="color:#EA580C">Table 1</span>
+          Running Order on <span id="lotTableName" style="color:#EA580C">Table 08</span>
         </h4>
+        <p style="font-size:11.5px;color:#64748B;margin:3px 0 0;line-height:1.3" id="lotStatusDesc">
+          Order received at reception. Chef will punch KOT shortly.
+        </p>
       </div>
       <div style="text-align:right">
         <div style="font-size:18px;font-weight:900;color:#0F172A" id="lotTotalAmount">₹0</div>
@@ -1835,13 +1838,38 @@
     <!-- Timeline Progress Bar -->
     <div style="margin:12px 0 6px;display:flex;align-items:center;gap:4px">
       <div style="flex:1;height:5px;border-radius:99px;background:#2563EB" id="lotStep1"></div>
-      <div style="flex:1;height:5px;border-radius:99px;background:#EAB308" id="lotStep2"></div>
+      <div style="flex:1;height:5px;border-radius:99px;background:#E2E8F0" id="lotStep2"></div>
       <div style="flex:1;height:5px;border-radius:99px;background:#E2E8F0" id="lotStep3"></div>
     </div>
     <div style="display:flex;justify-content:space-between;font-size:10.5px;font-weight:700;color:#64748B;margin-bottom:12px">
-      <span id="lotLabelStep1" style="color:#2563EB">Order Placed</span>
-      <span id="lotLabelStep2" style="color:#CA8A04">Cooking in Kitchen</span>
-      <span id="lotLabelStep3">Ready / Bill</span>
+      <span id="lotLabelStep1" style="color:#2563EB">1. Order Placed</span>
+      <span id="lotLabelStep2">2. In Kitchen (KOT)</span>
+      <span id="lotLabelStep3">3. Bill Ready</span>
+    </div>
+
+    <!-- Bill Generated & Payment Section (Shows when bill is generated) -->
+    <div id="lotBillPaySection" style="display:none;background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:14px;padding:12px;margin:10px 0">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div>
+          <b style="font-size:13.5px;color:#166534">🧾 Bill Ready to Pay</b>
+          <small style="display:block;color:#15803D;font-size:11px">Generated from Reception POS</small>
+        </div>
+        <span style="font-size:18px;font-weight:900;color:#15803D" id="lotBillPayAmount">₹0</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+        <button type="button" onclick="openUpiPaymentModal()" style="background:#16A34A;color:#fff;border:none;padding:10px 8px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;box-shadow:0 3px 10px rgba(22,163,74,0.3)">
+          <span>💳 Pay Online (UPI)</span>
+        </button>
+        <button type="button" onclick="selectCashPayment()" style="background:#FFFFFF;color:#0F172A;border:1.5px solid #CBD5E1;padding:10px 8px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px">
+          <span>💵 Pay Cash</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Payment Paid Badge (Shows when paid online via UPI) -->
+    <div id="lotPaidSuccessBadge" style="display:none;background:#ECFDF5;border:1.5px solid #6EE7B7;border-radius:12px;padding:10px;margin:10px 0;text-align:center">
+      <div style="font-size:13px;font-weight:800;color:#065F46">✅ Paid Online via UPI</div>
+      <small style="font-size:11px;color:#047857">Payment acknowledged by staff. Thank you!</small>
     </div>
 
     <!-- Items Quick Preview (Expandable) -->
@@ -1852,11 +1880,15 @@
     <!-- Action Buttons -->
     <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
       <button id="lotAddMoreBtn" onclick="scrollToMenu()" style="flex:1;min-width:120px;background:#0F172A;border:none;color:#fff;padding:9px 12px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 2px 8px rgba(15,23,42,0.2)">
-        <span>+ Add More Items</span>
+        <span>➕ Add More Dishes</span>
       </button>
 
-      <button id="lotClaimOrderBtn" onclick="openClaimOrderModal()" style="flex:1.3;min-width:130px;background:#EA580C;border:none;color:#fff;padding:9px 12px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 2px 6px rgba(234,88,12,0.25)">
-        <span>Link My Details to Bill</span>
+      <button id="lotStartNewOrderBtn" onclick="startFreshTableOrder()" style="display:none;flex:1;min-width:120px;background:#FF4F17;border:none;color:#fff;padding:9px 12px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 2px 8px rgba(255,79,23,0.3)">
+        <span>🔄 Start New Order</span>
+      </button>
+
+      <button id="lotClaimOrderBtn" onclick="openClaimOrderModal()" style="flex:1.2;min-width:130px;background:#EA580C;border:none;color:#fff;padding:9px 12px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 2px 6px rgba(234,88,12,0.25)">
+        <span>Link Details to Bill</span>
       </button>
     </div>
   </div>
@@ -2286,13 +2318,13 @@
 
     <!-- GUEST DETAILS -->
     <div class="form-group">
-      <label>Your Name (Optional)</label>
-      <input type="text" id="custName" placeholder="Enter name (e.g. Rahul Sharma)" autocomplete="name">
+      <label style="font-weight:800;color:#0F172A">Your Name <span style="color:#DC2626">* (Required)</span></label>
+      <input type="text" id="custName" placeholder="Enter your name (e.g. Rahul Sharma)" autocomplete="name" style="border:1.5px solid #CBD5E1">
     </div>
 
     <div class="form-group">
-      <label>Mobile Number (Optional for order SMS)</label>
-      <input type="tel" id="custPhone" placeholder="Enter 10-digit number" autocomplete="tel">
+      <label style="font-weight:800;color:#0F172A">Mobile Number <span style="color:#DC2626">* (10-Digit WhatsApp Bill)</span></label>
+      <input type="tel" id="custPhone" maxlength="10" placeholder="10-digit number (e.g. 9876543210)" autocomplete="tel" style="border:1.5px solid #CBD5E1">
     </div>
 
     <div class="form-group">
@@ -2538,9 +2570,22 @@
 
       <!-- Native Fallback File Input Button -->
       <input type="file" id="cameraPhotoInput" accept="image/*" capture="environment" style="display:none" onchange="handleQrPhotoUpload(event)">
-      <button type="button" onclick="document.getElementById('cameraPhotoInput').click()" style="margin-top:12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:9px 16px;border-radius:99px;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
-        <span>📸 Camera Not Starting? Snap Photo</span>
+      <button type="button" onclick="document.getElementById('cameraPhotoInput').click()" style="margin-top:12px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:9px 18px;border-radius:99px;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+        <span>📸 Camera Issue? Snap / Upload Photo</span>
       </button>
+
+      <!-- Quick Manual Table Selector (Backup for any device) -->
+      <div style="margin-top:16px;padding-top:14px;border-top:1px dashed rgba(255,255,255,0.18)">
+        <div style="font-size:12px;font-weight:700;color:#94A3B8;margin-bottom:10px">Or Select Table Number Directly:</div>
+        <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap">
+          <button type="button" onclick="handleDetectedQrCode('Table 01')" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;font-weight:800;padding:7px 14px;border-radius:10px;cursor:pointer;font-size:12.5px">Table 01</button>
+          <button type="button" onclick="handleDetectedQrCode('Table 02')" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;font-weight:800;padding:7px 14px;border-radius:10px;cursor:pointer;font-size:12.5px">Table 02</button>
+          <button type="button" onclick="handleDetectedQrCode('Table 03')" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;font-weight:800;padding:7px 14px;border-radius:10px;cursor:pointer;font-size:12.5px">Table 03</button>
+          <button type="button" onclick="handleDetectedQrCode('Table 04')" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;font-weight:800;padding:7px 14px;border-radius:10px;cursor:pointer;font-size:12.5px">Table 04</button>
+          <button type="button" onclick="handleDetectedQrCode('Table 05')" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;font-weight:800;padding:7px 14px;border-radius:10px;cursor:pointer;font-size:12.5px">Table 05</button>
+          <button type="button" onclick="handleDetectedQrCode('Table 08')" style="background:linear-gradient(135deg,#FF5E14,#EA580C);border:none;color:#fff;font-weight:800;padding:7px 14px;border-radius:10px;cursor:pointer;font-size:12.5px">Table 08</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -2647,6 +2692,17 @@
 <div class="toast-msg" id="toastMessage">Notification</div>
 
 <script>
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+
   // App State
   let merchantUniqueId = '';
   let currentTable = '';
@@ -3562,40 +3618,83 @@
     const summaryEl = document.getElementById('lotItemsSummary');
     if (summaryEl) summaryEl.textContent = `${itemsCount} item${itemsCount !== 1 ? 's' : ''}`;
 
-    // Timeline & status
-    const isReadyOrBill = (order.status === 'bill_printed' || order.status === 'billed');
-    const isCooking = (order.status === 'kot_printed' || order.kotPrinted || order.status === 'preparing');
-
+    // Elements
     const dot = document.getElementById('lotStatusDot');
     const badge = document.getElementById('lotStatusBadge');
+    const desc = document.getElementById('lotStatusDesc');
     const s1 = document.getElementById('lotStep1');
     const s2 = document.getElementById('lotStep2');
     const s3 = document.getElementById('lotStep3');
     const l1 = document.getElementById('lotLabelStep1');
     const l2 = document.getElementById('lotLabelStep2');
     const l3 = document.getElementById('lotLabelStep3');
+    const billPaySec = document.getElementById('lotBillPaySection');
+    const billPayAmt = document.getElementById('lotBillPayAmount');
+    const paidBadge = document.getElementById('lotPaidSuccessBadge');
+    const startNewBtn = document.getElementById('lotStartNewOrderBtn');
 
-    if (isReadyOrBill) {
-      if (dot) dot.style.background = '#22C55E';
-      if (badge) { badge.textContent = 'Food Ready / Bill Generated'; badge.style.color = '#15803D'; }
-      if (s1) s1.style.background = '#22C55E';
-      if (s2) s2.style.background = '#22C55E';
-      if (s3) s3.style.background = '#22C55E';
+    // Status logic
+    const isPaid = order.paymentStatus === 'paid';
+    const isSettled = (order.status === 'settled' || order.status === 'completed');
+    const isBillReady = (order.status === 'bill_printed' || order.status === 'billed' || order.billPrinted);
+    const isCooking = (order.status === 'kot_printed' || order.kotPrinted || order.status === 'preparing');
+
+    if (isPaid) {
+      if (dot) dot.style.background = '#16A34A';
+      if (badge) { badge.textContent = 'Paid Online via UPI'; badge.style.color = '#15803D'; }
+      if (desc) desc.textContent = `Bill of ₹${order.total || 0} received via UPI! Thank you.`;
+      if (s1) s1.style.background = '#16A34A';
+      if (s2) s2.style.background = '#16A34A';
+      if (s3) s3.style.background = '#16A34A';
+      if (billPaySec) billPaySec.style.display = 'none';
+      if (paidBadge) paidBadge.style.display = 'block';
+      if (startNewBtn) startNewBtn.style.display = 'inline-flex';
+    } else if (isSettled) {
+      if (dot) dot.style.background = '#16A34A';
+      if (badge) { badge.textContent = 'Table Settled / Closed'; badge.style.color = '#15803D'; }
+      if (desc) desc.textContent = 'Bill settled. Hope you enjoyed the food!';
+      if (s1) s1.style.background = '#16A34A';
+      if (s2) s2.style.background = '#16A34A';
+      if (s3) s3.style.background = '#16A34A';
+      if (billPaySec) billPaySec.style.display = 'none';
+      if (paidBadge) paidBadge.style.display = 'none';
+      if (startNewBtn) startNewBtn.style.display = 'inline-flex';
+    } else if (isBillReady) {
+      if (dot) dot.style.background = '#16A34A';
+      if (badge) { badge.textContent = '🧾 Bill Ready / Generated'; badge.style.color = '#15803D'; }
+      if (desc) desc.textContent = `Your bill of ₹${order.total || 0} is ready! Choose Online or Cash payment below:`;
+      if (s1) s1.style.background = '#16A34A';
+      if (s2) s2.style.background = '#16A34A';
+      if (s3) s3.style.background = '#16A34A';
       if (l3) l3.style.color = '#15803D';
+      if (billPaySec) {
+        billPaySec.style.display = 'block';
+        if (billPayAmt) billPayAmt.textContent = `₹${order.total || 0}`;
+      }
+      if (paidBadge) paidBadge.style.display = 'none';
+      if (startNewBtn) startNewBtn.style.display = 'inline-flex';
     } else if (isCooking) {
-      if (dot) dot.style.background = '#EAB308';
-      if (badge) { badge.textContent = 'Cooking in Kitchen (KOT Placed)'; badge.style.color = '#CA8A04'; }
+      if (dot) dot.style.background = '#EA580C';
+      if (badge) { badge.textContent = '👨‍🍳 In Kitchen (KOT Placed)'; badge.style.color = '#EA580C'; }
+      if (desc) desc.textContent = 'Chef has received your KOT and is preparing your food in the kitchen.';
       if (s1) s1.style.background = '#2563EB';
-      if (s2) s2.style.background = '#EAB308';
+      if (s2) s2.style.background = '#EA580C';
       if (s3) s3.style.background = '#E2E8F0';
-      if (l2) l2.style.color = '#CA8A04';
+      if (l2) l2.style.color = '#EA580C';
+      if (billPaySec) billPaySec.style.display = 'none';
+      if (paidBadge) paidBadge.style.display = 'none';
+      if (startNewBtn) startNewBtn.style.display = 'none';
     } else {
       if (dot) dot.style.background = '#2563EB';
-      if (badge) { badge.textContent = 'Order Placed with Reception'; badge.style.color = '#1D4ED8'; }
+      if (badge) { badge.textContent = '⏱ Order Placed'; badge.style.color = '#2563EB'; }
+      if (desc) desc.textContent = 'Order received at reception. Sending to kitchen shortly.';
       if (s1) s1.style.background = '#2563EB';
       if (s2) s2.style.background = '#E2E8F0';
       if (s3) s3.style.background = '#E2E8F0';
-      if (l1) l1.style.color = '#1D4ED8';
+      if (l1) l1.style.color = '#2563EB';
+      if (billPaySec) billPaySec.style.display = 'none';
+      if (paidBadge) paidBadge.style.display = 'none';
+      if (startNewBtn) startNewBtn.style.display = 'none';
     }
 
     // Customer Greeting & Claim state
@@ -3612,14 +3711,14 @@
     }
 
     if (claimBtn) {
-      claimBtn.innerHTML = hasRealCust ? '<span>Edit My Bill Details</span>' : '<span>Link My Details to Bill</span>';
+      claimBtn.innerHTML = hasRealCust ? '<span>Edit Bill Details</span>' : '<span>Link Details to Bill</span>';
     }
 
     // Render dishes accordion content
     const itemsContent = document.getElementById('lotItemsListContent');
     if (itemsContent) {
       itemsContent.innerHTML = (order.items || []).map(i => `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px dashed #F1F5F9">
           <span><b>${i.qty}x</b> ${escapeHtml(i.name)} <small style="color:#64748B">${i.v && i.v !== 'Regular' ? '· ' + escapeHtml(i.v) : ''}</small></span>
           <b>₹${(Number(i.price) || 0) * (Number(i.qty) || 1)}</b>
         </div>
@@ -4387,8 +4486,147 @@
     }
   }
 
+  
+  // UPI PAYMENT MODAL & CASH HANDLERS
+  function getMerchantUpiId() {
+    return storeData?.upiId || (merchantUniqueId ? (merchantUniqueId.toLowerCase().replace(/[^a-z0-9]/g, '') + '@upi') : 'foodypay@upi');
+  }
+
+  function getUpiPaymentUrl(amount) {
+    const upiId = getMerchantUpiId();
+    const storeName = storeData?.businessName || 'FoodyPay Restaurant';
+    const note = `Bill ${currentTable} ${customerActiveTableOrder?.orderId || ''}`;
+    return `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(storeName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
+  }
+
+  function openUpiPaymentModal() {
+    if (!customerActiveTableOrder) return;
+    const modal = document.getElementById('upiPaymentModal');
+    if (!modal) return;
+
+    const amt = Number(customerActiveTableOrder.total || 0);
+    const storeName = storeData?.businessName || 'FoodyPay Restaurant';
+    const upiId = getMerchantUpiId();
+
+    const amtEl = document.getElementById('upiModalAmount');
+    if (amtEl) amtEl.textContent = '₹' + amt;
+
+    const confAmtEl = document.getElementById('upiModalConfirmAmt');
+    if (confAmtEl) confAmtEl.textContent = amt;
+
+    const stEl = document.getElementById('upiModalStoreTable');
+    if (stEl) stEl.textContent = `${storeName} · ${currentTable}`;
+
+    const idEl = document.getElementById('upiModalIdText');
+    if (idEl) idEl.textContent = upiId;
+
+    const qrImg = document.getElementById('upiModalQrImg');
+    if (qrImg) {
+      const upiUrl = getUpiPaymentUrl(amt);
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(upiUrl)}`;
+    }
+
+    modal.style.display = 'flex';
+  }
+
+  function closeUpiPaymentModal() {
+    const modal = document.getElementById('upiPaymentModal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function triggerUpiIntent(app) {
+    if (!customerActiveTableOrder) return;
+    const amt = Number(customerActiveTableOrder.total || 0);
+    const upiUrl = getUpiPaymentUrl(amt);
+    window.location.href = upiUrl;
+  }
+
+  function copyUpiId() {
+    const upiId = getMerchantUpiId();
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(upiId).then(() => {
+        showToast('📋 UPI ID Copied: ' + upiId);
+      }).catch(() => {
+        showToast('UPI ID: ' + upiId);
+      });
+    } else {
+      showToast('UPI ID: ' + upiId);
+    }
+  }
+
+  async function confirmOnlineUpiPaid() {
+    if (!customerActiveTableOrder) return;
+    closeUpiPaymentModal();
+
+    showToast('Processing online payment confirmation…');
+
+    try {
+      const res = await fetch(`/api/orders/public/${customerActiveTableOrder._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paymentMode: 'UPI',
+          paymentStatus: 'paid',
+          paymentLabel: 'Paid Online via UPI'
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.data) {
+        customerActiveTableOrder = data.data;
+      } else {
+        customerActiveTableOrder.paymentStatus = 'paid';
+        customerActiveTableOrder.paymentMode = 'UPI';
+      }
+    } catch(e) {
+      if (customerActiveTableOrder) {
+        customerActiveTableOrder.paymentStatus = 'paid';
+        customerActiveTableOrder.paymentMode = 'UPI';
+      }
+    }
+
+    // Play pleasant chime
+    try {
+      playWaiterBellChime();
+    } catch(e) {}
+
+    renderCustomerLiveOrderTracker(customerActiveTableOrder);
+    showToast('✅ Bill Paid Online via UPI! Staff notified.');
+  }
+
+  async function selectCashPayment() {
+    if (!customerActiveTableOrder) return;
+
+    showToast('💵 Cash Payment Selected. Staff arriving at table.');
+
+    try {
+      await fetch(`/api/orders/public/${customerActiveTableOrder._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paymentMode: 'Cash',
+          paymentLabel: 'Cash on Table / Counter'
+        })
+      });
+    } catch(e) {}
+
+    // Alert staff
+    callWaiterAlert();
+    showToast(`💵 Waiter is arriving at ${currentTable} to collect bill of ₹${customerActiveTableOrder.total}.`);
+  }
+
+  function startFreshTableOrder() {
+    customerActiveTableOrder = null;
+    const tracker = document.getElementById('customerLiveOrderTracker');
+    if (tracker) tracker.style.display = 'none';
+    cart.clear();
+    updateCartBar();
+    showToast('Ready for new order! Please select dishes.');
+    scrollToMenu();
+  }
+
+
   function renderOrderHistory() {
-    const container = document.getElementById('orderHistoryListContainer');
+    const container = document.getElementById('orderHistoryListContainer') || document.getElementById('historyOrdersList');
     if (!container) return;
 
     let history = [];
@@ -4526,8 +4764,45 @@
   async function placeOrder() {
     if (!cart.size) return;
     const btn = document.getElementById('btnPlaceOrder');
+
+    const nameInp = document.getElementById('custName');
+    const phoneInp = document.getElementById('custPhone');
+    const customer = (nameInp ? nameInp.value.trim() : '') || (isWaiterMode ? `Diner (Served by ${currentWaiterName})` : '');
+    const phone = phoneInp ? phoneInp.value.trim() : '';
+    const cleanPhone = phone.replace(/\D/g, '');
+
+    // In customer mode, require Name and valid 10-digit Phone
+    if (!isWaiterMode) {
+      if (!customer) {
+        showToast('⚠️ Kripya apna Naam darj karein');
+        if (nameInp) {
+          nameInp.focus();
+          nameInp.style.borderColor = '#DC2626';
+          nameInp.style.backgroundColor = '#FEF2F2';
+          setTimeout(() => { nameInp.style.borderColor = '#CBD5E1'; nameInp.style.backgroundColor = ''; }, 2500);
+        }
+        return;
+      }
+      if (!phone || cleanPhone.length < 10) {
+        showToast('⚠️ Kripya 10-digit Mobile number darj karein (Bill ke liye)');
+        if (phoneInp) {
+          phoneInp.focus();
+          phoneInp.style.borderColor = '#DC2626';
+          phoneInp.style.backgroundColor = '#FEF2F2';
+          setTimeout(() => { phoneInp.style.borderColor = '#CBD5E1'; phoneInp.style.backgroundColor = ''; }, 2500);
+        }
+        return;
+      }
+      // Save customer details permanently
+      try {
+        localStorage.setItem('fp_customer_name', customer);
+        localStorage.setItem('fp_customer_phone', phone);
+      } catch(e) {}
+    }
+
     btn.disabled = true;
-    btn.innerHTML = isWaiterMode ? '<span>⏳ Punching KOT order…</span>' : '<span>⏳ Sending order to kitchen…</span>';
+    const isAddingMore = customerActiveTableOrder && customerActiveTableOrder.status !== 'settled';
+    btn.innerHTML = isWaiterMode ? '<span>⏳ Punching KOT order…</span>' : (isAddingMore ? '<span>⏳ Adding items to table…</span>' : '<span>⏳ Sending order to kitchen…</span>');
 
     const items = [];
     let subtotal = 0;
@@ -4549,15 +4824,13 @@
     const taxableSubtotal = taxRate > 0 ? +(discountedTotal / (1 + taxRate / 100)).toFixed(2) : discountedTotal;
     const tax = taxRate > 0 ? +(discountedTotal - taxableSubtotal).toFixed(2) : 0;
     const total = discountedTotal;
-    const customer = document.getElementById('custName').value.trim() || (isWaiterMode ? `Diner (Served by ${currentWaiterName})` : 'Walk-in Guest');
-    const phone = document.getElementById('custPhone').value.trim();
-    const note = document.getElementById('orderNote').value.trim();
+    const note = document.getElementById('orderNote') ? document.getElementById('orderNote').value.trim() : '';
 
     const payload = {
       foodypayId: merchantUniqueId,
       table: currentTable,
       type: 'Dine-In',
-      customer,
+      customer: customer || 'Walk-in Guest',
       phone,
       note,
       items,
@@ -4590,8 +4863,41 @@
       }
 
       const placedOrder = data.data || {};
-      document.getElementById('confirmedOrderId').textContent = placedOrder.orderId || '#FP-NEW';
-      document.getElementById('confirmedTable').textContent = `Table: ${currentTable}`;
+      const orderCode = placedOrder.orderId || ('#FP-' + Math.floor(100000 + Math.random() * 900000));
+      const confIdEl = document.getElementById('confirmedOrderId');
+      if (confIdEl) confIdEl.textContent = orderCode;
+      const confTblEl = document.getElementById('confirmedTable');
+      if (confTblEl) confTblEl.textContent = `Table: ${currentTable}`;
+
+      // Save to Past Order History in localStorage
+      try {
+        const historyItem = {
+          orderId: orderCode,
+          id: placedOrder._id || '',
+          restaurant: storeData?.businessName || 'La Bella Vista',
+          table: currentTable,
+          date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
+          items: [...items],
+          subtotal: taxableSubtotal,
+          tax: tax,
+          discount: appliedDiscount,
+          total: total,
+          status: placedOrder.status || 'new',
+          paymentStatus: placedOrder.paymentStatus || 'unpaid',
+          paymentMode: placedOrder.paymentMode || 'Cash',
+          customer: customer,
+          phone: phone
+        };
+        let history = JSON.parse(localStorage.getItem('fp_order_history') || '[]');
+        const exIdx = history.findIndex(h => h.orderId === orderCode || (placedOrder._id && h.id === placedOrder._id));
+        if (exIdx !== -1) {
+          history[exIdx] = historyItem;
+        } else {
+          history.unshift(historyItem);
+        }
+        history = history.slice(0, 30);
+        localStorage.setItem('fp_order_history', JSON.stringify(history));
+      } catch(e) {}
 
       closeCheckoutModal();
       cart.clear();
@@ -4600,19 +4906,19 @@
       updateCartBar();
 
       if (isWaiterMode) {
-        showToast(`Order punched & KOT printed at Reception for ${currentTable}!`);
+        showToast(`Order punched & KOT printed for ${currentTable}!`);
         setTimeout(() => {
           showWaiterTablesScreen();
         }, 500);
       } else {
-        // Customer Mode: Auto-dismiss modal, show toast, and display the live running order!
-        showToast('Order Sent to Kitchen! Preparing fresh.');
-        document.getElementById('successModal').style.display = 'none';
+        showToast(isAddingMore ? `✓ Items added to ${currentTable}! Kitchen KOT updated.` : '✓ Order Sent to Kitchen! Preparing fresh.');
+        const succModal = document.getElementById('successModal');
+        if (succModal) succModal.style.display = 'none';
 
-        // Fetch and show active running order on table
+        // Immediately fetch and render active table order
         await fetchCustomerActiveTableOrder();
 
-        // Scroll smoothly to active order card
+        // Smooth scroll to live tracker
         setTimeout(() => {
           const tracker = document.getElementById('customerLiveOrderTracker');
           if (tracker) {
@@ -4621,10 +4927,12 @@
         }, 200);
       }
     } catch (err) {
-      alert('Order submission error: ' + err.message);
+      console.error('Order placement failed:', err);
+      showToast('⚠️ ' + (err.message || 'Order failed. Please try again.'));
     } finally {
       btn.disabled = false;
-      btn.innerHTML = '<span>Confirm &amp; Send to Kitchen</span>';
+      const isMore = customerActiveTableOrder && customerActiveTableOrder.status !== 'settled';
+      btn.innerHTML = isWaiterMode ? '<span>Punch KOT Order</span>' : (isMore ? `<span>➕ Add to Running Table ${currentTable}</span>` : '<span>Confirm &amp; Send to Kitchen</span>');
     }
   }
 
@@ -4654,9 +4962,6 @@
 
   
   // Live Camera QR Scanner & Table Switcher Handlers
-  let qrCameraStream = null;
-  let qrScanInterval = null;
-  let isScanningActive = false;
 
   function openQrScanModal() {
     const modal = document.getElementById('qrCameraScannerModal');
@@ -4673,24 +4978,41 @@
     closeQrCameraScanner();
   }
 
-  // Guaranteed Back Camera (Rear/Environment) Streaming
-  let currentCameraFacing = 'environment'; // Always default to BACK camera!
+  let qrCameraStream = null;
+  let qrScanAnimFrameId = null;
+  let isScanningActive = false;
+  let currentCameraFacing = 'environment'; // Back camera default
+
+  function playScanBeep() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1400, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(2200, ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.13);
+    } catch(e) {}
+  }
 
   async function openQrCameraScanner() {
     const modal = document.getElementById('qrCameraScannerModal');
-    if (!modal) {
-      console.warn('qrCameraScannerModal not found in DOM');
-      return;
-    }
+    if (!modal) return;
 
-    // Guarantee modal is visible on top
     modal.style.display = 'flex';
     modal.style.visibility = 'visible';
     modal.style.opacity = '1';
     modal.style.zIndex = '99999';
 
     const curBadge = document.getElementById('scannerCurrentTableBadge');
-    if (curBadge) curBadge.textContent = currentTable || 'None (Scan to start)';
+    if (curBadge) curBadge.textContent = currentTable || 'Table 08';
 
     const statusMsg = document.getElementById('cameraStatusMsg');
     if (statusMsg) statusMsg.textContent = 'Starting back camera...';
@@ -4716,9 +5038,7 @@
     }
 
     if (!navigator || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      if (statusMsg) {
-        statusMsg.innerHTML = '⚠️ Tap "Snap Photo" below to scan Table QR.';
-      }
+      if (statusMsg) statusMsg.innerHTML = '⚠️ Tap "Snap / Upload Photo" below to scan Table QR.';
       return;
     }
 
@@ -4740,19 +5060,221 @@
       video.srcObject = qrCameraStream;
       await video.play();
 
-      if (statusMsg) {
-        statusMsg.textContent = '📷 Camera active. Align table QR within box';
-      }
+      if (statusMsg) statusMsg.textContent = '📷 Camera active. Align table QR within box';
       startQrFrameDetection();
     } catch (err) {
       console.warn('Camera stream error:', err);
-      if (statusMsg) {
-        statusMsg.innerHTML = '⚠️ Tap "Snap Photo" below to scan Table QR.';
-      }
+      if (statusMsg) statusMsg.innerHTML = '⚠️ Camera blocked. Tap "Snap / Upload Photo" or select Table below.';
     }
   }
 
-    function handleQrPhotoUpload(e) {
+  async function toggleCameraFacingMode() {
+    currentCameraFacing = (currentCameraFacing === 'environment') ? 'user' : 'environment';
+    const statusMsg = document.getElementById('cameraStatusMsg');
+    if (statusMsg) statusMsg.textContent = `Switching to ${currentCameraFacing === 'environment' ? 'back' : 'front'} camera...`;
+    await startCameraStream(currentCameraFacing);
+  }
+
+  function closeQrCameraScanner() {
+    isScanningActive = false;
+    if (qrScanAnimFrameId) {
+      cancelAnimationFrame(qrScanAnimFrameId);
+      qrScanAnimFrameId = null;
+    }
+    if (qrCameraStream) {
+      try {
+        qrCameraStream.getTracks().forEach(track => track.stop());
+      } catch(e) {}
+      qrCameraStream = null;
+    }
+    const video = document.getElementById('qrVideoElement');
+    if (video) {
+      try {
+        video.pause();
+        video.srcObject = null;
+      } catch(e) {}
+    }
+    const modal = document.getElementById('qrCameraScannerModal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function startQrFrameDetection() {
+    const video = document.getElementById('qrVideoElement');
+    const canvas = document.getElementById('qrScanCanvas');
+    if (!video || !canvas) return;
+
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    let nativeDetector = null;
+
+    if ('BarcodeDetector' in window) {
+      try {
+        nativeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+      } catch(e) {
+        nativeDetector = null;
+      }
+    }
+
+    async function scanLoop() {
+      if (!isScanningActive) return;
+
+      if (video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) {
+        // Optimize canvas dimensions for rapid 60 FPS scanning
+        const targetWidth = Math.min(video.videoWidth, 640);
+        const scale = targetWidth / video.videoWidth;
+        const targetHeight = Math.round(video.videoHeight * scale);
+
+        if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+          canvas.width = targetWidth;
+          canvas.height = targetHeight;
+        }
+
+        ctx.drawImage(video, 0, 0, targetWidth, targetHeight);
+
+        // 1. First try native BarcodeDetector (Fastest & hardware accelerated)
+        if (nativeDetector) {
+          try {
+            const detected = await nativeDetector.detect(canvas);
+            if (detected && detected.length > 0 && detected[0].rawValue) {
+              handleDetectedQrCode(detected[0].rawValue);
+              return;
+            }
+          } catch(err) {}
+        }
+
+        // 2. Try jsQR with dual-inversion support
+        if (typeof jsQR !== 'undefined') {
+          try {
+            const imgData = ctx.getImageData(0, 0, targetWidth, targetHeight);
+            const qr = jsQR(imgData.data, imgData.width, imgData.height, {
+              inversionAttempts: 'attemptBoth'
+            });
+            if (qr && qr.data) {
+              handleDetectedQrCode(qr.data);
+              return;
+            }
+          } catch(err) {}
+        }
+      }
+
+      if (isScanningActive) {
+        qrScanAnimFrameId = requestAnimationFrame(scanLoop);
+      }
+    }
+
+    isScanningActive = true;
+    qrScanAnimFrameId = requestAnimationFrame(scanLoop);
+  }
+
+  function handleDetectedQrCode(scannedData) {
+    if (!scannedData) return;
+    isScanningActive = false;
+
+    console.log('[QR SCAN DETECTED RAW]:', scannedData);
+
+    // Audio chime & vibration
+    playScanBeep();
+    if (navigator && navigator.vibrate) {
+      try { navigator.vibrate([100, 50, 100]); } catch(e) {}
+    }
+
+    let scannedMerchantId = '';
+    let scannedTable = '';
+    let scannedStoreName = '';
+
+    const cleanData = String(scannedData).trim();
+
+    // 1. Try URL Parsing
+    try {
+      let url = null;
+      if (cleanData.startsWith('http://') || cleanData.startsWith('https://')) {
+        url = new URL(cleanData);
+      } else if (cleanData.startsWith('/')) {
+        url = new URL(window.location.origin + cleanData);
+      }
+
+      if (url) {
+        const qId = url.searchParams.get('id') || url.searchParams.get('uniqueId') || url.searchParams.get('foodypayId') || url.searchParams.get('merchantId');
+        const qTbl = url.searchParams.get('table');
+        const qName = url.searchParams.get('name') || url.searchParams.get('restName') || url.searchParams.get('storeName');
+
+        if (qId) scannedMerchantId = qId;
+        if (qTbl) scannedTable = qTbl;
+        if (qName) scannedStoreName = decodeURIComponent(qName);
+
+        const parts = url.pathname.split('/').filter(Boolean);
+        if (parts[0] === 'client' || parts[0] === 'order' || parts[0] === 'table-order' || parts[0] === 'menu') {
+          if (parts[1]) scannedMerchantId = decodeURIComponent(parts[1]);
+          if (parts[2]) scannedTable = decodeURIComponent(parts[2]);
+        }
+      }
+    } catch(e) {}
+
+    // 2. Try JSON Parsing
+    if (!scannedTable && cleanData.startsWith('{') && cleanData.endsWith('}')) {
+      try {
+        const obj = JSON.parse(cleanData);
+        if (obj.table) scannedTable = obj.table;
+        if (obj.merchantId || obj.foodypayId || obj.id) scannedMerchantId = obj.merchantId || obj.foodypayId || obj.id;
+        if (obj.name || obj.storeName) scannedStoreName = obj.name || obj.storeName;
+      } catch(e) {}
+    }
+
+    // 3. String Table Matching (e.g. "Table 05", "Table 8", "T-02", "5")
+    if (!scannedTable) {
+      if (/^table\s*\d+/i.test(cleanData) || /^\d+$/.test(cleanData) || /^T-?\d+/i.test(cleanData)) {
+        scannedTable = cleanData;
+      }
+    }
+
+    // Fallback Table
+    if (scannedTable) {
+      let cleanT = scannedTable.trim();
+      if (/^T-?\s*\d+/i.test(cleanT) && !cleanT.toLowerCase().startsWith('table')) {
+        cleanT = cleanT.replace(/^T-?\s*/i, 'Table ');
+      }
+      if (!cleanT.toLowerCase().startsWith('table')) {
+        cleanT = 'Table ' + cleanT;
+      }
+      currentTable = cleanT;
+      try {
+        localStorage.setItem('fp_table_no', currentTable);
+        sessionStorage.setItem('fp_table_no', currentTable);
+      } catch(e) {}
+    }
+
+    if (scannedMerchantId) {
+      merchantUniqueId = scannedMerchantId.trim().toUpperCase();
+      try {
+        localStorage.setItem('fp_merchant_id', merchantUniqueId);
+        sessionStorage.setItem('fp_merchant_id', merchantUniqueId);
+      } catch(e) {}
+    }
+
+    if (scannedStoreName) {
+      const storeText = document.getElementById('storeNameText');
+      if (storeText) storeText.textContent = scannedStoreName;
+      document.title = scannedStoreName + ' - Digital Menu';
+    }
+
+    // Close Scanner Modal
+    closeQrCameraScanner();
+
+    // Update Badges on UI
+    const heroBadge = document.getElementById('heroTableBadge');
+    if (heroBadge) heroBadge.textContent = currentTable.toUpperCase();
+    const modalBadge = document.getElementById('modalTableBadge');
+    if (modalBadge) modalBadge.textContent = currentTable;
+    const scannerBadge = document.getElementById('scannerCurrentTableBadge');
+    if (scannerBadge) scannerBadge.textContent = currentTable;
+
+    showToast(`✅ Scanned ${currentTable}! Live menu loaded.`);
+
+    // Reload menu for this merchant and fetch active table orders
+    loadMenu(merchantUniqueId);
+    setTimeout(fetchCustomerActiveTableOrder, 400);
+  }
+
+  function handleQrPhotoUpload(e) {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
     const statusMsg = document.getElementById('cameraStatusMsg');
@@ -5005,6 +5527,14 @@
   // Initialize App Guaranteed (Handles both ready and loading states)
   function startCustomerMenuApp() {
     try { checkAppDownloadStatus(); } catch(e) {}
+    try {
+      const sName = localStorage.getItem('fp_customer_name') || '';
+      const sPhone = localStorage.getItem('fp_customer_phone') || '';
+      const nInp = document.getElementById('custName');
+      const pInp = document.getElementById('custPhone');
+      if (nInp && sName) nInp.value = sName;
+      if (pInp && sPhone) pInp.value = sPhone;
+    } catch(e) {}
     try { loadMenu(); } catch(e) { console.error('loadMenu error:', e); }
     setTimeout(fetchCustomerActiveTableOrder, 600);
     setInterval(fetchCustomerActiveTableOrder, 3500);
@@ -5016,5 +5546,63 @@
     startCustomerMenuApp();
   }
 </script>
+
+<!-- ONLINE UPI PAYMENT MODAL -->
+<div class="sheet-overlay" id="upiPaymentModal" style="display:none;z-index:99999" onclick="if(event.target===this)closeUpiPaymentModal()">
+  <div class="sheet-modal" style="border-radius:24px;max-width:440px;margin:0 auto;text-align:center;padding:22px 20px 28px">
+    <div class="sheet-drag-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="text-align:left">
+        <h3 style="font-size:18px;font-weight:900;color:#0F172A;margin:0">Pay Bill Online</h3>
+        <small style="color:#64748B;font-size:12px" id="upiModalStoreTable">La Bella Vista · Table 08</small>
+      </div>
+      <button class="sheet-close-btn" onclick="closeUpiPaymentModal()">✕</button>
+    </div>
+
+    <!-- Amount Display -->
+    <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:18px;padding:14px;margin-bottom:16px">
+      <div style="font-size:11.5px;font-weight:800;color:#166534;text-transform:uppercase;letter-spacing:0.5px">Total Bill Payable</div>
+      <div style="font-size:32px;font-weight:900;color:#15803D" id="upiModalAmount">₹0</div>
+    </div>
+
+    <!-- 1-Click UPI Apps (PhonePe, GPay, Paytm) -->
+    <div style="margin-bottom:16px">
+      <div style="font-size:12px;font-weight:700;color:#475569;margin-bottom:8px">Open Installed UPI App on this Phone:</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <button type="button" onclick="triggerUpiIntent('gpay')" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px;border:1.5px solid #E2E8F0;border-radius:12px;background:#fff;cursor:pointer;gap:4px">
+          <span style="font-size:24px">🟢</span>
+          <span style="font-size:11.5px;font-weight:800;color:#0F172A">Google Pay</span>
+        </button>
+        <button type="button" onclick="triggerUpiIntent('phonepe')" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px;border:1.5px solid #E2E8F0;border-radius:12px;background:#fff;cursor:pointer;gap:4px">
+          <span style="font-size:24px">🟣</span>
+          <span style="font-size:11.5px;font-weight:800;color:#0F172A">PhonePe</span>
+        </button>
+        <button type="button" onclick="triggerUpiIntent('paytm')" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px;border:1.5px solid #E2E8F0;border-radius:12px;background:#fff;cursor:pointer;gap:4px">
+          <span style="font-size:24px">🔵</span>
+          <span style="font-size:11.5px;font-weight:800;color:#0F172A">Paytm</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Dynamic UPI QR Code -->
+    <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:16px;padding:14px;margin-bottom:16px">
+      <div style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:8px">Or Scan Dynamic UPI QR:</div>
+      <div style="display:inline-block;background:#fff;padding:8px;border-radius:12px;box-shadow:0 3px 12px rgba(0,0,0,0.06)">
+        <img id="upiModalQrImg" src="" alt="UPI QR Code" style="width:170px;height:170px;display:block">
+      </div>
+      <!-- UPI ID Copy Row -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;font-size:12.5px;font-weight:700;color:#334155">
+        <span>UPI ID: <b id="upiModalIdText" style="color:#0F172A">foodypay@upi</b></span>
+        <button type="button" onclick="copyUpiId()" style="background:#E2E8F0;border:none;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:800;cursor:pointer">📋 Copy</button>
+      </div>
+    </div>
+
+    <!-- Confirm Paid Button -->
+    <button type="button" onclick="confirmOnlineUpiPaid()" style="width:100%;padding:14px;background:linear-gradient(135deg,#16A34A,#15803D);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(22,163,74,0.3);display:flex;align-items:center;justify-content:center;gap:8px">
+      <span>✓ I Have Paid via UPI</span>
+    </button>
+  </div>
+</div>
+
 </body>
 </html>
