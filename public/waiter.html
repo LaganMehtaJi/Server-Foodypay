@@ -1916,11 +1916,294 @@
 
   <!-- DISHES LIST CONTAINER -->
   <main class="dishes-container" id="menuContainer">
-    <div style="text-align:center;padding:50px 10px;color:#94a3b8">
-      <div style="font-size:36px;margin-bottom:10px">⏳</div>
-      <b style="font-size:15px;color:#475569">Loading delicious menu…</b>
-      <p style="font-size:12px;margin-top:4px">Fetching live items for your table</p>
-    </div>
+
+      <div class="dish-grid-card">
+        <div class="dish-grid-img-wrap">
+          <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=700" alt="Smoky Honey Glazed Ribs" loading="lazy">
+          <div class="dish-grid-diet-badge nonveg"></div>
+          <div class="dish-grid-rating">⭐ 4.7</div>
+        </div>
+
+        <div class="dish-grid-body">
+          <div class="dish-grid-cat">MAIN COURSE</div>
+          <div class="dish-grid-name" title="Smoky Honey Glazed Ribs">Smoky Honey Glazed Ribs</div>
+          <div class="dish-grid-desc">Slow cooked tender ribs glazed with raw honey, smoked paprika & fresh herbs.</div>
+
+          
+
+          <div class="dish-grid-footer">
+            <div class="dish-grid-price">₹520</div>
+
+            <div>
+              <button type="button" class="btn-grid-add" onclick="updateQty('p1', 'Regular', 1)" title="Add to Cart">
+                ＋
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+
+      <div class="dish-grid-card">
+        <div class="dish-grid-img-wrap">
+          <img src="https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=500" alt="Paneer Butter Masala" loading="lazy">
+          <div class="dish-grid-diet-badge veg"></div>
+          <div class="dish-grid-rating">⭐ 4.8</div>
+        </div>
+
+        <div class="dish-grid-body">
+          <div class="dish-grid-cat">MAIN COURSE</div>
+          <div class="dish-grid-name" title="Paneer Butter Masala">Paneer Butter Masala</div>
+          <div class="dish-grid-desc">Rich creamy cottage cheese cooked in authentic spiced tomato gravy.</div>
+
+          
+        <div class="dish-grid-vars">
+          <select class="grid-var-select" onchange="selectVariant('p2', parseInt(this.value));renderMenu()">
+            <option value="0" selected>Half (₹160)</option><option value="1" >Full (₹280)</option>
+          </select>
+        </div>
+      
+
+          <div class="dish-grid-footer">
+            <div class="dish-grid-price">₹160</div>
+
+            <div>
+              <button type="button" class="btn-grid-add" onclick="updateQty('p2', 'Half', 1)" title="Add to Cart">
+                ＋
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+
+      <div class="dish-grid-card">
+        <div class="dish-grid-img-wrap">
+          <img src="https://images.unsplash.com/photo-1548507200-e7421cb8b775?w=500" alt="Crispy Veg Spring Rolls" loading="lazy">
+          <div class="dish-grid-diet-badge veg"></div>
+          <div class="dish-grid-rating">⭐ 4.9</div>
+        </div>
+
+        <div class="dish-grid-body">
+          <div class="dish-grid-cat">STARTERS</div>
+          <div class="dish-grid-name" title="Crispy Veg Spring Rolls">Crispy Veg Spring Rolls</div>
+          <div class="dish-grid-desc">Golden fried crispy rolls stuffed with seasoned fresh vegetables.</div>
+
+          
+
+          <div class="dish-grid-footer">
+            <div class="dish-grid-price">₹140</div>
+
+            <div>
+              <button type="button" class="btn-grid-add" onclick="updateQty('p3', '6 pcs', 1)" title="Add to Cart">
+                ＋
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+
+      <div class="dish-grid-card">
+        <div class="dish-grid-img-wrap">
+          <img src="https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=500" alt="Chicken Tikka Kebab" loading="lazy">
+          <div class="dish-grid-diet-badge nonveg"></div>
+          <div class="dish-grid-rating">⭐ 4.7</div>
+        </div>
+
+        <div class="dish-grid-body">
+          <div class="dish-grid-cat">STARTERS</div>
+          <div class="dish-grid-name" title="Chicken Tikka Kebab">Chicken Tikka Kebab</div>
+          <div class="dish-grid-desc">Tender chicken morsels marinated in spiced yogurt and roasted in tandoor.</div>
+
+          
+
+          <div class="dish-grid-footer">
+            <div class="dish-grid-price">₹220</div>
+
+            <div>
+              <button type="button" class="btn-grid-add" onclick="updateQty('p4', '6 pcs', 1)" title="Add to Cart">
+                ＋
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+
+      <div class="dish-grid-card">
+        <div class="dish-grid-img-wrap">
+          <img src="https://images.unsplash.com/photo-1585032226651-759b368d7246?w=500" alt="Veg Hakka Noodles" loading="lazy">
+          <div class="dish-grid-diet-badge veg"></div>
+          <div class="dish-grid-rating">⭐ 4.8</div>
+        </div>
+
+        <div class="dish-grid-body">
+          <div class="dish-grid-cat">MAIN COURSE</div>
+          <div class="dish-grid-name" title="Veg Hakka Noodles">Veg Hakka Noodles</div>
+          <div class="dish-grid-desc">Wok tossed noodles with crunchy garden vegetables and oriental sauces.</div>
+
+          
+        <div class="dish-grid-vars">
+          <select class="grid-var-select" onchange="selectVariant('p5', parseInt(this.value));renderMenu()">
+            <option value="0" selected>Half (₹90)</option><option value="1" >Full (₹150)</option>
+          </select>
+        </div>
+      
+
+          <div class="dish-grid-footer">
+            <div class="dish-grid-price">₹90</div>
+
+            <div>
+              <button type="button" class="btn-grid-add" onclick="updateQty('p5', 'Half', 1)" title="Add to Cart">
+                ＋
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+
+      <div class="dish-grid-card">
+        <div class="dish-grid-img-wrap">
+          <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500" alt="Dal Makhani" loading="lazy">
+          <div class="dish-grid-diet-badge veg"></div>
+          <div class="dish-grid-rating">⭐ 4.9</div>
+        </div>
+
+        <div class="dish-grid-body">
+          <div class="dish-grid-cat">MAIN COURSE</div>
+          <div class="dish-grid-name" title="Dal Makhani">Dal Makhani</div>
+          <div class="dish-grid-desc">Black lentils slow cooked overnight with butter, cream and gentle spices.</div>
+
+          
+        <div class="dish-grid-vars">
+          <select class="grid-var-select" onchange="selectVariant('p6', parseInt(this.value));renderMenu()">
+            <option value="0" selected>Half (₹140)</option><option value="1" >Full (₹240)</option>
+          </select>
+        </div>
+      
+
+          <div class="dish-grid-footer">
+            <div class="dish-grid-price">₹140</div>
+
+            <div>
+              <button type="button" class="btn-grid-add" onclick="updateQty('p6', 'Half', 1)" title="Add to Cart">
+                ＋
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+
+      <div class="dish-grid-card">
+        <div class="dish-grid-img-wrap">
+          <img src="https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=500" alt="Cold Coffee with Ice Cream" loading="lazy">
+          <div class="dish-grid-diet-badge veg"></div>
+          <div class="dish-grid-rating">⭐ 4.7</div>
+        </div>
+
+        <div class="dish-grid-body">
+          <div class="dish-grid-cat">DRINKS</div>
+          <div class="dish-grid-name" title="Cold Coffee with Ice Cream">Cold Coffee with Ice Cream</div>
+          <div class="dish-grid-desc">Creamy blended iced coffee topped with a rich scoop of vanilla ice cream.</div>
+
+          
+
+          <div class="dish-grid-footer">
+            <div class="dish-grid-price">₹120</div>
+
+            <div>
+              <button type="button" class="btn-grid-add" onclick="updateQty('p7', 'Regular', 1)" title="Add to Cart">
+                ＋
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+
+      <div class="dish-grid-card">
+        <div class="dish-grid-img-wrap">
+          <img src="https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500" alt="Gulab Jamun with Ice Cream" loading="lazy">
+          <div class="dish-grid-diet-badge veg"></div>
+          <div class="dish-grid-rating">⭐ 4.8</div>
+        </div>
+
+        <div class="dish-grid-body">
+          <div class="dish-grid-cat">DESSERT</div>
+          <div class="dish-grid-name" title="Gulab Jamun with Ice Cream">Gulab Jamun with Ice Cream</div>
+          <div class="dish-grid-desc">Warm melt-in-mouth milk solids dumplings served with cool vanilla scoop.</div>
+
+          
+
+          <div class="dish-grid-footer">
+            <div class="dish-grid-price">₹90</div>
+
+            <div>
+              <button type="button" class="btn-grid-add" onclick="updateQty('p8', '2 pcs', 1)" title="Add to Cart">
+                ＋
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+
+      <div class="dish-grid-card">
+        <div class="dish-grid-img-wrap">
+          <img src="https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=500" alt="Butter Naan" loading="lazy">
+          <div class="dish-grid-diet-badge veg"></div>
+          <div class="dish-grid-rating">⭐ 4.9</div>
+        </div>
+
+        <div class="dish-grid-body">
+          <div class="dish-grid-cat">MAIN COURSE</div>
+          <div class="dish-grid-name" title="Butter Naan">Butter Naan</div>
+          <div class="dish-grid-desc">Fresh tandoor baked refined wheat flatbread brushed with rich butter.</div>
+
+          
+
+          <div class="dish-grid-footer">
+            <div class="dish-grid-price">₹35</div>
+
+            <div>
+              <button type="button" class="btn-grid-add" onclick="updateQty('p9', '1 pc', 1)" title="Add to Cart">
+                ＋
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+
+      <div class="dish-grid-card">
+        <div class="dish-grid-img-wrap">
+          <img src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=500" alt="Virgin Mojito" loading="lazy">
+          <div class="dish-grid-diet-badge veg"></div>
+          <div class="dish-grid-rating">⭐ 4.7</div>
+        </div>
+
+        <div class="dish-grid-body">
+          <div class="dish-grid-cat">DRINKS</div>
+          <div class="dish-grid-name" title="Virgin Mojito">Virgin Mojito</div>
+          <div class="dish-grid-desc">Refreshing muddled mint leaves, sparkling lime and crushed ice.</div>
+
+          
+
+          <div class="dish-grid-footer">
+            <div class="dish-grid-price">₹110</div>
+
+            <div>
+              <button type="button" class="btn-grid-add" onclick="updateQty('p10', '300ml', 1)" title="Add to Cart">
+                ＋
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    
   </main>
 
   <!-- FLOATING CART SUMMARY DOCK (Appears above the bottom nav when cart has items) -->
@@ -2367,8 +2650,30 @@
   // App State
   let merchantUniqueId = '';
   let currentTable = '';
-  let storeData = null;
-  let catalogProducts = [];
+  
+  const DEFAULT_CURATED_CATALOG = [
+    { id: 'p1', name: 'Smoky Honey Glazed Ribs', cat: 'Main Course', diet: 'nonveg', vars: [{ n: 'Regular', p: 520 }], price: 520, isPopular: true, desc: 'Slow cooked tender ribs glazed with raw honey, smoked paprika & fresh herbs.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=700' },
+    { id: 'p2', name: 'Paneer Butter Masala', cat: 'Main Course', diet: 'veg', vars: [{ n: 'Half', p: 160 }, { n: 'Full', p: 280 }], price: 160, isPopular: true, desc: 'Rich creamy cottage cheese cooked in authentic spiced tomato gravy.', img: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=500' },
+    { id: 'p3', name: 'Crispy Veg Spring Rolls', cat: 'Starters', diet: 'veg', vars: [{ n: '6 pcs', p: 140 }], price: 140, isPopular: true, desc: 'Golden fried crispy rolls stuffed with seasoned fresh vegetables.', img: 'https://images.unsplash.com/photo-1548507200-e7421cb8b775?w=500' },
+    { id: 'p4', name: 'Chicken Tikka Kebab', cat: 'Starters', diet: 'nonveg', vars: [{ n: '6 pcs', p: 220 }], price: 220, isPopular: true, desc: 'Tender chicken morsels marinated in spiced yogurt and roasted in tandoor.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=500' },
+    { id: 'p5', name: 'Veg Hakka Noodles', cat: 'Main Course', diet: 'veg', vars: [{ n: 'Half', p: 90 }, { n: 'Full', p: 150 }], price: 90, desc: 'Wok tossed noodles with crunchy garden vegetables and oriental sauces.', img: 'https://images.unsplash.com/photo-1612927601601-6638404737ce?w=500' },
+    { id: 'p6', name: 'Dal Makhani', cat: 'Main Course', diet: 'veg', vars: [{ n: 'Half', p: 140 }, { n: 'Full', p: 240 }], price: 140, desc: 'Slow simmered black lentils cooked overnight with butter and fresh cream.', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500' },
+    { id: 'p7', name: 'Cold Coffee with Ice Cream', cat: 'Drinks', diet: 'veg', vars: [{ n: 'Regular', p: 120 }], price: 120, desc: 'Thick creamy brewed coffee blended with vanilla ice cream and chocolate syrup.', img: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=500' },
+    { id: 'p8', name: 'Virgin Mojito', cat: 'Drinks', diet: 'veg', vars: [{ n: 'Glass', p: 110 }], price: 110, desc: 'Refreshing blend of crushed mint leaves, lime wedges and sparkling soda.', img: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=500' }
+  ];
+
+  const selectedVariants = new Map();
+  let catalogProducts = [...DEFAULT_CURATED_CATALOG];
+  let storeData = {
+    businessName: 'La Bella Vista',
+    gstPercent: 5,
+    categories: ['Starters', 'Main Course', 'Drinks', 'Dessert'],
+    products: [...DEFAULT_CURATED_CATALOG]
+  };
+  catalogProducts.forEach(p => {
+    const dishId = p.id || p.name;
+    if (!selectedVariants.has(dishId)) selectedVariants.set(dishId, 0);
+  });
   let activeCategory = 'All';
   let searchQuery = '';
   let vegOnly = false;
@@ -2381,8 +2686,7 @@
   let currentWaiterJwt = localStorage.getItem('fp_waiter_jwt') || '';
 
   // Selected variant index per dish: dishId -> variantIndex
-  const selectedVariants = new Map();
-
+  
   // Cart: cartKey -> { product, variantName, price, qty }
   const cart = new Map();
 
@@ -2540,7 +2844,13 @@
 
     if (qTable) currentTable = qTable;
 
-    const cleanTable = currentTable.toLowerCase().startsWith('table') ? currentTable : `Table ${currentTable}`;
+    let cleanTable = currentTable ? currentTable.trim() : '';
+    if (!cleanTable || cleanTable.toLowerCase() === 'table') {
+      cleanTable = localStorage.getItem('fp_table_no') || sessionStorage.getItem('fp_table_no') || 'Table 08';
+    }
+    if (!cleanTable.toLowerCase().startsWith('table')) {
+      cleanTable = 'Table ' + cleanTable;
+    }
     currentTable = cleanTable;
 
     const qName = url.searchParams.get('name') || url.searchParams.get('restName') || url.searchParams.get('storeName');
@@ -2553,9 +2863,12 @@
       }
     }
 
-    document.getElementById('modalTableBadge').textContent = currentTable;
-    document.getElementById('qrActiveTableText').textContent = currentTable;
-    document.getElementById('tableQrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(window.location.href)}`;
+    const mBadge = document.getElementById('modalTableBadge');
+    if (mBadge) mBadge.textContent = currentTable;
+    const qrActiveTxt = document.getElementById('qrActiveTableText');
+    if (qrActiveTxt) qrActiveTxt.textContent = currentTable;
+    const qrImg = document.getElementById('tableQrImage');
+    if (qrImg) qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(window.location.href)}`;
   }
 
   function updateStoreLogoInitial(name, logoUrl) {
@@ -3452,16 +3765,7 @@
   }
 
   // Load Menu Data: Guaranteed Instant 0ms render + Background Live Sync
-  const DEFAULT_CURATED_CATALOG = [
-    { id: 'p1', name: 'Smoky Honey Glazed Ribs', cat: 'Main Course', diet: 'nonveg', vars: [{ n: 'Regular', p: 520 }], price: 520, isPopular: true, desc: 'Slow cooked tender ribs glazed with raw honey, smoked paprika & fresh herbs.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=700' },
-    { id: 'p2', name: 'Paneer Butter Masala', cat: 'Main Course', diet: 'veg', vars: [{ n: 'Half', p: 160 }, { n: 'Full', p: 280 }], price: 160, isPopular: true, desc: 'Rich creamy cottage cheese cooked in authentic spiced tomato gravy.', img: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=500' },
-    { id: 'p3', name: 'Crispy Veg Spring Rolls', cat: 'Starters', diet: 'veg', vars: [{ n: '6 pcs', p: 140 }], price: 140, isPopular: true, desc: 'Golden fried crispy rolls stuffed with seasoned fresh vegetables.', img: 'https://images.unsplash.com/photo-1548507200-e7421cb8b775?w=500' },
-    { id: 'p4', name: 'Chicken Tikka Kebab', cat: 'Starters', diet: 'nonveg', vars: [{ n: '6 pcs', p: 220 }], price: 220, isPopular: true, desc: 'Tender chicken morsels marinated in spiced yogurt and roasted in tandoor.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=500' },
-    { id: 'p5', name: 'Veg Hakka Noodles', cat: 'Main Course', diet: 'veg', vars: [{ n: 'Half', p: 90 }, { n: 'Full', p: 150 }], price: 90, desc: 'Wok tossed noodles with crunchy garden vegetables and oriental sauces.', img: 'https://images.unsplash.com/photo-1612927601601-6638404737ce?w=500' },
-    { id: 'p6', name: 'Dal Makhani', cat: 'Main Course', diet: 'veg', vars: [{ n: 'Half', p: 140 }, { n: 'Full', p: 240 }], price: 140, desc: 'Slow simmered black lentils cooked overnight with butter and fresh cream.', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500' },
-    { id: 'p7', name: 'Cold Coffee with Ice Cream', cat: 'Drinks', diet: 'veg', vars: [{ n: 'Regular', p: 120 }], price: 120, desc: 'Thick creamy brewed coffee blended with vanilla ice cream and chocolate syrup.', img: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=500' },
-    { id: 'p8', name: 'Virgin Mojito', cat: 'Drinks', diet: 'veg', vars: [{ n: 'Glass', p: 110 }], price: 110, desc: 'Refreshing blend of crushed mint leaves, lime wedges and sparkling soda.', img: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=500' }
-  ];
+  
 
   async function loadMenu(explicitMerchantId) {
     parseRouteParams();
@@ -4355,6 +4659,13 @@
   let isScanningActive = false;
 
   function openQrScanModal() {
+    const modal = document.getElementById('qrCameraScannerModal');
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.style.visibility = 'visible';
+      modal.style.opacity = '1';
+      modal.style.zIndex = '99999';
+    }
     openQrCameraScanner();
   }
 
