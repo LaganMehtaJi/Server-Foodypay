@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#112338">
+  <meta name="theme-color" content="#FFFFFF">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -23,25 +23,25 @@
       --nonveg: #DC2626;
       --nonveg-bg: #FEF2F2;
       --dark: #0F172A;
-      --header-bg: #112338;
-      --header-dark: #0A1926;
-      --search-bg: #1B354D;
+      --header-bg: #FFFFFF;
+      --header-dark: #FFFFFF;
+      --search-bg: #F8FAFC;
       --slate: #475569;
       --muted: #94A3B8;
       --border: #E2E8F0;
-      --bg: #F8FAFC;
+      --bg: #FFFFFF;
       --card-bg: #FFFFFF;
       --radius-sm: 8px;
       --radius-md: 16px;
       --radius-lg: 22px;
-      --shadow-sm: 0 2px 6px rgba(0,0,0,0.03);
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
       --shadow-md: 0 8px 24px rgba(0,0,0,0.06);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html, body {
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      background: #E8EEF5;
+      background: #F1F5F9;
       color: var(--dark);
       line-height: 1.45;
       -webkit-font-smoothing: antialiased;
@@ -65,8 +65,8 @@
 
     /* TOP APP DOWNLOAD BANNER */
     .app-download-bar {
-      background: linear-gradient(90deg, #091522 0%, #102438 100%);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: #FFFBEB;
+      border-bottom: 1px solid #FEF3C7;
       padding: 10px 14px;
       display: flex;
       align-items: center;
@@ -74,7 +74,7 @@
       position: sticky;
       top: 0;
       z-index: 95;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
       transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .app-download-bar.hiding {
@@ -86,7 +86,7 @@
     .app-dl-close {
       background: none;
       border: none;
-      color: #799AB6;
+      color: #94A3B8;
       font-size: 13px;
       font-weight: 800;
       width: 22px;
@@ -128,7 +128,7 @@
     .app-dl-title {
       font-size: 13px;
       font-weight: 800;
-      color: #FFFFFF;
+      color: #0F172A;
       display: flex;
       align-items: center;
       gap: 5px;
@@ -145,11 +145,9 @@
     }
     .app-dl-desc {
       font-size: 11px;
-      color: #94A3B8;
+      color: #64748B;
       white-space: nowrap;
       overflow: hidden;
-      text-overflow: ellipsis;
-      margin-top: 2px;
     }
     .btn-app-download {
       background: var(--primary-gradient);
@@ -504,14 +502,13 @@
       border: 1px solid #CBD5E1;
     }
 
-    /* TOP HEADER (DARK NAVY ROUNDED) */
+    /* TOP HEADER (PURE WHITE LIGHT THEME) */
     .hero-header {
-      background: linear-gradient(180deg, var(--header-dark) 0%, var(--header-bg) 100%);
-      color: #fff;
-      padding: 18px 18px 20px;
-      border-bottom-left-radius: 28px;
-      border-bottom-right-radius: 28px;
-      box-shadow: 0 10px 30px rgba(10, 25, 38, 0.25);
+      background: #FFFFFF;
+      color: #0F172A;
+      padding: 16px 18px 18px;
+      border-bottom: 1px solid #F1F5F9;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
       position: sticky;
       top: 0;
       z-index: 45;
@@ -539,7 +536,7 @@
       box-shadow: 0 4px 14px rgba(230, 0, 0, 0.4);
       flex-shrink: 0;
       overflow: hidden;
-      border: 2px solid rgba(255,255,255,0.2);
+      border: 2px solid #F8FAFC;
       position: relative;
     }
     .brand-avatar img {
@@ -574,6 +571,7 @@
       min-width: 0;
     }
     .brand-name {
+      color: #0F172A;
       font-size: 20px;
       font-weight: 800;
       letter-spacing: -0.3px;
@@ -592,7 +590,7 @@
       height: 17px;
       background: #00A3FF;
       border-radius: 50%;
-      color: #fff;
+      color: #0F172A;
       font-size: 10px;
       font-weight: 900;
       box-shadow: 0 2px 6px rgba(0, 163, 255, 0.45);
@@ -648,18 +646,18 @@
     .search-row {
       display: flex;
       align-items: center;
-      background: var(--search-bg);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #F8FAFC;
+      border: 1.5px solid #E2E8F0;
       border-radius: 99px;
       padding: 5px 8px 5px 14px;
       gap: 8px;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.25);
+      box-shadow: none;
     }
     .search-icon {
       width: 18px;
       height: 18px;
       fill: none;
-      stroke: #86A7C3;
+      stroke: #64748B;
       stroke-width: 2.3;
       flex-shrink: 0;
     }
@@ -668,7 +666,7 @@
       background: transparent;
       border: none;
       outline: none;
-      color: #fff;
+      color: #0F172A;
       font-size: 13.5px;
       font-family: inherit;
       min-width: 0;
@@ -683,9 +681,9 @@
       gap: 6px;
     }
     .search-ctrl-btn {
-      background: transparent;
-      border: none;
-      color: #94B5D1;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      color: #64748B;
       width: 28px;
       height: 28px;
       border-radius: 50%;
@@ -693,12 +691,12 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
       transition: background 0.15s, color 0.15s;
     }
     .search-ctrl-btn:hover, .search-ctrl-btn:active {
-      background: rgba(255,255,255,0.12);
-      color: #fff;
+      background: #F1F5F9;
+      color: #0F172A;
     }
     .search-ctrl-btn.active {
       color: #FF5E14;
@@ -1423,7 +1421,15 @@
       transform: translateX(-50%) translateY(0);
       opacity: 1;
     }
+  
+    @keyframes scanLaser {
+      0% { top: 10px; opacity: 0.8; }
+      50% { top: 200px; opacity: 1; }
+      100% { top: 10px; opacity: 0.8; }
+    }
+
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 </head>
 <body>
 <div class="app-viewport">
@@ -1552,7 +1558,8 @@
         </div>
         <div class="brand-details">
           <div class="brand-name">
-            <span id="storeNameText">Foodypay</span>
+            <span id="storeNameText" style="color:#0F172A;font-weight:800">Foodypay</span>
+            <span id="heroTableBadge" style="background:#FFF7ED;color:#EA580C;border:1px solid #FFEDD5;font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px;margin-left:4px">Table 01</span>
             <span class="verified-badge" title="Verified Foodypay Partner">✓</span>
           </div>
           <div class="live-badge">
@@ -1739,17 +1746,29 @@
 
 <!-- CHECKOUT ORDER MODAL DRAWER -->
 <div class="sheet-overlay" id="checkoutModal" style="display:none" onclick="if(event.target===this)closeCheckoutModal()">
-  <div class="sheet-modal">
+  <div class="sheet-modal" style="max-height:88vh">
     <div class="sheet-drag-handle"></div>
-    <div class="sheet-header">
+    <div class="sheet-header" style="padding-bottom:8px">
       <div>
-        <div class="sheet-title">Order Summary</div>
-        <small style="color:#64748B;font-size:12.5px">Serving at: <b id="modalTableBadge" style="color:var(--primary)">Table 2</b></small>
+        <div class="sheet-title" id="orderModalTitle">My Orders</div>
+        <small style="color:#64748B;font-size:12.5px">Serving at: <b id="modalTableBadge" style="color:var(--primary)">Table 01</b></small>
       </div>
       <button class="sheet-close-btn" onclick="closeCheckoutModal()">✕</button>
     </div>
 
-    <div class="cart-items-scroll" id="modalItemsList"></div>
+    <!-- Tabs: Current Cart / Running Order & Past Order History -->
+    <div style="display:flex;border-bottom:1.5px solid #F1F5F9;background:#F8FAFC;margin:0 -20px 14px;padding:2px 14px">
+      <button type="button" class="order-tab-btn active" id="tabBtnCurrentOrder" onclick="switchOrderModalTab('current')" style="flex:1;padding:10px;border:none;background:transparent;font-weight:800;font-size:13px;color:#FF4F17;border-bottom:2.5px solid #FF4F17;cursor:pointer">
+        🛒 Current Cart / Bill
+      </button>
+      <button type="button" class="order-tab-btn" id="tabBtnHistoryOrder" onclick="switchOrderModalTab('history')" style="flex:1;padding:10px;border:none;background:transparent;font-weight:700;font-size:13px;color:#64748B;border-bottom:2.5px solid transparent;cursor:pointer">
+        📜 Past Order History
+      </button>
+    </div>
+
+    <!-- TAB 1: CURRENT CART & BILL -->
+    <div id="tabContentCurrent">
+      <div class="cart-items-scroll" id="modalItemsList"></div>
 
     <!-- GUEST DETAILS -->
     <div class="form-group">
@@ -1955,29 +1974,48 @@
 </div>
 
 <!-- QR SCAN / TABLE SWITCHER MODAL -->
-<div class="sheet-overlay" id="qrScanModal" style="display:none" onclick="if(event.target===this)closeQrScanModal()">
-  <div class="sheet-modal">
-    <div class="sheet-drag-handle"></div>
-    <div class="sheet-header">
+<!-- LIVE CAMERA QR SCANNER MODAL (FOR TABLE SWITCHING VIA CAMERA ONLY) -->
+<div class="sheet-overlay" id="qrCameraScannerModal" style="display:none;z-index:9999" onclick="if(event.target===this)closeQrCameraScanner()">
+  <div class="sheet-modal" style="max-height:92vh;border-top-left-radius:24px;border-top-right-radius:24px;background:#0F172A;color:#fff">
+    <div class="sheet-drag-handle" style="background:rgba(255,255,255,0.2)"></div>
+    <div class="sheet-header" style="border-bottom:1px solid rgba(255,255,255,0.1)">
       <div>
-        <div class="sheet-title">QR Scan &amp; Table Info</div>
-        <small style="color:#64748B;font-size:12px">Scan another QR code or verify your table</small>
+        <div class="sheet-title" style="color:#fff;display:flex;align-items:center;gap:6px">
+          <span>📷</span> <span>Scan Table QR</span>
+        </div>
+        <small style="color:#94A3B8;font-size:12px">Point camera at another table QR sticker to switch</small>
       </div>
-      <button class="sheet-close-btn" onclick="closeQrScanModal()">✕</button>
+      <button class="sheet-close-btn" style="background:rgba(255,255,255,0.1);color:#fff" onclick="closeQrCameraScanner()">✕</button>
     </div>
 
-    <div class="qr-info-card">
-      <div style="font-size:14px;color:#475569;margin-bottom:4px">You are currently seated at:</div>
-      <div style="font-size:22px;font-weight:900;color:var(--primary)" id="qrActiveTableText">Table 2</div>
+    <div style="padding:14px 18px 24px;text-align:center">
+      <!-- Camera Viewfinder Container -->
+      <div id="cameraViewfinderWrap" style="position:relative;width:100%;max-width:320px;height:320px;margin:0 auto;border-radius:20px;overflow:hidden;background:#000;box-shadow:0 8px 30px rgba(0,0,0,0.5)">
+        <video id="qrVideoElement" playsinline muted style="width:100%;height:100%;object-fit:cover"></video>
+        <canvas id="qrScanCanvas" style="display:none"></canvas>
 
-      <div class="qr-code-box">
-        <img id="tableQrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://api.foodypay.online/menu/FP-624358/2" alt="QR Code">
+        <!-- Viewfinder Overlay & Laser -->
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
+          <div style="position:relative;width:220px;height:220px;border:2px dashed rgba(255,79,23,0.85);border-radius:16px;box-shadow:0 0 0 4000px rgba(0,0,0,0.45)">
+            <!-- Laser Animation -->
+            <div id="scannerLaserLine" style="position:absolute;left:0;right:0;height:2px;background:#FF4F17;box-shadow:0 0 10px #FF4F17;animation:scanLaser 2s ease-in-out infinite"></div>
+          </div>
+        </div>
+
+        <div id="cameraStatusMsg" style="position:absolute;bottom:12px;left:10px;right:10px;font-size:12px;font-weight:700;color:#fff;background:rgba(0,0,0,0.7);padding:6px 12px;border-radius:99px;backdrop-filter:blur(4px)">
+          Align table QR within the frame
+        </div>
       </div>
 
-      <p style="font-size:12.5px;color:#64748B;margin:10px 0 16px">Point your mobile camera at any table QR sticker to automatically switch dining tables.</p>
+      <!-- Current Table Indicator -->
+      <div style="margin-top:14px;font-size:13px;color:#94A3B8">
+        Currently on: <b id="scannerCurrentTableBadge" style="color:#FB923C">Table 01</b>
+      </div>
 
-      <button class="btn-submit-order" style="background:#0F172A" onclick="openNativeCameraScan()">
-        <span>📷 Open Camera Scanner</span>
+      <!-- Native Fallback File Input Button -->
+      <input type="file" id="cameraPhotoInput" accept="image/*" capture="environment" style="display:none" onchange="handleQrPhotoUpload(event)">
+      <button type="button" onclick="document.getElementById('cameraPhotoInput').click()" style="margin-top:12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:9px 16px;border-radius:99px;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+        <span>📸 Camera Not Starting? Snap Photo</span>
       </button>
     </div>
   </div>
@@ -2086,8 +2124,8 @@
 
 <script>
   // App State
-  let merchantUniqueId = 'FP-624358';
-  let currentTable = 'Table 2';
+  let merchantUniqueId = '';
+  let currentTable = '';
   let storeData = null;
   let catalogProducts = [];
   let activeCategory = 'All';
@@ -2168,6 +2206,45 @@
     toast.textContent = msg;
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  
+  // Unscanned Welcome Screen (When customer opens /client without scanning a QR)
+  function renderUnscannedWelcome() {
+    const container = document.getElementById('menuContainer');
+    const heroSearch = document.querySelector('.search-row');
+    const catsWrap = document.querySelector('.cats-wrapper');
+    const heroTableBadge = document.getElementById('heroTableBadge');
+    const storeText = document.getElementById('storeNameText');
+
+    if (heroSearch) heroSearch.style.display = 'none';
+    if (catsWrap) catsWrap.style.display = 'none';
+    if (heroTableBadge) heroTableBadge.style.display = 'none';
+    if (storeText) storeText.textContent = 'FoodyPay';
+    document.title = 'FoodyPay · Client App';
+
+    if (container) {
+      container.innerHTML = `
+        <div id="unscannedPrompt" style="padding:44px 20px 60px;text-align:center">
+          <div style="width:96px;height:96px;margin:0 auto 20px;border-radius:28px;background:linear-gradient(135deg,#FFF7ED,#FFEDD5);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(234,88,12,0.15)">
+            <svg style="width:48px;height:48px;stroke:#EA580C;fill:none;stroke-width:1.8" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"></path><rect x="7" y="7" width="10" height="10" rx="2"></rect></svg>
+          </div>
+          <h2 style="font-size:22px;font-weight:900;color:#0F172A;margin-bottom:8px">Scan Table QR to Order</h2>
+          <p style="font-size:14px;color:#64748B;max-width:300px;margin:0 auto 24px;line-height:1.5">
+            Please scan the QR code sticker on your restaurant table to explore the live digital menu, prices and place orders.
+          </p>
+          <button type="button" onclick="openQrScanModal()" style="padding:14px 28px;background:linear-gradient(135deg,#FF4F17,#EA580C);color:#fff;border:none;border-radius:99px;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 6px 20px rgba(234,88,12,0.3);display:inline-flex;align-items:center;gap:8px">
+            <span>📷 Scan Table QR</span>
+          </button>
+
+          <div style="margin-top:36px;padding-top:24px;border-top:1px solid #F1F5F9;display:flex;justify-content:center;gap:20px;color:#94A3B8;font-size:12px;font-weight:700">
+            <span onclick="openProfileDialog()" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px">👤 My Profile</span>
+            <span>•</span>
+            <span onclick="openCheckoutModal('history')" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px">📜 Order History</span>
+          </div>
+        </div>
+      `;
+    }
   }
 
   // Parse URL parameters & Waiter routes
@@ -2333,6 +2410,11 @@
         : 'Waiter Terminal Login';
     }
     modal.style.display = 'flex';
+    if (initialTab === 'history') {
+      switchOrderModalTab('history');
+    } else {
+      switchOrderModalTab('current');
+    }
   }
 
   function showWaiterTablesScreen() {
@@ -2671,6 +2753,12 @@
   }
 
   function openTableOrderDetailsModal(tableName) {
+    if (!isWaiterMode) {
+      if (String(tableName || '').toLowerCase().trim() !== String(currentTable).toLowerCase().trim()) {
+        showToast('🔒 You can only view your own table bill.');
+        return;
+      }
+    }
     const norm = tableName.toLowerCase().trim();
     const clean = norm.replace(/^table\s*/i, '').trim();
     const order = liveRunningOrders[norm] || liveRunningOrders[clean] || liveRunningOrders[`table ${clean}`];
@@ -2889,7 +2977,7 @@
       const data = await res.json();
       const active = (data && Array.isArray(data.data) && data.data.length > 0) ? data.data[0] : null;
 
-      if (active && active.status !== 'settled' && active.status !== 'completed' && active.status !== 'cancelled') {
+      if (active && String(active.table || '').toLowerCase().trim() === String(currentTable).toLowerCase().trim() && active.status !== 'settled' && active.status !== 'completed' && active.status !== 'cancelled') {
         customerActiveTableOrder = active;
         renderCustomerLiveOrderTracker(active);
       } else {
@@ -3236,6 +3324,18 @@
   }
 
   function renderMenu() {
+    const heroSearch = document.querySelector('.search-row');
+    const catsWrap = document.querySelector('.cats-wrapper');
+    const heroTableBadge = document.getElementById('heroTableBadge');
+
+    if (merchantUniqueId || isWaiterMode) {
+      if (heroSearch) heroSearch.style.display = 'flex';
+      if (catsWrap) catsWrap.style.display = 'flex';
+      if (heroTableBadge) {
+        heroTableBadge.style.display = 'inline-block';
+        heroTableBadge.textContent = currentTable || 'Table 01';
+      }
+    }
     const container = document.getElementById('menuContainer');
     let filtered = [...catalogProducts];
 
@@ -3424,7 +3524,89 @@
   }
 
   // Checkout Drawer
-  function openCheckoutModal() {
+  
+  // Order Drawer Tab Switcher (Current Cart vs Past History)
+  function switchOrderModalTab(tabName) {
+    const tCurrent = document.getElementById('tabContentCurrent');
+    const tHistory = document.getElementById('tabContentHistory');
+    const bCurrent = document.getElementById('tabBtnCurrentOrder');
+    const bHistory = document.getElementById('tabBtnHistoryOrder');
+    const title = document.getElementById('orderModalTitle');
+
+    if (tabName === 'history') {
+      if (tCurrent) tCurrent.style.display = 'none';
+      if (tHistory) tHistory.style.display = 'block';
+      if (bCurrent) {
+        bCurrent.style.color = '#64748B';
+        bCurrent.style.borderBottomColor = 'transparent';
+      }
+      if (bHistory) {
+        bHistory.style.color = '#FF4F17';
+        bHistory.style.borderBottomColor = '#FF4F17';
+      }
+      if (title) title.textContent = 'Past Order History';
+      renderOrderHistory();
+    } else {
+      if (tCurrent) tCurrent.style.display = 'block';
+      if (tHistory) tHistory.style.display = 'none';
+      if (bCurrent) {
+        bCurrent.style.color = '#FF4F17';
+        bCurrent.style.borderBottomColor = '#FF4F17';
+      }
+      if (bHistory) {
+        bHistory.style.color = '#64748B';
+        bHistory.style.borderBottomColor = 'transparent';
+      }
+      if (title) title.textContent = 'Order Summary';
+    }
+  }
+
+  function renderOrderHistory() {
+    const container = document.getElementById('orderHistoryListContainer');
+    if (!container) return;
+
+    let history = [];
+    try {
+      history = JSON.parse(localStorage.getItem('fp_order_history') || '[]');
+    } catch(e) {}
+
+    if (!history.length) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:40px 16px;color:#64748B">
+          <div style="font-size:36px;margin-bottom:10px">📜</div>
+          <b style="font-size:15px;color:#0F172A;display:block;margin-bottom:4px">No Past Orders Found</b>
+          <p style="font-size:12.5px;max-width:260px;margin:0 auto 16px">When you place orders at any FoodyPay table, your receipt and order history will appear here.</p>
+          <button type="button" onclick="closeCheckoutModal();openQrScanModal()" style="padding:10px 20px;background:#FF4F17;color:#fff;border:none;border-radius:99px;font-size:12.5px;font-weight:800;cursor:pointer">
+            📷 Scan Table QR
+          </button>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = history.map(item => `
+      <div style="background:#FFFFFF;border:1.5px solid #F1F5F9;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.03)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div>
+            <b style="font-size:14px;color:#0F172A">${item.restaurant || 'Restaurant'}</b>
+            <small style="display:block;color:#64748B;font-size:11.5px">${item.table || ''} · ${item.date || ''}</small>
+          </div>
+          <span style="font-size:10.5px;font-weight:800;background:#DCFCE7;color:#15803D;padding:3px 8px;border-radius:99px">
+            Completed
+          </span>
+        </div>
+        <div style="font-size:12px;color:#475569;margin-bottom:8px;border-top:1px dashed #E2E8F0;padding-top:6px">
+          ${(item.items || []).map(i => `${i.qty}x ${i.name}${i.varName ? ' (' + i.varName + ')' : ''}`).join(', ')}
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:800">
+          <span style="color:#64748B">Order #${item.orderId || ''}</span>
+          <span style="color:#0F172A;font-size:15px">₹${item.total || 0}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function openCheckoutModal(initialTab) {
     const modal = document.getElementById('checkoutModal');
     const itemsList = document.getElementById('modalItemsList');
 
@@ -3644,48 +3826,248 @@
     renderMenu();
   }
 
+  
+  // Live Camera QR Scanner & Table Switcher Handlers
+  let qrCameraStream = null;
+  let qrScanInterval = null;
+  let isScanningActive = false;
+
   function openQrScanModal() {
-    document.getElementById('qrScanModal').style.display = 'flex';
+    openQrCameraScanner();
   }
+
   function closeQrScanModal() {
-    document.getElementById('qrScanModal').style.display = 'none';
+    closeQrCameraScanner();
   }
 
-  function openCouponsModal() {
-    document.getElementById('couponsModal').style.display = 'flex';
-  }
-  function closeCouponsModal() {
-    document.getElementById('couponsModal').style.display = 'none';
+  async function openQrCameraScanner() {
+    const modal = document.getElementById('qrCameraScannerModal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+
+    const curBadge = document.getElementById('scannerCurrentTableBadge');
+    if (curBadge) curBadge.textContent = currentTable;
+
+    const statusMsg = document.getElementById('cameraStatusMsg');
+    if (statusMsg) statusMsg.textContent = 'Starting camera...';
+
+    const video = document.getElementById('qrVideoElement');
+    isScanningActive = true;
+
+    try {
+      qrCameraStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+      });
+      video.srcObject = qrCameraStream;
+      await video.play();
+
+      if (statusMsg) statusMsg.textContent = 'Align table QR within the frame';
+      startQrFrameDetection();
+    } catch (err) {
+      console.warn('Camera stream error:', err);
+      if (statusMsg) {
+        statusMsg.innerHTML = '⚠️ Camera permission needed. Tap "Snap Photo" below.';
+      }
+    }
   }
 
-  function applyCoupon(code, percent, maxDisc, minOrder, btnElement, flatAmt) {
-    let subtotal = 0;
-    cart.forEach(({ price, qty }) => subtotal += price * qty);
+  function closeQrCameraScanner() {
+    isScanningActive = false;
+    if (qrScanInterval) {
+      clearInterval(qrScanInterval);
+      qrScanInterval = null;
+    }
+    if (qrCameraStream) {
+      qrCameraStream.getTracks().forEach(track => track.stop());
+      qrCameraStream = null;
+    }
+    const modal = document.getElementById('qrCameraScannerModal');
+    if (modal) modal.style.display = 'none';
+  }
 
-    if (subtotal < minOrder) {
-      showToast(`Minimum order ₹${minOrder} required for ${code}`);
+  function startQrFrameDetection() {
+    const video = document.getElementById('qrVideoElement');
+    const canvas = document.getElementById('qrScanCanvas');
+    if (!canvas || !video) return;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+    let barcodeDetector = null;
+    if ('BarcodeDetector' in window) {
+      try {
+        barcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+      } catch(e) {}
+    }
+
+    qrScanInterval = setInterval(async () => {
+      if (!isScanningActive || video.readyState !== video.HAVE_ENOUGH_DATA) return;
+
+      // 1. Try Native BarcodeDetector
+      if (barcodeDetector) {
+        try {
+          const codes = await barcodeDetector.detect(video);
+          if (codes && codes.length > 0) {
+            const rawVal = codes[0].rawValue;
+            if (rawVal) {
+              handleDetectedQrCode(rawVal);
+              return;
+            }
+          }
+        } catch(e) {}
+      }
+
+      // 2. jsQR Fallback using Canvas
+      try {
+        canvas.width = video.videoWidth || 320;
+        canvas.height = video.videoHeight || 320;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+        if (typeof jsQR !== 'undefined') {
+          const qr = jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: 'dontInvert' });
+          if (qr && qr.data) {
+            handleDetectedQrCode(qr.data);
+            return;
+          }
+        }
+      } catch(e) {}
+    }, 250);
+  }
+
+  function handleDetectedQrCode(qrText) {
+    if (!qrText || !isScanningActive) return;
+    console.log('Detected QR:', qrText);
+
+    let newTable = '';
+    let newMerchant = '';
+
+    try {
+      if (qrText.startsWith('http://') || qrText.startsWith('https://')) {
+        const parsedUrl = new URL(qrText);
+        const parts = parsedUrl.pathname.replace(/^\/+|\/+$/g, '').split('/');
+        if (parts.length >= 3 && (parts[0] === 'client' || parts[0] === 'order' || parts[0] === 'menu')) {
+          newMerchant = decodeURIComponent(parts[1]);
+          newTable = decodeURIComponent(parts[2]);
+        } else if (parts.length === 2 && (parts[0] === 'client' || parts[0] === 'order')) {
+          newTable = decodeURIComponent(parts[1]);
+        }
+        if (!newTable && parsedUrl.searchParams.get('table')) {
+          newTable = parsedUrl.searchParams.get('table');
+        }
+      }
+    } catch(e) {}
+
+    if (!newTable) {
+      const trimmed = qrText.trim();
+      if (/^table[-_\s]?\d+/i.test(trimmed) || /^\d+$/.test(trimmed)) {
+        newTable = trimmed;
+      }
+    }
+
+    if (!newTable) {
+      showToast('⚠️ Scanned QR is not a recognized Table QR code');
       return;
     }
 
-    if (flatAmt) {
-      appliedDiscount = flatAmt;
-    } else {
-      appliedDiscount = Math.min(maxDisc, Math.round((subtotal * percent) / 100));
+    const cleanTable = newTable.toLowerCase().startsWith('table') ? newTable : ('Table ' + newTable);
+
+    if (cleanTable.toLowerCase() === currentTable.toLowerCase()) {
+      showToast('Already on ' + currentTable + ' ✅');
+      closeQrCameraScanner();
+      return;
     }
 
-    activeCouponName = code;
-    showToast(`Coupon ${code} Applied! Saved ₹${appliedDiscount}`);
-    closeCouponsModal();
-    updateCartBar();
-    if (document.getElementById('checkoutModal').style.display === 'flex') {
-      openCheckoutModal();
+    closeQrCameraScanner();
+    switchCustomerTable(cleanTable, newMerchant);
+  }
+
+  function switchCustomerTable(newTableName, newMerchantId) {
+    const oldTable = currentTable;
+    currentTable = newTableName;
+    if (newMerchantId && newMerchantId !== merchantUniqueId) {
+      merchantUniqueId = newMerchantId;
     }
+
+    try {
+      const newUrl = '/client/' + encodeURIComponent(merchantUniqueId) + '/' + encodeURIComponent(currentTable);
+      window.history.replaceState({}, '', newUrl);
+    } catch(e) {}
+
+    // Update all table labels
+    const hBadge = document.getElementById('heroTableBadge');
+    if (hBadge) hBadge.textContent = currentTable;
+    const mBadge = document.getElementById('modalTableBadge');
+    if (mBadge) mBadge.textContent = currentTable;
+    const qrText = document.getElementById('qrActiveTableText');
+    if (qrText) qrText.textContent = currentTable;
+    const profBadge = document.getElementById('profileModalTableBadge');
+    if (profBadge) profBadge.textContent = currentTable;
+
+    // Reset previous table's customer order tracker & re-fetch ONLY for this table!
+    customerActiveTableOrder = null;
+    const tracker = document.getElementById('customerLiveOrderTracker');
+    if (tracker) tracker.style.display = 'none';
+
+    // Fetch active bill for this table ONLY!
+    fetchCustomerActiveTableOrder();
+
+    // Load and render this scanned merchant's catalog!
+    if (!catalogProducts || !catalogProducts.length || merchantUniqueId !== newMerchantId) {
+      loadMenu();
+    } else {
+      renderMenu();
+    }
+
+    showToast('🍽️ Switched from ' + oldTable + ' to ' + currentTable + '!');
+  }
+
+  function handleQrPhotoUpload(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const statusMsg = document.getElementById('cameraStatusMsg');
+    if (statusMsg) statusMsg.textContent = 'Scanning photo...';
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const img = new Image();
+      img.onload = async function() {
+        if ('BarcodeDetector' in window) {
+          try {
+            const detector = new BarcodeDetector({ formats: ['qr_code'] });
+            const codes = await detector.detect(img);
+            if (codes && codes.length > 0) {
+              handleDetectedQrCode(codes[0].rawValue);
+              return;
+            }
+          } catch(e) {}
+        }
+
+        const canvas = document.getElementById('qrScanCanvas');
+        if (canvas) {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          if (typeof jsQR !== 'undefined') {
+            const qr = jsQR(imgData.data, imgData.width, imgData.height);
+            if (qr && qr.data) {
+              handleDetectedQrCode(qr.data);
+              return;
+            }
+          }
+        }
+        showToast('No table QR detected in photo. Please try again.');
+        if (statusMsg) statusMsg.textContent = 'Align table QR within the frame';
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
   }
 
   function openNativeCameraScan() {
-    showToast('Point camera at table QR to change table');
-    closeQrScanModal();
+    openQrCameraScanner();
   }
+
 
 
 

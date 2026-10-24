@@ -161,7 +161,7 @@ const crmDir = path.join(__dirname, '..', 'crm');
 app.use(express.static(crmDir));
 app.use('/crm', express.static(crmDir));
 app.get('/', (req, res) => {
-  res.sendFile(path.join(crmDir, 'index.html'));
+  res.redirect('/client');
 });
 app.get(['/dashboard', '/pos'], (req, res) => {
   res.sendFile(path.join(crmDir, 'dashboard.html'));
