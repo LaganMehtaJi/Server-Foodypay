@@ -34,6 +34,91 @@
       user-select: none;
     }
 
+    /* APP DOWNLOAD BANNER (10-SEC REAPPEAR RULE) */
+    .app-download-bar {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border-bottom: 1.5px solid rgba(234, 88, 12, 0.4);
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .app-download-bar.hiding {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    .app-dl-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .app-dl-close {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: #94a3b8;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .app-dl-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    .app-dl-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .app-dl-tag {
+      background: #ea580c;
+      color: #fff;
+      font-size: 9px;
+      font-weight: 900;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+    .app-dl-desc {
+      font-size: 11px;
+      color: #94a3b8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .btn-app-install {
+      background: linear-gradient(135deg, #ea580c, #c2410c);
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 99px;
+      font-size: 11.5px;
+      font-weight: 800;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(234,88,12,0.4);
+    }
+
     /* TOP HEADER */
     header {
       position: sticky;
@@ -478,6 +563,22 @@
 </head>
 <body>
 
+  <!-- APP DOWNLOAD BANNER (10-SEC DISMISS REAPPEAR TIMER) -->
+  <div class="app-download-bar" id="appDownloadBanner">
+    <div class="app-dl-left">
+      <button class="app-dl-close" onclick="dismissAppBanner()" title="Close banner" aria-label="Dismiss">✕</button>
+      <img src="Logo.png" alt="App Logo" class="app-dl-logo" onerror="this.src='https://api.foodypay.online/Logo.png'">
+      <div style="min-width:0">
+        <div class="app-dl-title" id="appDlTitle">
+          <span id="appDlName">Waiter Terminal App</span>
+          <span class="app-dl-tag">WAITER</span>
+        </div>
+        <div class="app-dl-desc">Take table orders, print KOT &amp; live sync</div>
+      </div>
+    </div>
+    <button class="btn-app-install" onclick="handleAppInstall()">Install App</button>
+  </div>
+
   <!-- HEADER -->
   <header>
     <div class="brand-wrap">
@@ -622,6 +723,59 @@
     let cart = new Map(); // key: prodId_varName -> { product, varName, price, qty }
     let gstRate = 5;
     let pinInputVal = '';
+    let appBannerTimer = null;
+    let deferredPrompt = null;
+
+    // 10-Second App Download Reappear Rule
+    function checkAppInstallStatus() {
+      const isInstalled = localStorage.getItem('fp_waiter_app_installed') === 'true' || window.matchMedia('(display-mode: standalone)').matches;
+      if (isInstalled) {
+        const b = document.getElementById('appDownloadBanner');
+        if (b) b.style.display = 'none';
+      }
+    }
+
+    function dismissAppBanner() {
+      const b = document.getElementById('appDownloadBanner');
+      if (!b) return;
+      b.classList.add('hiding');
+      setTimeout(() => { b.style.display = 'none'; }, 300);
+
+      // Reappear after 10 seconds if user has not downloaded/installed
+      if (appBannerTimer) clearTimeout(appBannerTimer);
+      appBannerTimer = setTimeout(() => {
+        const isInstalled = localStorage.getItem('fp_waiter_app_installed') === 'true' || window.matchMedia('(display-mode: standalone)').matches;
+        if (!isInstalled && b) {
+          b.style.display = 'flex';
+          void b.offsetWidth;
+          b.classList.remove('hiding');
+        }
+      }, 10000);
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    function handleAppInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choice) => {
+          if (choice.outcome === 'accepted') {
+            localStorage.setItem('fp_waiter_app_installed', 'true');
+            const b = document.getElementById('appDownloadBanner');
+            if (b) b.style.display = 'none';
+          }
+          deferredPrompt = null;
+        });
+      } else {
+        localStorage.setItem('fp_waiter_app_installed', 'true');
+        const b = document.getElementById('appDownloadBanner');
+        if (b) b.style.display = 'none';
+        alert('Waiter App Installed to Home Screen!');
+      }
+    }
 
     // API Base URL - Intelligent detection
     function getApiBase() {
@@ -967,6 +1121,7 @@
     }
 
     // Bootstrap
+    checkAppInstallStatus();
     checkPinAuth();
     loadCatalog();
   </script>

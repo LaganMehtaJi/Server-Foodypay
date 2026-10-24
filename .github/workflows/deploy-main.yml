@@ -75,10 +75,10 @@ jobs:
             cd /home/ec2-user/backend/Server-Foodypay
 
             echo "Fetching latest code..."
-            git fetch origin stage
+            git fetch origin main
 
             echo "Updating stage branch..."
-            git reset --hard origin/stage
+            git reset --hard origin/main
 
             echo "Installing dependencies..."
             npm i
