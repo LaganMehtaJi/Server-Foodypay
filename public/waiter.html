@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>FoodyPay Waiter Order Terminal</title>
   <link rel="icon" type="image/x-icon" href="Logo.ico">
@@ -703,10 +704,22 @@
   </div>
 
   <script>
-    // URL Params Parser
+    // URL Params & Path Parser: /waiter/:merchantId/:waiterId
+    const pathParts = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/');
+    let pathMerchant = '';
+    let pathWaiter = '';
+    if (pathParts.length >= 2 && (pathParts[0].toLowerCase() === 'waiter' || pathParts[0].toLowerCase() === 'waiter-app')) {
+      if (pathParts[1] && !pathParts[1].endsWith('.html')) {
+        pathMerchant = decodeURIComponent(pathParts[1]);
+      }
+      if (pathParts[2]) {
+        pathWaiter = decodeURIComponent(pathParts[2]);
+      }
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
-    const merchantId = urlParams.get('merchant') || urlParams.get('foodypayId') || urlParams.get('uniqueId') || 'FP-445920';
-    const waiterIdParam = urlParams.get('waiter') || urlParams.get('waiterId') || 'waiter-kartik';
+    const merchantId = pathMerchant || urlParams.get('merchant') || urlParams.get('foodypayId') || urlParams.get('uniqueId') || 'FP-445920';
+    const waiterIdParam = pathWaiter || urlParams.get('waiter') || urlParams.get('waiterId') || 'waiter-kartik';
     const storeNameParam = urlParams.get('name') || urlParams.get('store') || 'Snack Rack';
     const defaultTableParam = urlParams.get('table') || 'Table 01';
 

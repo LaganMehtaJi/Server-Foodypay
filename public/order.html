@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Customer Table Order · FoodyPay</title>
   <link rel="icon" type="image/x-icon" href="Logo.ico">
@@ -584,10 +585,23 @@
   </div>
 
   <script>
-    // URL Params
+    // URL Params & Path Parser: /client/:merchantId/:table or /order/:merchantId/:table
+    const pathParts = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/');
+    let pathMerchant = '';
+    let pathTable = '';
+    const firstSegment = (pathParts[0] || '').toLowerCase();
+    if (pathParts.length >= 2 && (firstSegment === 'client' || firstSegment === 'order' || firstSegment === 'table-order')) {
+      if (pathParts[1] && !pathParts[1].endsWith('.html')) {
+        pathMerchant = decodeURIComponent(pathParts[1]);
+      }
+      if (pathParts[2]) {
+        pathTable = decodeURIComponent(pathParts[2]);
+      }
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
-    const merchantId = urlParams.get('merchant') || urlParams.get('foodypayId') || urlParams.get('uniqueId') || urlParams.get('id') || 'FP-445920';
-    const rawTable = urlParams.get('table') || urlParams.get('t') || 'Table 01';
+    const merchantId = pathMerchant || urlParams.get('merchant') || urlParams.get('foodypayId') || urlParams.get('uniqueId') || urlParams.get('id') || 'FP-445920';
+    const rawTable = pathTable || urlParams.get('table') || urlParams.get('t') || 'Table 01';
     const storeName = urlParams.get('name') || urlParams.get('store') || 'Snack Rack';
 
     // Normalize table

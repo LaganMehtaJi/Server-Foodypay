@@ -166,14 +166,37 @@ app.get('/', (req, res) => {
 app.get(['/dashboard', '/pos'], (req, res) => {
   res.sendFile(path.join(crmDir, 'dashboard.html'));
 });
-app.get(['/waiter.html', '/waiter-app', '/waiter'], (req, res) => {
+// Waiter Terminal Routes: domain/waiter/:merchantId/:waiterId, etc.
+app.get([
+  '/waiter/:merchantId/:waiterId',
+  '/waiter/:merchantId',
+  '/waiter.html',
+  '/waiter-app',
+  '/waiter',
+  '/menu/:uniqueId/waiter/:waiterId',
+  '/menu/:uniqueId/:table/waiter/:waiterId',
+  '/:uniqueId/waiter/:waiterId'
+], (req, res) => {
   const waiterFile = fs.existsSync(path.join(__dirname, 'public', 'waiter.html'))
     ? path.join(__dirname, 'public', 'waiter.html')
     : path.join(crmDir, 'waiter.html');
   res.sendFile(waiterFile);
 });
 
-app.get(['/order.html', '/table-order.html', '/table-qr', '/order'], (req, res) => {
+// Customer / Client Table QR Routes: domain/client/:merchantId/:table or domain/order/:merchantId/:table
+app.get([
+  '/client/:merchantId/:table',
+  '/client/:merchantId',
+  '/client',
+  '/order/:merchantId/:table',
+  '/order/:merchantId',
+  '/order.html',
+  '/table-order.html',
+  '/table-qr',
+  '/order',
+  '/menu/:uniqueId/:table',
+  '/menu/:uniqueId'
+], (req, res) => {
   const orderFile = fs.existsSync(path.join(__dirname, 'public', 'order.html'))
     ? path.join(__dirname, 'public', 'order.html')
     : path.join(crmDir, 'order.html');
@@ -192,21 +215,6 @@ app.get(['/login', '/waiter/login'], (req, res) => {
 });
 app.get(['/kitchen', '/kds'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'pages', 'kitchen', 'index.html'));
-});
-
-// Public table QR customer self-ordering & Waiter order-taking web routes
-app.get(['/menu/:uniqueId/waiter/:waiterId', '/menu/:uniqueId/:table/waiter/:waiterId', '/:uniqueId/waiter/:waiterId', '/waiter/:uniqueId/:waiterId', '/waiter/:uniqueId'], (req, res) => {
-  const u = req.params.uniqueId || '';
-  const w = req.params.waiterId || '';
-  const name = req.query.name || '';
-  res.redirect(`/waiter.html?merchant=${encodeURIComponent(u)}&waiter=${encodeURIComponent(w)}${name ? '&name=' + encodeURIComponent(name) : ''}`);
-});
-
-app.get(['/menu/:uniqueId/:table', '/menu/:uniqueId'], (req, res) => {
-  const u = req.params.uniqueId || '';
-  const t = req.params.table || 'Table 01';
-  const name = req.query.name || '';
-  res.redirect(`/order.html?merchant=${encodeURIComponent(u)}&table=${encodeURIComponent(t)}${name ? '&name=' + encodeURIComponent(name) : ''}`);
 });
 
 // API Routes
