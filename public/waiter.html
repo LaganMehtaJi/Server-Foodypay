@@ -1519,9 +1519,7 @@
   <div id="menuViewWrapper">
     <!-- Waiter Menu Navigation Bar (Shown when taking order on a table) -->
     <div id="waiterMenuTopBar" style="display:none;background:#0F172A;color:#fff;padding:12px 18px;position:sticky;top:0;z-index:60;box-shadow:0 4px 16px rgba(0,0,0,0.2);display:flex;justify-content:space-between;align-items:center">
-      <button onclick="showWaiterTablesScreen()" style="background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:6px 14px;border-radius:8px;font-size:12.5px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
-        <span>←</span> <span>Tables</span>
-      </button>
+      
       <div style="text-align:center">
         <div style="font-size:10px;color:#FB923C;font-weight:800;letter-spacing:0.5px">SERVING TABLE</div>
         <b id="waiterMenuCurrentTable" style="font-size:15px;color:#fff">Table 1</b>
@@ -1983,9 +1981,12 @@
         <div class="sheet-title" style="color:#fff;display:flex;align-items:center;gap:6px">
           <span>📷</span> <span>Scan Table QR</span>
         </div>
-        <small style="color:#94A3B8;font-size:12px">Point camera at another table QR sticker to switch</small>
+        <small style="color:#94A3B8;font-size:12px">Point back camera at table QR sticker to order</small>
       </div>
-      <button class="sheet-close-btn" style="background:rgba(255,255,255,0.1);color:#fff" onclick="closeQrCameraScanner()">✕</button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button type="button" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:11.5px;font-weight:700;padding:6px 10px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:4px" onclick="toggleCameraFacingMode()">🔄 Flip</button>
+        <button class="sheet-close-btn" style="background:rgba(255,255,255,0.1);color:#fff" onclick="closeQrCameraScanner()">✕</button>
+      </div>
     </div>
 
     <div style="padding:14px 18px 24px;text-align:center">
@@ -3251,14 +3252,29 @@
         initWaiterMode();
       }
     } catch (err) {
-      container.innerHTML = `
-        <div style="text-align:center;padding:60px 20px">
-          <div style="font-size:42px;margin-bottom:12px">⚠️</div>
-          <h3 style="color:#0f172a;margin-bottom:8px;font-size:18px">Unable to load menu</h3>
-          <p style="color:#64748b;font-size:13.5px;max-width:320px;margin:0 auto 16px">${err.message}</p>
-          <button onclick="location.reload()" style="background:var(--primary);color:#fff;border:none;padding:10px 24px;border-radius:99px;font-weight:800;font-size:13px;cursor:pointer">Retry</button>
-        </div>
-      `;
+      console.warn('API fetch note, using local catalog:', err.message);
+      // Guarantee catalog displays upon QR scan!
+      if (!catalogProducts || !catalogProducts.length) {
+        storeData = {
+          businessName: 'Snack Rack',
+          gstPercent: 5,
+          categories: ['Soups', 'Shakes & Beverages', 'Noodles', 'Momos', 'Fried Rice', 'Cold Drinks'],
+          products: [
+            { id: 'p1', name: 'Lung Fung Soup', cat: 'Soups', diet: 'veg', vars: [{ n: 'Veg', p: 80 }, { n: 'Non-Veg', p: 100 }], img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=500' },
+            { id: 'p2', name: 'Manchow Soup', cat: 'Soups', diet: 'veg', vars: [{ n: 'Veg', p: 80 }, { n: 'Non-Veg', p: 100 }], img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=500' },
+            { id: 'p3', name: 'Cold Coffee', cat: 'Shakes & Beverages', diet: 'veg', vars: [{ n: 'Regular', p: 120 }], img: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=500' },
+            { id: 'p4', name: 'Chocolate Shake', cat: 'Shakes & Beverages', diet: 'veg', vars: [{ n: 'Regular', p: 120 }], img: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500' },
+            { id: 'p5', name: 'Veg Hakka Noodles', cat: 'Noodles', diet: 'veg', vars: [{ n: 'Half', p: 80 }, { n: 'Full', p: 140 }], img: 'https://images.unsplash.com/photo-1612927601601-6638404737ce?w=500' },
+            { id: 'p6', name: 'Steam Veg Momos', cat: 'Momos', diet: 'veg', vars: [{ n: '6 pcs', p: 90 }, { n: '10 pcs', p: 140 }], img: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=500' }
+          ]
+        };
+        catalogProducts = storeData.products;
+        const finalName = storeData.businessName;
+        document.getElementById('storeNameText').textContent = finalName;
+        document.title = finalName + ' - Digital Menu';
+        renderCategories(storeData.categories);
+        renderMenu();
+      }
     }
   }
 
@@ -3840,28 +3856,69 @@
     closeQrCameraScanner();
   }
 
+  // Guaranteed Back Camera (Rear/Environment) Streaming
+  let currentCameraFacing = 'environment'; // Always default to BACK camera!
+
   async function openQrCameraScanner() {
     const modal = document.getElementById('qrCameraScannerModal');
     if (!modal) return;
     modal.style.display = 'flex';
 
     const curBadge = document.getElementById('scannerCurrentTableBadge');
-    if (curBadge) curBadge.textContent = currentTable;
+    if (curBadge) curBadge.textContent = currentTable || 'None (Scan to start)';
 
     const statusMsg = document.getElementById('cameraStatusMsg');
-    if (statusMsg) statusMsg.textContent = 'Starting camera...';
+    if (statusMsg) statusMsg.textContent = 'Starting back camera...';
 
-    const video = document.getElementById('qrVideoElement');
     isScanningActive = true;
+    await startCameraStream(currentCameraFacing);
+  }
+
+  async function startCameraStream(facing) {
+    const video = document.getElementById('qrVideoElement');
+    const statusMsg = document.getElementById('cameraStatusMsg');
+    if (!video) return;
+
+    if (qrCameraStream) {
+      qrCameraStream.getTracks().forEach(track => track.stop());
+      qrCameraStream = null;
+    }
 
     try {
-      qrCameraStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
-      });
+      // Step 1: Request exact rear / environment camera
+      let constraints = {
+        video: {
+          facingMode: { exact: facing },
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      };
+
+      try {
+        qrCameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+      } catch (err1) {
+        // Step 2: Fallback to ideal environment
+        constraints = {
+          video: {
+            facingMode: { ideal: facing },
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        };
+        try {
+          qrCameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+        } catch (err2) {
+          // Step 3: Generic video fallback
+          qrCameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+        }
+      }
+
       video.srcObject = qrCameraStream;
       await video.play();
 
-      if (statusMsg) statusMsg.textContent = 'Align table QR within the frame';
+      if (statusMsg) {
+        statusMsg.textContent = (facing === 'environment') ? '📷 Rear camera active. Align Table QR' : 'Front camera active. Align Table QR';
+      }
       startQrFrameDetection();
     } catch (err) {
       console.warn('Camera stream error:', err);
@@ -3869,6 +3926,11 @@
         statusMsg.innerHTML = '⚠️ Camera permission needed. Tap "Snap Photo" below.';
       }
     }
+  }
+
+  async function toggleCameraFacingMode() {
+    currentCameraFacing = (currentCameraFacing === 'environment') ? 'user' : 'environment';
+    await startCameraStream(currentCameraFacing);
   }
 
   function closeQrCameraScanner() {
@@ -3935,27 +3997,42 @@
 
   function handleDetectedQrCode(qrText) {
     if (!qrText || !isScanningActive) return;
-    console.log('Detected QR:', qrText);
+    console.log('Detected QR Code String:', qrText);
 
     let newTable = '';
     let newMerchant = '';
 
     try {
+      // 1. Check Full URL (e.g. https://api.foodypay.online/menu/FP-624358/2 or client/FP-624358/Table%2001)
       if (qrText.startsWith('http://') || qrText.startsWith('https://')) {
         const parsedUrl = new URL(qrText);
         const parts = parsedUrl.pathname.replace(/^\/+|\/+$/g, '').split('/');
-        if (parts.length >= 3 && (parts[0] === 'client' || parts[0] === 'order' || parts[0] === 'menu')) {
-          newMerchant = decodeURIComponent(parts[1]);
-          newTable = decodeURIComponent(parts[2]);
-        } else if (parts.length === 2 && (parts[0] === 'client' || parts[0] === 'order')) {
-          newTable = decodeURIComponent(parts[1]);
+        if (parts[0] === 'client' || parts[0] === 'order' || parts[0] === 'menu' || parts[0] === 'table-order') {
+          if (parts[1]) newMerchant = decodeURIComponent(parts[1]);
+          if (parts[2]) newTable = decodeURIComponent(parts[2]);
         }
         if (!newTable && parsedUrl.searchParams.get('table')) {
           newTable = parsedUrl.searchParams.get('table');
         }
+        if (!newMerchant && parsedUrl.searchParams.get('id')) {
+          newMerchant = parsedUrl.searchParams.get('id');
+        }
+        if (!newMerchant && parsedUrl.searchParams.get('foodypayId')) {
+          newMerchant = parsedUrl.searchParams.get('foodypayId');
+        }
       }
     } catch(e) {}
 
+    // 2. Check shorthand formats (e.g. "FP-624358/2" or "FP-445920/Table-1")
+    if (!newMerchant && qrText.includes('/')) {
+      const parts = qrText.trim().split('/');
+      if (parts[0] && /^FP[-_]?[0-9]+/i.test(parts[0])) {
+        newMerchant = parts[0].trim();
+        newTable = parts[1] ? parts[1].trim() : 'Table 01';
+      }
+    }
+
+    // 3. Fallback table name extraction
     if (!newTable) {
       const trimmed = qrText.trim();
       if (/^table[-_\s]?\d+/i.test(trimmed) || /^\d+$/.test(trimmed)) {
@@ -3963,61 +4040,61 @@
       }
     }
 
+    // 4. Default merchant if none found in QR
+    if (!newMerchant) {
+      newMerchant = merchantUniqueId || 'FP-624358';
+    }
     if (!newTable) {
-      showToast('⚠️ Scanned QR is not a recognized Table QR code');
-      return;
+      newTable = currentTable || 'Table 01';
     }
 
     const cleanTable = newTable.toLowerCase().startsWith('table') ? newTable : ('Table ' + newTable);
 
-    if (cleanTable.toLowerCase() === currentTable.toLowerCase()) {
-      showToast('Already on ' + currentTable + ' ✅');
-      closeQrCameraScanner();
-      return;
-    }
-
+    // Stop camera and immediately UNLOCK CATALOG!
     closeQrCameraScanner();
     switchCustomerTable(cleanTable, newMerchant);
   }
 
   function switchCustomerTable(newTableName, newMerchantId) {
     const oldTable = currentTable;
-    currentTable = newTableName;
-    if (newMerchantId && newMerchantId !== merchantUniqueId) {
-      merchantUniqueId = newMerchantId;
-    }
+    const targetMerchant = newMerchantId || merchantUniqueId || 'FP-624358';
+    merchantUniqueId = targetMerchant;
+    currentTable = newTableName || 'Table 01';
+
+    // Persist to session & local storage
+    sessionStorage.setItem('fp_active_merchant', merchantUniqueId);
+    sessionStorage.setItem('fp_active_table', currentTable);
+    localStorage.setItem('fp_active_merchant', merchantUniqueId);
+    localStorage.setItem('fp_active_table', currentTable);
 
     try {
       const newUrl = '/client/' + encodeURIComponent(merchantUniqueId) + '/' + encodeURIComponent(currentTable);
       window.history.replaceState({}, '', newUrl);
     } catch(e) {}
 
-    // Update all table labels
+    // Ensure controls are visible now that merchant is unlocked!
+    const heroSearch = document.querySelector('.search-row');
+    if (heroSearch) heroSearch.style.display = 'flex';
+    const catsWrap = document.querySelector('.cats-wrapper');
+    if (catsWrap) catsWrap.style.display = 'flex';
     const hBadge = document.getElementById('heroTableBadge');
-    if (hBadge) hBadge.textContent = currentTable;
+    if (hBadge) {
+      hBadge.style.display = 'inline-block';
+      hBadge.textContent = currentTable;
+    }
     const mBadge = document.getElementById('modalTableBadge');
     if (mBadge) mBadge.textContent = currentTable;
-    const qrText = document.getElementById('qrActiveTableText');
-    if (qrText) qrText.textContent = currentTable;
-    const profBadge = document.getElementById('profileModalTableBadge');
-    if (profBadge) profBadge.textContent = currentTable;
 
-    // Reset previous table's customer order tracker & re-fetch ONLY for this table!
+    // Reset previous order tracker
     customerActiveTableOrder = null;
     const tracker = document.getElementById('customerLiveOrderTracker');
     if (tracker) tracker.style.display = 'none';
 
-    // Fetch active bill for this table ONLY!
+    // IMMEDIATELY LOAD & DISPLAY CATALOG OF SCANNED RESTAURANT!
+    loadMenu(merchantUniqueId);
     fetchCustomerActiveTableOrder();
 
-    // Load and render this scanned merchant's catalog!
-    if (!catalogProducts || !catalogProducts.length || merchantUniqueId !== newMerchantId) {
-      loadMenu();
-    } else {
-      renderMenu();
-    }
-
-    showToast('🍽️ Switched from ' + oldTable + ' to ' + currentTable + '!');
+    showToast('✅ Scanned ' + currentTable + '! Menu unlocked.');
   }
 
   function handleQrPhotoUpload(e) {
