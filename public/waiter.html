@@ -502,13 +502,13 @@
       border: 1px solid #CBD5E1;
     }
 
-    /* TOP HEADER (PURE WHITE LIGHT THEME) */
+    /* TOP HEADER (REFERENCE MATCH LIGHT THEME) */
     .hero-header {
       background: #FFFFFF;
       color: #0F172A;
-      padding: 16px 18px 18px;
+      padding: 14px 16px 14px;
       border-bottom: 1px solid #F1F5F9;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.03);
       position: sticky;
       top: 0;
       z-index: 45;
@@ -517,122 +517,100 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
-    .brand-wrap {
+    .hero-left-col {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       min-width: 0;
     }
-    .brand-avatar {
-      width: 46px;
-      height: 46px;
+    .hero-fork-badge {
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #FF3B30 0%, #E60000 100%);
+      background: #FFF2EB;
+      border: 1.5px solid #FFD9C7;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 14px rgba(230, 0, 0, 0.4);
-      flex-shrink: 0;
-      overflow: hidden;
-      border: 2px solid #F8FAFC;
-      position: relative;
-    }
-    .brand-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .brand-avatar-fallback {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #FF3B30 0%, #D62828 100%);
-      color: #fff;
-      font-weight: 900;
-      font-size: 11px;
-      letter-spacing: -0.5px;
-      text-transform: lowercase;
-    }
-    .brand-avatar-fallback span.leaf {
-      position: absolute;
-      top: 5px;
-      left: 10px;
-      width: 12px;
-      height: 6px;
-      background: #4ADE80;
-      border-radius: 10px 0 10px 0;
-      transform: rotate(-25deg);
-    }
-    .brand-details {
-      min-width: 0;
-    }
-    .brand-name {
-      color: #0F172A;
       font-size: 20px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(255, 79, 23, 0.12);
+    }
+    .hero-titles-wrap {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .hdr-tbl-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      line-height: 1;
+      margin-bottom: 3px;
+    }
+    .hdr-tbl-tag {
+      font-size: 11px;
       font-weight: 800;
+      color: #475569;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+    .hdr-status-dot {
+      color: #16A34A;
+      font-size: 10px;
+      line-height: 1;
+    }
+    .hdr-store-title {
+      font-size: 18px;
+      font-weight: 900;
+      color: #0F172A;
       letter-spacing: -0.3px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      max-width: 170px;
+    }
+    .hero-right-col {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+      flex-shrink: 0;
     }
-    .verified-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 17px;
-      height: 17px;
-      background: #00A3FF;
-      border-radius: 50%;
-      color: #0F172A;
-      font-size: 10px;
-      font-weight: 900;
-      box-shadow: 0 2px 6px rgba(0, 163, 255, 0.45);
-    }
-    .live-badge {
-      font-size: 11.5px;
-      color: #34D399;
-      font-weight: 700;
+    .btn-call-waiter {
+      background: #FF5E14;
+      color: #FFFFFF;
+      border: none;
+      padding: 7px 13px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
       display: flex;
       align-items: center;
       gap: 5px;
-      margin-top: 2px;
+      box-shadow: 0 3px 12px rgba(255, 94, 20, 0.32);
+      transition: all 0.15s ease;
+      white-space: nowrap;
     }
-    .pulse-dot {
-      width: 6px;
-      height: 6px;
-      background: #10B981;
-      border-radius: 50%;
-      display: inline-block;
-      box-shadow: 0 0 0 2px rgba(16,185,129,0.3);
-      animation: pulse 1.8s infinite;
+    .btn-call-waiter:active {
+      transform: scale(0.94);
+      background: #E0480C;
     }
-    @keyframes pulse {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16,185,129,0.7); }
-      70% { transform: scale(1.1); box-shadow: 0 0 0 5px rgba(16,185,129,0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16,185,129,0); }
-    }
-    
-    /* TOP USER PROFILE AVATAR */
     .profile-glow-wrap {
-      width: 44px;
-      height: 44px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       padding: 2px;
       background: linear-gradient(135deg, #FF7A00 0%, #FF3D00 100%);
-      box-shadow: 0 0 12px rgba(255, 107, 0, 0.45);
+      box-shadow: 0 2px 10px rgba(255, 107, 0, 0.35);
       cursor: pointer;
       flex-shrink: 0;
       transition: transform 0.2s ease;
     }
     .profile-glow-wrap:active {
-      transform: scale(0.94);
+      transform: scale(0.93);
     }
     .profile-glow-wrap img {
       width: 100%;
@@ -642,22 +620,27 @@
       display: block;
     }
 
-    /* SEARCH BAR & CONTROLS */
+    /* SEARCH BAR (LIGHT PILL THEME) */
     .search-row {
       display: flex;
       align-items: center;
-      background: #F8FAFC;
-      border: 1.5px solid #E2E8F0;
+      background: #F4F5F7;
+      border: 1px solid #E2E8F0;
       border-radius: 99px;
-      padding: 5px 8px 5px 14px;
+      padding: 6px 10px 6px 14px;
       gap: 8px;
       box-shadow: none;
+      transition: border-color 0.2s;
+    }
+    .search-row:focus-within {
+      border-color: #CBD5E1;
+      background: #FFFFFF;
     }
     .search-icon {
-      width: 18px;
-      height: 18px;
+      width: 17px;
+      height: 17px;
       fill: none;
-      stroke: #64748B;
+      stroke: #94A3B8;
       stroke-width: 2.3;
       flex-shrink: 0;
     }
@@ -667,18 +650,18 @@
       border: none;
       outline: none;
       color: #0F172A;
-      font-size: 13.5px;
+      font-size: 13px;
       font-family: inherit;
       min-width: 0;
     }
     .search-input-field::placeholder {
-      color: #799AB6;
-      font-size: 13px;
+      color: #94A3B8;
+      font-size: 12.5px;
     }
     .search-controls {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
     .search-ctrl-btn {
       background: #FFFFFF;
@@ -700,118 +683,281 @@
     }
     .search-ctrl-btn.active {
       color: #FF5E14;
-      background: rgba(255, 94, 20, 0.2);
+      background: #FFF2EB;
+      border-color: #FFD9C7;
+    }
+
+    /* AAJ KA SPECIAL (FEATURED BANNER) */
+    .special-section-wrap {
+      margin: 14px 16px 6px;
+    }
+    .special-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .special-header-left {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .badge-must-try {
+      background: #FF5E14;
+      color: #FFFFFF;
+      font-size: 9.5px;
+      font-weight: 900;
+      letter-spacing: 0.6px;
+      padding: 3px 7px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+    .special-title {
+      font-size: 17px;
+      font-weight: 900;
+      color: #0F172A;
+      letter-spacing: -0.3px;
+    }
+    .special-header-right {
+      font-size: 12px;
+      font-weight: 800;
+      color: #FF5E14;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .special-hero-card {
+      background: #FFFFFF;
+      border-radius: 20px;
+      border: 1px solid #F1F5F9;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .special-hero-img-wrap {
+      width: 100%;
+      height: 155px;
+      position: relative;
+      background: #F8FAFC;
+      overflow: hidden;
+    }
+    .special-hero-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .special-tag-pill {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(6px);
+      color: #FFFFFF;
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 99px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    }
+    .special-rating-pill {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(4px);
+      color: #0F172A;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 99px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+    .special-hero-content {
+      padding: 12px 14px 14px;
+    }
+    .special-hero-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0F172A;
+      line-height: 1.3;
+      margin-bottom: 3px;
+    }
+    .special-hero-desc {
+      font-size: 11.5px;
+      color: #64748B;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .special-hero-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .special-hero-pricing {
+      display: flex;
+      align-items: baseline;
+      gap: 7px;
+    }
+    .special-old-price {
+      font-size: 13px;
+      color: #94A3B8;
+      text-decoration: line-through;
+      font-weight: 600;
+    }
+    .special-current-price {
+      font-size: 19px;
+      font-weight: 900;
+      color: #0F172A;
+    }
+    .btn-hero-add {
+      background: #FF5E14;
+      color: #FFFFFF;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 99px;
+      font-size: 12.5px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(255, 94, 20, 0.35);
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+    .btn-hero-add:active {
+      transform: scale(0.94);
     }
 
     /* HORIZONTAL CATEGORY PILLS */
     .cats-wrapper {
-      padding: 14px 16px 8px;
+      padding: 12px 16px 8px;
       overflow-x: auto;
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
       display: flex;
-      gap: 9px;
+      gap: 8px;
     }
     .cats-wrapper::-webkit-scrollbar { display: none; }
     
     .cat-pill {
       background: #FFFFFF;
       border: 1px solid #E2E8F0;
-      color: #334155;
-      padding: 8px 16px;
+      color: #475569;
+      padding: 7px 15px;
       border-radius: 99px;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 700;
       white-space: nowrap;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+      gap: 5px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.02);
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       flex-shrink: 0;
     }
     .cat-pill:active { transform: scale(0.96); }
     .cat-pill.active {
-      background: #112338;
+      background: #FF5E14;
       color: #FFFFFF;
-      border-color: #112338;
-      box-shadow: 0 4px 14px rgba(17, 35, 56, 0.25);
+      border-color: #FF5E14;
+      box-shadow: 0 4px 14px rgba(255, 94, 20, 0.35);
     }
-
-
 
     /* SECTION HEADER */
     .section-header-title {
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 800;
       color: #0F172A;
-      margin: 16px 16px 10px;
+      margin: 12px 16px 10px;
       display: flex;
       align-items: center;
       gap: 6px;
       letter-spacing: -0.2px;
     }
     .section-counter-badge {
-      font-size: 13px;
+      font-size: 12.5px;
       color: #64748B;
       font-weight: 600;
     }
 
-    /* MENU DISH CARDS */
+    /* 2-COLUMN DISHES GRID */
     .dishes-container {
       padding: 4px 16px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
     }
 
-    .dish-card {
+    .dish-grid-card {
       background: #FFFFFF;
-      border-radius: 20px;
+      border-radius: 18px;
       border: 1px solid #EEF2F6;
-      padding: 16px 16px 14px;
-      display: flex;
-      justify-content: space-between;
-      gap: 14px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
-      position: relative;
-    }
-
-    .dish-info-col {
-      flex: 1;
-      min-width: 0;
+      box-shadow: 0 3px 14px rgba(0,0,0,0.03);
+      overflow: hidden;
       display: flex;
       flex-direction: column;
+      position: relative;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .dish-grid-card:active {
+      transform: scale(0.985);
     }
 
-    .dish-meta-row {
+    .dish-grid-img-wrap {
+      width: 100%;
+      height: 114px;
+      position: relative;
+      background: #F8FAFC;
+      overflow: hidden;
+    }
+    .dish-grid-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .dish-grid-fallback {
+      width: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
-      gap: 6px;
-      margin-bottom: 4px;
+      justify-content: center;
+      font-size: 34px;
+      background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
     }
+
     /* Square Veg/Nonveg indicator */
-    .diet-box {
+    .dish-grid-diet-badge {
+      position: absolute;
+      top: 7px;
+      left: 7px;
       width: 14px;
       height: 14px;
       border-radius: 3px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1.5px solid var(--veg);
-      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      border: 1px solid transparent;
+      z-index: 2;
     }
-    .diet-box.veg { border-color: var(--veg); }
-    .diet-box.nonveg { border-color: var(--nonveg); }
-    .diet-box.veg::after {
+    .dish-grid-diet-badge.veg { border-color: var(--veg); }
+    .dish-grid-diet-badge.nonveg { border-color: var(--nonveg); }
+    .dish-grid-diet-badge.veg::after {
       content: '';
       width: 6px;
       height: 6px;
       border-radius: 50%;
       background: var(--veg);
     }
-    .diet-box.nonveg::after {
+    .dish-grid-diet-badge.nonveg::after {
       content: '';
       width: 0;
       height: 0;
@@ -819,170 +965,131 @@
       border-right: 3.5px solid transparent;
       border-bottom: 5.5px solid var(--nonveg);
     }
-    .diet-text {
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-    }
-    .diet-text.veg { color: var(--veg); }
-    .diet-text.nonveg { color: var(--nonveg); }
 
-    .popular-chip {
-      background: #FFF7ED;
-      color: #EA580C;
+    .dish-grid-rating {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(4px);
+      border-radius: 99px;
+      padding: 2px 6px;
       font-size: 10px;
       font-weight: 800;
-      padding: 2px 7px;
-      border-radius: 99px;
-      border: 1px solid #FFEDD5;
-      display: inline-flex;
+      color: #0F172A;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      display: flex;
       align-items: center;
-      gap: 3px;
+      gap: 2px;
+      z-index: 2;
     }
 
-    .dish-name {
-      font-size: 16px;
-      font-weight: 800;
-      color: #0F172A;
-      margin-top: 2px;
-      line-height: 1.3;
-    }
-
-    .dish-pricing-row {
-      font-size: 16px;
-      font-weight: 900;
-      color: #0F172A;
-      margin-top: 3px;
-      margin-bottom: 6px;
+    .dish-grid-body {
+      padding: 9px 10px 11px;
       display: flex;
-      align-items: baseline;
-      gap: 5px;
+      flex-direction: column;
+      flex: 1;
     }
-    .dish-pricing-row small {
-      font-size: 12px;
-      color: #64748B;
-      font-weight: 600;
-    }
-
-    .portion-title {
-      font-size: 11px;
-      font-weight: 700;
-      color: #64748B;
-      margin-bottom: 5px;
+    .dish-grid-cat {
+      font-size: 9px;
+      font-weight: 800;
+      color: #94A3B8;
+      letter-spacing: 0.5px;
       text-transform: uppercase;
-      letter-spacing: 0.3px;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .portion-pills-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 8px;
-    }
-    .portion-pill {
-      background: #F8FAFC;
-      border: 1px solid #CBD5E1;
-      color: #334155;
-      padding: 4px 10px;
-      border-radius: 99px;
-      font-size: 11.5px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .portion-pill.selected {
-      background: #FFF5F1;
-      border-color: #FF5E14;
-      color: #FF4F17;
+    .dish-grid-name {
+      font-size: 13px;
       font-weight: 800;
+      color: #0F172A;
+      line-height: 1.25;
+      margin-bottom: 3px;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
-
-    .dish-desc-text {
-      font-size: 11.5px;
+    .dish-grid-desc {
+      font-size: 10.5px;
       color: #64748B;
-      line-height: 1.45;
-      margin-top: 2px;
+      line-height: 1.35;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      min-height: 28px;
+      margin-bottom: 6px;
     }
 
-    /* RIGHT COLUMN (PHOTO + ADD BUTTON) */
-    .dish-action-col {
-      width: 104px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      flex-shrink: 0;
+    /* Small Variant Selector in Grid */
+    .dish-grid-vars {
+      margin-bottom: 6px;
     }
-    .dish-photo-wrap {
-      width: 98px;
-      height: 84px;
-      border-radius: 16px;
-      overflow: hidden;
-      background: #F1F5F9;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      position: relative;
-      margin-bottom: 8px;
-    }
-    .dish-photo-wrap img {
+    .grid-var-select {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .dish-photo-fallback {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 38px;
-      background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 6px;
+      border-radius: 6px;
+      border: 1px solid #E2E8F0;
+      background: #F8FAFC;
+      color: #334155;
+      outline: none;
     }
 
-    /* + ADD BUTTON */
-    .btn-add-dish {
-      background: #FFFFFF;
-      border: 1.5px solid #FF4F17;
-      color: #FF4F17;
-      font-weight: 800;
-      font-size: 13px;
-      border-radius: 99px;
-      padding: 6px 18px;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(255, 79, 23, 0.12);
-      transition: all 0.15s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 90px;
-    }
-    .btn-add-dish:active {
-      transform: scale(0.94);
-      background: #FF4F17;
-      color: #FFFFFF;
-    }
-
-    /* QTY STEPPER */
-    .qty-stepper {
+    .dish-grid-footer {
+      margin-top: auto;
+      padding-top: 4px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: var(--primary-gradient);
-      border-radius: 99px;
-      width: 90px;
-      height: 32px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(255, 79, 23, 0.35);
     }
-    .qty-btn {
+    .dish-grid-price {
+      font-size: 14.5px;
+      font-weight: 900;
+      color: #0F172A;
+    }
+    .btn-grid-add {
+      background: #FFF2EB;
+      color: #FF5E14;
+      border: none;
+      border-radius: 9px;
+      width: 30px;
+      height: 30px;
+      font-size: 17px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-grid-add:active {
+      transform: scale(0.92);
+      background: #FF5E14;
+      color: #FFFFFF;
+    }
+    .grid-stepper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, #FF5E14 0%, #FF3008 100%);
+      border-radius: 9px;
+      width: 66px;
+      height: 29px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(255, 79, 23, 0.35);
+    }
+    .grid-stepper-btn {
       background: none;
       border: none;
       color: #fff;
-      font-size: 17px;
+      font-size: 15px;
       font-weight: 900;
-      width: 28px;
+      width: 22px;
       height: 100%;
       cursor: pointer;
       display: flex;
@@ -990,11 +1097,11 @@
       justify-content: center;
       user-select: none;
     }
-    .qty-btn:active { background: rgba(0,0,0,0.15); }
-    .qty-number {
+    .grid-stepper-btn:active { background: rgba(0,0,0,0.15); }
+    .grid-stepper-qty {
       color: #fff;
       font-weight: 900;
-      font-size: 13.5px;
+      font-size: 12px;
       user-select: none;
     }
 
@@ -1547,49 +1654,39 @@
   <!-- TOP HEADER (DARK SLATE/NAVY WITH CURVED BOTTOM) -->
   <header class="hero-header">
     <div class="hero-top">
-      <div class="brand-wrap">
-        <div class="brand-avatar" id="storeLogoWrap">
-          <div class="brand-avatar-fallback">
-            <span class="leaf"></span>
-            <span>logo</span>
-          </div>
+      <div class="hero-left-col">
+        <div class="hero-fork-badge">
+          <span>🍴</span>
         </div>
-        <div class="brand-details">
-          <div class="brand-name">
-            <span id="storeNameText" style="color:#0F172A;font-weight:800">Foodypay</span>
-            <span id="heroTableBadge" style="background:#FFF7ED;color:#EA580C;border:1px solid #FFEDD5;font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px;margin-left:4px">Table 01</span>
-            <span class="verified-badge" title="Verified Foodypay Partner">✓</span>
+        <div class="hero-titles-wrap">
+          <div class="hdr-tbl-row">
+            <span class="hdr-tbl-tag" id="heroTableBadge">TABLE 08</span>
+            <span class="hdr-status-dot">●</span>
           </div>
-          <div class="live-badge">
-            <span class="pulse-dot"></span>
-            <span>Kitchen Open • Fast Service</span>
-          </div>
+          <div class="hdr-store-title" id="storeNameText">La Bella Vista</div>
         </div>
       </div>
 
-      <!-- Top Right User Profile Avatar -->
-      <div class="profile-glow-wrap" onclick="openProfileDialog()" title="Customer Table Profile">
-        <img id="userProfileImg" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Profile">
+      <div class="hero-right-col">
+        <button type="button" class="btn-call-waiter" onclick="callWaiterAlert()">
+          <span>🔔</span>
+          <span>Call Waiter</span>
+        </button>
+
+        <div class="profile-glow-wrap" onclick="openProfileDialog()" title="Customer Profile">
+          <img id="userProfileImg" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Profile">
+        </div>
       </div>
     </div>
 
     <!-- SEARCH & QUICK CONTROLS BAR -->
     <div class="search-row">
       <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      <input type="text" class="search-input-field" id="dishSearchInput" placeholder="Search dishes (e.g. Tikka, Ch)" oninput="handleSearch(this.value)">
+      <input type="text" class="search-input-field" id="dishSearchInput" placeholder="Search delicious dishes, drinks..." oninput="handleSearch(this.value)">
       
       <div class="search-controls">
-        <!-- Sort Toggle Icon (⇅) -->
-        <button class="search-ctrl-btn" id="sortBtn" onclick="toggleSort()" title="Sort by price">
-          ⇅
-        </button>
-        <!-- Grid / Category Toggle Icon (⊞) -->
-        <button class="search-ctrl-btn" id="categoryScrollBtn" onclick="scrollToCategories()" title="Jump to Categories">
-          ⊞
-        </button>
-        <!-- Filter Sliders Icon (⊶ / Veg Toggle) -->
         <button class="search-ctrl-btn" id="filterSliderBtn" onclick="toggleVegFilter()" title="Veg Filter">
-          ⊶
+          🌱
         </button>
       </div>
     </div>
@@ -1670,6 +1767,40 @@
   </div>
 
   <!-- CATEGORY PILLS BAR -->
+  <!-- AAJ KA SPECIAL (FEATURED BANNER) -->
+  <section class="special-section-wrap" id="aajKaSpecialSection">
+    <div class="special-section-header">
+      <div class="special-header-left">
+        <span class="badge-must-try">MUST TRY</span>
+        <h3 class="special-title">Aaj Ka Special</h3>
+      </div>
+      <a href="javascript:void(0)" onclick="selectCategory('All', document.querySelector('.cat-pill'))" class="special-header-right">Chef's Picks</a>
+    </div>
+
+    <div class="special-hero-card" id="specialHeroCard">
+      <div class="special-hero-img-wrap">
+        <img id="specialHeroImg" src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=700&q=80" alt="Special Dish">
+        <div class="special-tag-pill">⏱ Today's Special 20% OFF</div>
+        <div class="special-rating-pill">⭐ 4.9</div>
+      </div>
+      <div class="special-hero-content">
+        <div class="special-hero-text">
+          <h4 class="special-hero-name" id="specialHeroName">Smoky Honey Glazed Ribs</h4>
+          <p class="special-hero-desc" id="specialHeroDesc">Slow cooked delicacies glazed with raw honey, smoked paprika & fresh herbs.</p>
+        </div>
+        <div class="special-hero-footer">
+          <div class="special-hero-pricing">
+            <span class="special-old-price" id="specialHeroOldPrice">₹650</span>
+            <span class="special-current-price" id="specialHeroPrice">₹520</span>
+          </div>
+          <button type="button" class="btn-hero-add" id="specialHeroAddBtn" onclick="addHeroSpecialDish()">
+            + Add Dish
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <div class="cats-wrapper" id="catsBar">
     <button class="cat-pill active" onclick="selectCategory('All', this)">All Items</button>
     <button class="cat-pill" onclick="selectCategory('Starters', this)">Starters</button>
@@ -2220,6 +2351,8 @@
 
     if (heroSearch) heroSearch.style.display = 'none';
     if (catsWrap) catsWrap.style.display = 'none';
+    const specialSec = document.getElementById('aajKaSpecialSection');
+    if (specialSec) specialSec.style.display = 'none';
     if (heroTableBadge) heroTableBadge.style.display = 'none';
     if (storeText) storeText.textContent = 'FoodyPay';
     document.title = 'FoodyPay · Client App';
@@ -3280,7 +3413,7 @@
 
   function renderCategories(categories) {
     const catsBar = document.getElementById('catsBar');
-    let h = `<button class="cat-pill ${activeCategory === 'All' ? 'active' : ''}" onclick="selectCategory('All', this)">All Items</button>`;
+    let h = `<button class="cat-pill ${activeCategory === 'All' ? 'active' : ''}" onclick="selectCategory('All', this)">✨ All Items</button>`;
 
     const distinctCats = categories.length ? categories : Array.from(new Set(catalogProducts.map(p => p.cat || 'Main Course'))).filter(Boolean);
     distinctCats.forEach(c => {
@@ -3339,19 +3472,99 @@
     renderMenu();
   }
 
+// Call Waiter Alert
+  function callWaiterAlert() {
+    const tbl = (currentTable || 'Table 08').toUpperCase();
+    showToast(`🔔 Waiter alerted for ${tbl}! Staff is arriving shortly.`);
+    if (merchantUniqueId) {
+      try {
+        fetch('/api/orders/public/claim', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'call_waiter',
+            merchantUniqueId: merchantUniqueId,
+            table: tbl,
+            time: new Date().toISOString()
+          })
+        }).catch(() => {});
+      } catch(e) {}
+    }
+  }
+
+  function addHeroSpecialDish() {
+    if (!catalogProducts || !catalogProducts.length) return;
+    const specialDish = catalogProducts.find(p => p.isPopular || p.isSpecial) || catalogProducts[0];
+    if (specialDish) {
+      const dishId = specialDish.id || specialDish.name;
+      const curVarName = (specialDish.vars && specialDish.vars[0]?.n) || 'Regular';
+      updateQty(dishId, curVarName, 1);
+    }
+  }
+
   function renderMenu() {
     const heroSearch = document.querySelector('.search-row');
     const catsWrap = document.querySelector('.cats-wrapper');
     const heroTableBadge = document.getElementById('heroTableBadge');
+    const specialSec = document.getElementById('aajKaSpecialSection');
 
     if (merchantUniqueId || isWaiterMode) {
       if (heroSearch) heroSearch.style.display = 'flex';
       if (catsWrap) catsWrap.style.display = 'flex';
       if (heroTableBadge) {
         heroTableBadge.style.display = 'inline-block';
-        heroTableBadge.textContent = currentTable || 'Table 01';
+        let tNum = (currentTable || 'Table 08').toUpperCase();
+        if (!tNum.startsWith('TABLE')) tNum = 'TABLE ' + tNum;
+        heroTableBadge.textContent = tNum;
       }
     }
+
+    // Aaj Ka Special Banner Update
+    if (specialSec) {
+      if ((merchantUniqueId || isWaiterMode) && activeCategory === 'All' && !searchQuery) {
+        specialSec.style.display = 'block';
+        const specialDish = catalogProducts.find(p => p.isPopular || p.isSpecial) || catalogProducts[0];
+        if (specialDish) {
+          const dishId = specialDish.id || specialDish.name;
+          const hasVars = Array.isArray(specialDish.vars) && specialDish.vars.length > 0;
+          const curVar = hasVars ? specialDish.vars[0] : null;
+          const curPrice = curVar ? Number(curVar.p || 0) : Number(specialDish.price || 299);
+          const curVarName = curVar ? (curVar.n || 'Regular') : 'Regular';
+          const oldPrice = Math.round(curPrice * 1.25);
+          const photoUrl = getCuratedFoodImage(specialDish.name, specialDish.img);
+
+          const imgEl = document.getElementById('specialHeroImg');
+          if (imgEl && photoUrl) imgEl.src = photoUrl;
+          const nameEl = document.getElementById('specialHeroName');
+          if (nameEl) nameEl.textContent = specialDish.name;
+          const descEl = document.getElementById('specialHeroDesc');
+          if (descEl) descEl.textContent = specialDish.desc || 'Slow cooked delicacies glazed with raw honey, smoked paprika & fresh herbs.';
+          const priceEl = document.getElementById('specialHeroPrice');
+          if (priceEl) priceEl.textContent = '₹' + curPrice;
+          const oldPriceEl = document.getElementById('specialHeroOldPrice');
+          if (oldPriceEl) oldPriceEl.textContent = '₹' + oldPrice;
+
+          const cartKey = `${dishId}__${curVarName}`;
+          const inCart = cart.get(cartKey);
+          const heroAddBtn = document.getElementById('specialHeroAddBtn');
+          if (heroAddBtn) {
+            if (inCart && inCart.qty > 0) {
+              heroAddBtn.textContent = `✓ In Cart (${inCart.qty})`;
+              heroAddBtn.style.background = '#16A34A';
+            } else {
+              heroAddBtn.textContent = '+ Add Dish';
+              heroAddBtn.style.background = '#FF5E14';
+            }
+            heroAddBtn.onclick = () => {
+              updateQty(dishId, curVarName, 1);
+            };
+          }
+        }
+      } else {
+        specialSec.style.display = 'none';
+      }
+    }
+
     const container = document.getElementById('menuContainer');
     let filtered = [...catalogProducts];
 
@@ -3389,7 +3602,7 @@
 
     if (!filtered.length) {
       container.innerHTML = `
-        <div style="text-align:center;padding:60px 10px;color:#94a3b8">
+        <div style="grid-column:1/-1;text-align:center;padding:60px 10px;color:#94a3b8">
           <div style="font-size:42px;margin-bottom:10px">🔍</div>
           <b style="font-size:16px;color:#475569">No matching dishes found</b>
           <p style="font-size:13px;margin-top:4px">Try another search or reset filters</p>
@@ -3418,66 +3631,55 @@
 
       const photoUrl = getCuratedFoodImage(dish.name, dish.img);
       const fallbackEmoji = getFallbackEmoji(dish.name, dish.cat);
+      const rating = (4.7 + ((idx % 3) * 0.1)).toFixed(1);
 
-      // Portion buttons HTML
-      let portionsHtml = '';
+      // Compact variant selector in 2-column grid
+      let varSelectorHtml = '';
       if (hasVars && dish.vars.length > 1) {
-        portionsHtml = `
-          <div class="portion-title">Portion</div>
-          <div class="portion-pills-row">
-            ${dish.vars.map((v, i) => `
-              <button type="button" class="portion-pill ${i === varIndex ? 'selected' : ''}" onclick="selectVariant('${dishId}', ${i})">
-                ${v.n}: ₹${v.p}
-              </button>
-            `).join('')}
+        varSelectorHtml = `
+          <div class="dish-grid-vars">
+            <select class="grid-var-select" onchange="selectVariant('${dishId}', parseInt(this.value));renderMenu()">
+              ${dish.vars.map((v, i) => `<option value="${i}" ${i === varIndex ? 'selected' : ''}>${v.n} (₹${v.p})</option>`).join('')}
+            </select>
           </div>
         `;
       }
 
       h += `
-        <div class="dish-card">
-          <div class="dish-info-col">
-            <div class="dish-meta-row">
-              <span class="diet-box ${isVeg ? 'veg' : 'nonveg'}"></span>
-              <span class="diet-text ${isVeg ? 'veg' : 'nonveg'}">${isVeg ? 'VEG' : 'NON-VEG'}</span>
-              ${isPopular ? `<span class="popular-chip">★ Popular</span>` : ''}
-            </div>
-
-            <div class="dish-name">${dish.name}</div>
-
-            <div class="dish-pricing-row">
-              <span>₹${currentPrice}</span>
-              ${hasVars && dish.vars.length > 1 ? `<small>(${currentVarName})</small>` : ''}
-            </div>
-
-            ${portionsHtml}
-
-            <div class="dish-desc-text">
-              ${dish.desc || 'Freshly prepared with authentic ingredients on table order.'}
-            </div>
+        <div class="dish-grid-card">
+          <div class="dish-grid-img-wrap">
+            ${photoUrl ? `
+              <img src="${photoUrl}" alt="${dish.name}" loading="lazy">
+            ` : `
+              <div class="dish-grid-fallback">${fallbackEmoji}</div>
+            `}
+            <div class="dish-grid-diet-badge ${isVeg ? 'veg' : 'nonveg'}"></div>
+            <div class="dish-grid-rating">⭐ ${rating}</div>
           </div>
 
-          <div class="dish-action-col">
-            <div class="dish-photo-wrap">
-              ${photoUrl ? `
-                <img src="${photoUrl}" alt="${dish.name}" loading="lazy">
-              ` : `
-                <div class="dish-photo-fallback">${fallbackEmoji}</div>
-              `}
-            </div>
+          <div class="dish-grid-body">
+            <div class="dish-grid-cat">${(dish.cat || 'Special').toUpperCase()}</div>
+            <div class="dish-grid-name" title="${dish.name}">${dish.name}</div>
+            <div class="dish-grid-desc">${dish.desc || 'Freshly prepared with authentic ingredients on table order.'}</div>
 
-            <div>
-              ${currentQty > 0 ? `
-                <div class="qty-stepper">
-                  <button type="button" class="qty-btn" onclick="updateQty('${dishId}', '${currentVarName}', -1)">−</button>
-                  <span class="qty-number">${currentQty}</span>
-                  <button type="button" class="qty-btn" onclick="updateQty('${dishId}', '${currentVarName}', 1)">+</button>
-                </div>
-              ` : `
-                <button type="button" class="btn-add-dish" onclick="updateQty('${dishId}', '${currentVarName}', 1)">
-                  + ADD
-                </button>
-              `}
+            ${varSelectorHtml}
+
+            <div class="dish-grid-footer">
+              <div class="dish-grid-price">₹${currentPrice}</div>
+
+              <div>
+                ${currentQty > 0 ? `
+                  <div class="grid-stepper">
+                    <button type="button" class="grid-stepper-btn" onclick="updateQty('${dishId}', '${currentVarName}', -1)">−</button>
+                    <span class="grid-stepper-qty">${currentQty}</span>
+                    <button type="button" class="grid-stepper-btn" onclick="updateQty('${dishId}', '${currentVarName}', 1)">+</button>
+                  </div>
+                ` : `
+                  <button type="button" class="btn-grid-add" onclick="updateQty('${dishId}', '${currentVarName}', 1)" title="Add to Cart">
+                    ＋
+                  </button>
+                `}
+              </div>
             </div>
           </div>
         </div>
@@ -3488,8 +3690,7 @@
     updateCartBar();
   }
 
-  // Update Dish Quantity
-  function updateQty(dishId, varName, delta) {
+    function updateQty(dishId, varName, delta) {
     const dish = catalogProducts.find(p => (p.id || p.name) === dishId);
     if (!dish) return;
 
