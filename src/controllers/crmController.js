@@ -11,24 +11,12 @@ import User from '../models/userModel.js';
  */
 export const syncCatalog = async (req, res, next) => {
   try {
-    const { categories, products, areas, foodypayId, businessName, name, phone } = req.body;
+    const { categories, products, areas, foodypayId } = req.body;
     let userId = req.user ? req.user._id : null;
     let cleanFp = (foodypayId || (req.user ? req.user.foodypayId : '') || '').toString().trim().toUpperCase();
 
     if (!userId && cleanFp) {
-      const stripped = cleanFp.replace(/^FP[-_]?/i, '').trim();
-      const idRegex = new RegExp(`^(FP[-_]?)?${stripped}$`, 'i');
-      const u = await User.findOne({
-        $or: [{ foodypayId: cleanFp }, { foodypayId: idRegex }]
-      });
-      if (u) {
-        userId = u._id;
-        cleanFp = u.foodypayId;
-      }
-    }
-
-    if (!userId && req.body.email) {
-      const u = await User.findOne({ email: req.body.email.toLowerCase().trim() });
+      const u = await User.findOne({ foodypayId: cleanFp });
       if (u) {
         userId = u._id;
         cleanFp = u.foodypayId;
@@ -47,25 +35,11 @@ export const syncCatalog = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Valid foodypayId or authentication required' });
     }
 
-    const finalBusinessName = (businessName || name || '').trim();
-    if (finalBusinessName) {
-      await User.findByIdAndUpdate(userId, { businessName: finalBusinessName }).catch(() => {});
-      await Setting.findOneAndUpdate(
-        { user: userId },
-        {
-          restName: finalBusinessName,
-          ...(phone ? { phone: String(phone).trim() } : {})
-        },
-        { upsert: true }
-      ).catch(() => {});
-    }
-
     const catalog = await CrmCatalog.findOneAndUpdate(
       { user: userId },
       {
         user: userId,
         foodypayId: cleanFp,
-        businessName: finalBusinessName,
         categories: Array.isArray(categories) ? categories : [],
         products: Array.isArray(products) ? products : [],
         areas: Array.isArray(areas) ? areas : [],
@@ -275,35 +249,17 @@ export const getSales = async (req, res, next) => {
  */
 export const syncSettings = async (req, res, next) => {
   try {
-    const { name, businessName, phone, gst, billDesign, printers, foodypayId } = req.body;
-    let userId = req.user ? req.user._id : null;
-
-    if (!userId && foodypayId) {
-      const cleanFp = String(foodypayId).trim().toUpperCase();
-      const stripped = cleanFp.replace(/^FP[-_]?/i, '').trim();
-      const u = await User.findOne({
-        $or: [
-          { foodypayId: cleanFp },
-          { foodypayId: new RegExp(`^(FP[-_]?)?${stripped}$`, 'i') }
-        ]
-      });
-      if (u) userId = u._id;
-    }
-
-    if (!userId) {
-      return res.status(401).json({ success: false, message: 'Authentication or valid merchant ID required' });
-    }
+    const { name, phone, gst, billDesign, printers } = req.body;
+    const userId = req.user._id;
 
     let setting = await Setting.findOne({ user: userId });
     if (!setting) {
       setting = new Setting({ user: userId });
     }
 
-    const finalName = (name || businessName || '').trim();
-    if (finalName) {
-      setting.restName = finalName;
-      await User.findByIdAndUpdate(userId, { businessName: finalName }).catch(() => {});
-      await CrmCatalog.findOneAndUpdate({ user: userId }, { businessName: finalName }).catch(() => {});
+    if (name) {
+      setting.restName = name;
+      await User.findByIdAndUpdate(userId, { businessName: name }).catch(() => {});
     }
     if (phone) {
       setting.phone = phone;
@@ -430,98 +386,42 @@ export const getLiveSales = async (req, res, next) => {
 export const getPublicMenu = async (req, res, next) => {
   try {
     const rawId = req.params.uniqueId || req.query.foodypayId || req.query.uniqueId || 'FP-624358';
-    const cleanId = String(rawId).trim();
-    const cleanUpper = cleanId.toUpperCase();
-    const stripped = cleanUpper.replace(/^FP[-_]?/i, '').trim();
-    const idRegex = new RegExp(`^(FP[-_]?)?${stripped}$`, 'i');
-
-    let targetUser = await User.findOne({
-      $or: [
-        { foodypayId: cleanUpper },
-        { foodypayId: idRegex },
-        { email: new RegExp(`^${cleanId}$`, 'i') },
-        ...(cleanId.match(/^[0-9a-fA-F]{24}$/) ? [{ _id: cleanId }] : [])
-      ]
-    });
-
+    const cleanId = rawId.trim().toUpperCase();
+    let targetUser = await User.findOne({ foodypayId: cleanId });
     if (!targetUser) {
-      const cat = await CrmCatalog.findOne({
-        $or: [{ foodypayId: cleanUpper }, { foodypayId: idRegex }]
-      });
-      if (cat?.user) {
-        targetUser = await User.findById(cat.user);
-      }
+      targetUser = await User.findOne({ email: rawId.trim().toLowerCase() });
     }
-
+    // Fallback: If SYS- terminal code or custom ID not matched, resolve to primary active merchant
     if (!targetUser) {
-      const set = await Setting.findOne({
-        $or: [{ foodypayId: cleanUpper }, { foodypayId: idRegex }]
-      });
-      if (set?.user) {
-        targetUser = await User.findById(set.user);
-      }
+      targetUser = (await User.findOne({ foodypayId: 'FP-624358' })) || (await User.findOne({}));
     }
-
-    const defaultProducts = [
-      { id: 'fp_p1', name: 'Paneer Tikka', cat: 'Starters', diet: 'veg', vars: [{ n: 'Half', p: 140 }, { n: 'Full', p: 260 }], price: 140, img: '' },
-      { id: 'fp_p2', name: 'Veg Noodles', cat: 'Starters', diet: 'veg', vars: [{ n: 'Regular', p: 120 }], price: 120, img: '' },
-      { id: 'fp_p3', name: 'Dal Makhani', cat: 'Main Course', diet: 'veg', vars: [{ n: 'Qtr', p: 90 }, { n: 'Half', p: 160 }, { n: 'Full', p: 290 }], price: 160, img: '' },
-      { id: 'fp_p4', name: 'Butter Naan', cat: 'Main Course', diet: 'veg', vars: [{ n: 'Regular', p: 35 }], price: 35, img: '' },
-      { id: 'fp_p5', name: 'Cold Coffee', cat: 'Drinks', diet: 'veg', vars: [{ n: 'Small', p: 80 }, { n: 'Large', p: 120 }], price: 80, img: '' },
-      { id: 'fp_p6', name: 'Gulab Jamun', cat: 'Dessert', diet: 'veg', vars: [{ n: '2 pcs', p: 60 }], price: 60, img: '' },
-    ];
-    const defaultCats = ['Starters', 'Main Course', 'Drinks', 'Dessert'];
-    const defaultAreas = [
-      { name: 'Restaurant', tables: [1, 2, 3, 4, 5, 6].map(n => ({ id: 'tbl_' + n, name: String(n) })) },
-      { name: 'Cafe', tables: ['T1', 'T2', 'T3'].map(n => ({ id: 'tbl_' + n, name: n })) },
-    ];
-
-    // If ID is not registered in MongoDB, gracefully provide fallback for this exact ID (never BigBoss)
     if (!targetUser) {
-      const fallbackName = (req.query.name || req.query.restName || req.query.storeName || '').trim() || `Food Outlet (${cleanUpper})`;
-      return res.json({
-        success: true,
-        data: {
-          foodypayId: cleanUpper,
-          businessName: fallbackName,
-          contactNo: '',
-          logo: '',
-          gstPercent: 5,
-          upiId: '',
-          categories: defaultCats,
-          products: defaultProducts,
-          areas: defaultAreas,
-        },
-      });
+      return res.status(404).json({ success: false, message: 'Merchant outlet not found' });
     }
 
     const catalog = await CrmCatalog.findOne({ user: targetUser._id });
     const setting = await Setting.findOne({ user: targetUser._id }).catch(() => null);
 
-    // If request provided a specific store name from QR badge / waiter link, update user profile and settings
-    const queryName = (req.query.name || req.query.restName || req.query.storeName || '').trim();
-    if (queryName && queryName !== 'Foodypay' && queryName !== 'BigBoss') {
-      await User.findByIdAndUpdate(targetUser._id, { businessName: queryName }).catch(() => {});
-      await Setting.findOneAndUpdate({ user: targetUser._id }, { restName: queryName }, { upsert: true }).catch(() => {});
-      await CrmCatalog.findOneAndUpdate({ user: targetUser._id }, { businessName: queryName }).catch(() => {});
-      if (setting) setting.restName = queryName;
-      targetUser.businessName = queryName;
-    }
-
-    const finalBusinessName =
-      (queryName && queryName !== 'Foodypay' && queryName !== 'BigBoss' ? queryName : '') ||
-      setting?.restName?.trim() ||
-      targetUser.businessName?.trim() ||
-      catalog?.businessName?.trim() ||
-      targetUser.name?.trim() ||
-      `Food Outlet (${targetUser.foodypayId || cleanUpper})`;
-
     let products = (catalog?.products && catalog.products.length > 0) ? catalog.products : [];
     let categories = (catalog?.categories && catalog.categories.length > 0) ? catalog.categories : [];
     let areas = (catalog?.areas && catalog.areas.length > 0) ? catalog.areas : [];
 
-    // Fallback: If CrmCatalog has no products yet
+    // Fallback: If CrmCatalog has no products yet (e.g. brand new merchant before first CRM sync)
     if (!products || products.length === 0) {
+      const defaultProducts = [
+        { id: 'fp_p1', name: 'Paneer Tikka', cat: 'Starters', diet: 'veg', vars: [{ n: 'Half', p: 140 }, { n: 'Full', p: 260 }], price: 140, img: '' },
+        { id: 'fp_p2', name: 'tikka', cat: 'Starters', diet: 'veg', vars: [{ n: 'Regular', p: 100 }], price: 100, img: '' },
+        { id: 'fp_p3', name: 'Dal Makhani', cat: 'Main Course', diet: 'veg', vars: [{ n: 'Qtr', p: 90 }, { n: 'Half', p: 160 }, { n: 'Full', p: 290 }], price: 160, img: '' },
+        { id: 'fp_p4', name: 'Butter Naan', cat: 'Main Course', diet: 'veg', vars: [{ n: 'Regular', p: 35 }], price: 35, img: '' },
+        { id: 'fp_p5', name: 'Cold Coffee', cat: 'Drinks', diet: 'veg', vars: [{ n: 'Small', p: 80 }, { n: 'Large', p: 120 }], price: 80, img: '' },
+        { id: 'fp_p6', name: 'Gulab Jamun', cat: 'Dessert', diet: 'veg', vars: [{ n: '2 pcs', p: 60 }], price: 60, img: '' },
+      ];
+      const defaultCats = ['Starters', 'Main Course', 'Drinks', 'Dessert'];
+      const defaultAreas = [
+        { name: 'Restaurant', tables: [1, 2, 3, 4, 5, 6].map(n => ({ id: 'tbl_' + n, name: String(n) })) },
+        { name: 'Cafe', tables: ['T1', 'T2', 'T3'].map(n => ({ id: 'tbl_' + n, name: n })) },
+      ];
+
       products = defaultProducts;
       categories = defaultCats;
       areas = defaultAreas;
@@ -531,7 +431,6 @@ export const getPublicMenu = async (req, res, next) => {
         {
           user: targetUser._id,
           foodypayId: targetUser.foodypayId,
-          businessName: finalBusinessName,
           categories: defaultCats,
           products: defaultProducts,
           areas: defaultAreas,
@@ -545,10 +444,10 @@ export const getPublicMenu = async (req, res, next) => {
       success: true,
       data: {
         foodypayId: targetUser.foodypayId,
-        businessName: finalBusinessName,
-        contactNo: setting?.phone || targetUser.contactNo || '',
-        logo: targetUser.logo?.url || setting?.logo?.url || '',
-        gstPercent: setting?.gstPercent || setting?.taxPercent || 5,
+        businessName: targetUser.businessName || targetUser.name || 'Food Outlet',
+        contactNo: targetUser.contactNo || '',
+        logo: targetUser.logo?.url || '',
+        gstPercent: setting?.taxPercent || 5,
         upiId: setting?.upiId || '',
         categories,
         products,

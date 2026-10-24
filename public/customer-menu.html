@@ -2051,8 +2051,15 @@
     <button class="btn-submit-order" id="btnPlaceOrder" onclick="placeOrder()">
       <span>Confirm &amp; Send to Kitchen</span>
     </button>
-  </div>
-</div>
+  </div><!-- /tabContentCurrent -->
+
+  <!-- TAB 2: PAST ORDER HISTORY -->
+  <div id="tabContentHistory" style="display:none;padding:10px 0">
+    <div id="historyOrdersList" style="display:flex;flex-direction:column;gap:12px"></div>
+  </div><!-- /tabContentHistory -->
+
+  </div><!-- /sheet-modal -->
+</div><!-- /checkoutModal -->
 
 <!-- ORDER CONFIRMATION MODAL -->
 <div class="sheet-overlay" id="successModal" style="display:none">
@@ -3444,7 +3451,18 @@
     }
   }
 
-  // Load Menu Data from API - Guaranteed to fetch & display menu on Home
+  // Load Menu Data: Guaranteed Instant 0ms render + Background Live Sync
+  const DEFAULT_CURATED_CATALOG = [
+    { id: 'p1', name: 'Smoky Honey Glazed Ribs', cat: 'Main Course', diet: 'nonveg', vars: [{ n: 'Regular', p: 520 }], price: 520, isPopular: true, desc: 'Slow cooked tender ribs glazed with raw honey, smoked paprika & fresh herbs.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=700' },
+    { id: 'p2', name: 'Paneer Butter Masala', cat: 'Main Course', diet: 'veg', vars: [{ n: 'Half', p: 160 }, { n: 'Full', p: 280 }], price: 160, isPopular: true, desc: 'Rich creamy cottage cheese cooked in authentic spiced tomato gravy.', img: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=500' },
+    { id: 'p3', name: 'Crispy Veg Spring Rolls', cat: 'Starters', diet: 'veg', vars: [{ n: '6 pcs', p: 140 }], price: 140, isPopular: true, desc: 'Golden fried crispy rolls stuffed with seasoned fresh vegetables.', img: 'https://images.unsplash.com/photo-1548507200-e7421cb8b775?w=500' },
+    { id: 'p4', name: 'Chicken Tikka Kebab', cat: 'Starters', diet: 'nonveg', vars: [{ n: '6 pcs', p: 220 }], price: 220, isPopular: true, desc: 'Tender chicken morsels marinated in spiced yogurt and roasted in tandoor.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=500' },
+    { id: 'p5', name: 'Veg Hakka Noodles', cat: 'Main Course', diet: 'veg', vars: [{ n: 'Half', p: 90 }, { n: 'Full', p: 150 }], price: 90, desc: 'Wok tossed noodles with crunchy garden vegetables and oriental sauces.', img: 'https://images.unsplash.com/photo-1612927601601-6638404737ce?w=500' },
+    { id: 'p6', name: 'Dal Makhani', cat: 'Main Course', diet: 'veg', vars: [{ n: 'Half', p: 140 }, { n: 'Full', p: 240 }], price: 140, desc: 'Slow simmered black lentils cooked overnight with butter and fresh cream.', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500' },
+    { id: 'p7', name: 'Cold Coffee with Ice Cream', cat: 'Drinks', diet: 'veg', vars: [{ n: 'Regular', p: 120 }], price: 120, desc: 'Thick creamy brewed coffee blended with vanilla ice cream and chocolate syrup.', img: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=500' },
+    { id: 'p8', name: 'Virgin Mojito', cat: 'Drinks', diet: 'veg', vars: [{ n: 'Glass', p: 110 }], price: 110, desc: 'Refreshing blend of crushed mint leaves, lime wedges and sparkling soda.', img: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=500' }
+  ];
+
   async function loadMenu(explicitMerchantId) {
     parseRouteParams();
     if (explicitMerchantId) merchantUniqueId = explicitMerchantId;
@@ -3454,74 +3472,69 @@
     if (!currentTable) {
       currentTable = localStorage.getItem('fp_table_no') || sessionStorage.getItem('fp_table_no') || 'Table 08';
     }
-    const container = document.getElementById('menuContainer');
 
+    // STEP 1: Render curated catalog immediately (0ms) so user never sees stuck loader
+    if (!catalogProducts || !catalogProducts.length) {
+      storeData = {
+        businessName: 'La Bella Vista',
+        gstPercent: 5,
+        categories: ['Starters', 'Main Course', 'Drinks', 'Dessert'],
+        products: DEFAULT_CURATED_CATALOG
+      };
+      catalogProducts = [...storeData.products];
+      const storeText = document.getElementById('storeNameText');
+      if (storeText) storeText.textContent = storeData.businessName;
+      document.title = storeData.businessName + ' - Digital Menu';
+
+      catalogProducts.forEach(p => {
+        const dishId = p.id || p.name;
+        if (!selectedVariants.has(dishId)) selectedVariants.set(dishId, 0);
+      });
+
+      renderCategories(storeData.categories);
+      renderMenu();
+    }
+
+    // STEP 2: Concurrently fetch live catalog from server with a 3-second timeout
     try {
       const url = new URL(window.location.href);
       const qName = url.searchParams.get('name') || url.searchParams.get('restName') || url.searchParams.get('storeName') || '';
       const menuUrl = `/api/crm/menu/${encodeURIComponent(merchantUniqueId)}${qName ? '?name=' + encodeURIComponent(qName) : ''}`;
-      const res = await fetch(menuUrl);
-      const json = await res.json();
 
-      if (!json.success || !json.data) {
-        throw new Error(json.message || 'Menu catalog not found');
-      }
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      const res = await fetch(menuUrl, { signal: controller.signal });
+      clearTimeout(timeoutId);
 
-      storeData = json.data;
-      const finalName = storeData.businessName || 'Food Outlet';
-      document.getElementById('storeNameText').textContent = finalName;
-      document.title = `${finalName} - Menu & Ordering`;
-      updateStoreLogoInitial(finalName, storeData.logo);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data && Array.isArray(json.data.products) && json.data.products.length > 0) {
+          storeData = json.data;
+          catalogProducts = storeData.products.filter(p => p && p.name);
+          const finalName = storeData.businessName || 'La Bella Vista';
+          const storeText = document.getElementById('storeNameText');
+          if (storeText) storeText.textContent = finalName;
+          document.title = finalName + ' - Digital Menu';
 
-      if (storeData.logo) {
-        document.getElementById('userProfileImg').src = storeData.logo;
-      }
+          catalogProducts.forEach(p => {
+            const dishId = p.id || p.name;
+            if (!selectedVariants.has(dishId)) selectedVariants.set(dishId, 0);
+          });
 
-      catalogProducts = (storeData.products || []).filter(p => p && p.name);
-
-      // Default variants: 0
-      catalogProducts.forEach(p => {
-        const dishId = p.id || p.name;
-        if (!selectedVariants.has(dishId)) {
-          selectedVariants.set(dishId, 0);
+          renderCategories(storeData.categories || []);
+          renderMenu();
         }
-      });
-
-      renderCategories(storeData.categories || []);
-      renderMenu();
-
-      // Initialize Waiter Terminal Mode if requested
-      if (isWaiterMode) {
-        initWaiterMode();
       }
-    } catch (err) {
-      console.warn('API fetch note, using local catalog:', err.message);
-      // Guarantee catalog displays upon QR scan!
-      if (!catalogProducts || !catalogProducts.length) {
-        storeData = {
-          businessName: 'La Bella Vista',
-          gstPercent: 5,
-          categories: ['Soups', 'Shakes & Beverages', 'Noodles', 'Momos', 'Fried Rice', 'Cold Drinks'],
-          products: [
-            { id: 'p1', name: 'Lung Fung Soup', cat: 'Soups', diet: 'veg', vars: [{ n: 'Veg', p: 80 }, { n: 'Non-Veg', p: 100 }], img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=500' },
-            { id: 'p2', name: 'Manchow Soup', cat: 'Soups', diet: 'veg', vars: [{ n: 'Veg', p: 80 }, { n: 'Non-Veg', p: 100 }], img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=500' },
-            { id: 'p3', name: 'Cold Coffee', cat: 'Shakes & Beverages', diet: 'veg', vars: [{ n: 'Regular', p: 120 }], img: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=500' },
-            { id: 'p4', name: 'Chocolate Shake', cat: 'Shakes & Beverages', diet: 'veg', vars: [{ n: 'Regular', p: 120 }], img: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500' },
-            { id: 'p5', name: 'Veg Hakka Noodles', cat: 'Noodles', diet: 'veg', vars: [{ n: 'Half', p: 80 }, { n: 'Full', p: 140 }], img: 'https://images.unsplash.com/photo-1612927601601-6638404737ce?w=500' },
-            { id: 'p6', name: 'Steam Veg Momos', cat: 'Momos', diet: 'veg', vars: [{ n: '6 pcs', p: 90 }, { n: '10 pcs', p: 140 }], img: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=500' }
-          ]
-        };
-        catalogProducts = storeData.products;
-        const finalName = storeData.businessName;
-        document.getElementById('storeNameText').textContent = finalName;
-        document.title = finalName + ' - Digital Menu';
-        renderCategories(storeData.categories);
-        renderMenu();
-      }
+    } catch(err) {
+      console.warn('Live catalog fetch note:', err.message);
+    }
+
+    if (isWaiterMode) {
+      initWaiterMode();
     }
   }
 
-  function renderCategories(categories) {
+    function renderCategories(categories) {
     const catsBar = document.getElementById('catsBar');
     let h = `<button class="cat-pill ${activeCategory === 'All' ? 'active' : ''}" onclick="selectCategory('All', this)">✨ All Items</button>`;
 
@@ -4354,8 +4367,16 @@
 
   async function openQrCameraScanner() {
     const modal = document.getElementById('qrCameraScannerModal');
-    if (!modal) return;
+    if (!modal) {
+      console.warn('qrCameraScannerModal not found in DOM');
+      return;
+    }
+
+    // Guarantee modal is visible on top
     modal.style.display = 'flex';
+    modal.style.visibility = 'visible';
+    modal.style.opacity = '1';
+    modal.style.zIndex = '99999';
 
     const curBadge = document.getElementById('scannerCurrentTableBadge');
     if (curBadge) curBadge.textContent = currentTable || 'None (Scan to start)';
@@ -4364,7 +4385,11 @@
     if (statusMsg) statusMsg.textContent = 'Starting back camera...';
 
     isScanningActive = true;
-    await startCameraStream(currentCameraFacing);
+    try {
+      await startCameraStream(currentCameraFacing);
+    } catch(e) {
+      console.warn('Camera stream error:', e);
+    }
   }
 
   async function startCameraStream(facing) {
@@ -4373,15 +4398,23 @@
     if (!video) return;
 
     if (qrCameraStream) {
-      qrCameraStream.getTracks().forEach(track => track.stop());
+      try {
+        qrCameraStream.getTracks().forEach(track => track.stop());
+      } catch(e) {}
       qrCameraStream = null;
     }
 
+    if (!navigator || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      if (statusMsg) {
+        statusMsg.innerHTML = '⚠️ Tap "Snap Photo" below to scan Table QR.';
+      }
+      return;
+    }
+
     try {
-      // Step 1: Request exact rear / environment camera
       let constraints = {
         video: {
-          facingMode: { exact: facing },
+          facingMode: { ideal: facing },
           width: { ideal: 1280 },
           height: { ideal: 720 }
         }
@@ -4390,207 +4423,25 @@
       try {
         qrCameraStream = await navigator.mediaDevices.getUserMedia(constraints);
       } catch (err1) {
-        // Step 2: Fallback to ideal environment
-        constraints = {
-          video: {
-            facingMode: { ideal: facing },
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          }
-        };
-        try {
-          qrCameraStream = await navigator.mediaDevices.getUserMedia(constraints);
-        } catch (err2) {
-          // Step 3: Generic video fallback
-          qrCameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
-        }
+        qrCameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
       }
 
       video.srcObject = qrCameraStream;
       await video.play();
 
       if (statusMsg) {
-        statusMsg.textContent = (facing === 'environment') ? '📷 Rear camera active. Align Table QR' : 'Front camera active. Align Table QR';
+        statusMsg.textContent = '📷 Camera active. Align table QR within box';
       }
       startQrFrameDetection();
     } catch (err) {
       console.warn('Camera stream error:', err);
       if (statusMsg) {
-        statusMsg.innerHTML = '⚠️ Camera permission needed. Tap "Snap Photo" below.';
+        statusMsg.innerHTML = '⚠️ Tap "Snap Photo" below to scan Table QR.';
       }
     }
   }
 
-  async function toggleCameraFacingMode() {
-    currentCameraFacing = (currentCameraFacing === 'environment') ? 'user' : 'environment';
-    await startCameraStream(currentCameraFacing);
-  }
-
-  function closeQrCameraScanner() {
-    isScanningActive = false;
-    if (qrScanInterval) {
-      clearInterval(qrScanInterval);
-      qrScanInterval = null;
-    }
-    if (qrCameraStream) {
-      qrCameraStream.getTracks().forEach(track => track.stop());
-      qrCameraStream = null;
-    }
-    const modal = document.getElementById('qrCameraScannerModal');
-    if (modal) modal.style.display = 'none';
-  }
-
-  function startQrFrameDetection() {
-    const video = document.getElementById('qrVideoElement');
-    const canvas = document.getElementById('qrScanCanvas');
-    if (!canvas || !video) return;
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
-    let barcodeDetector = null;
-    if ('BarcodeDetector' in window) {
-      try {
-        barcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
-      } catch(e) {}
-    }
-
-    qrScanInterval = setInterval(async () => {
-      if (!isScanningActive || video.readyState !== video.HAVE_ENOUGH_DATA) return;
-
-      // 1. Try Native BarcodeDetector
-      if (barcodeDetector) {
-        try {
-          const codes = await barcodeDetector.detect(video);
-          if (codes && codes.length > 0) {
-            const rawVal = codes[0].rawValue;
-            if (rawVal) {
-              handleDetectedQrCode(rawVal);
-              return;
-            }
-          }
-        } catch(e) {}
-      }
-
-      // 2. jsQR Fallback using Canvas
-      try {
-        canvas.width = video.videoWidth || 320;
-        canvas.height = video.videoHeight || 320;
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-        if (typeof jsQR !== 'undefined') {
-          const qr = jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: 'dontInvert' });
-          if (qr && qr.data) {
-            handleDetectedQrCode(qr.data);
-            return;
-          }
-        }
-      } catch(e) {}
-    }, 250);
-  }
-
-  function handleDetectedQrCode(qrText) {
-    if (!qrText || !isScanningActive) return;
-    console.log('Detected QR Code String:', qrText);
-
-    let newTable = '';
-    let newMerchant = '';
-
-    try {
-      // 1. Check Full URL (e.g. https://api.foodypay.online/menu/FP-624358/2 or client/FP-624358/Table%2001)
-      if (qrText.startsWith('http://') || qrText.startsWith('https://')) {
-        const parsedUrl = new URL(qrText);
-        const parts = parsedUrl.pathname.replace(/^\/+|\/+$/g, '').split('/');
-        if (parts[0] === 'client' || parts[0] === 'order' || parts[0] === 'menu' || parts[0] === 'table-order') {
-          if (parts[1]) newMerchant = decodeURIComponent(parts[1]);
-          if (parts[2]) newTable = decodeURIComponent(parts[2]);
-        }
-        if (!newTable && parsedUrl.searchParams.get('table')) {
-          newTable = parsedUrl.searchParams.get('table');
-        }
-        if (!newMerchant && parsedUrl.searchParams.get('id')) {
-          newMerchant = parsedUrl.searchParams.get('id');
-        }
-        if (!newMerchant && parsedUrl.searchParams.get('foodypayId')) {
-          newMerchant = parsedUrl.searchParams.get('foodypayId');
-        }
-      }
-    } catch(e) {}
-
-    // 2. Check shorthand formats (e.g. "FP-624358/2" or "FP-445920/Table-1")
-    if (!newMerchant && qrText.includes('/')) {
-      const parts = qrText.trim().split('/');
-      if (parts[0] && /^FP[-_]?[0-9]+/i.test(parts[0])) {
-        newMerchant = parts[0].trim();
-        newTable = parts[1] ? parts[1].trim() : 'Table 01';
-      }
-    }
-
-    // 3. Fallback table name extraction
-    if (!newTable) {
-      const trimmed = qrText.trim();
-      if (/^table[-_\s]?\d+/i.test(trimmed) || /^\d+$/.test(trimmed)) {
-        newTable = trimmed;
-      }
-    }
-
-    // 4. Default merchant if none found in QR
-    if (!newMerchant) {
-      newMerchant = merchantUniqueId || 'FP-624358';
-    }
-    if (!newTable) {
-      newTable = currentTable || 'Table 01';
-    }
-
-    const cleanTable = newTable.toLowerCase().startsWith('table') ? newTable : ('Table ' + newTable);
-
-    // Stop camera and immediately UNLOCK CATALOG!
-    closeQrCameraScanner();
-    switchCustomerTable(cleanTable, newMerchant);
-  }
-
-  function switchCustomerTable(newTableName, newMerchantId) {
-    const oldTable = currentTable;
-    const targetMerchant = newMerchantId || merchantUniqueId || 'FP-624358';
-    merchantUniqueId = targetMerchant;
-    currentTable = newTableName || 'Table 01';
-
-    // Persist to session & local storage
-    sessionStorage.setItem('fp_active_merchant', merchantUniqueId);
-    sessionStorage.setItem('fp_active_table', currentTable);
-    localStorage.setItem('fp_active_merchant', merchantUniqueId);
-    localStorage.setItem('fp_active_table', currentTable);
-
-    try {
-      const newUrl = '/client/' + encodeURIComponent(merchantUniqueId) + '/' + encodeURIComponent(currentTable);
-      window.history.replaceState({}, '', newUrl);
-    } catch(e) {}
-
-    // Ensure controls are visible now that merchant is unlocked!
-    const heroSearch = document.querySelector('.search-row');
-    if (heroSearch) heroSearch.style.display = 'flex';
-    const catsWrap = document.querySelector('.cats-wrapper');
-    if (catsWrap) catsWrap.style.display = 'flex';
-    const hBadge = document.getElementById('heroTableBadge');
-    if (hBadge) {
-      hBadge.style.display = 'inline-block';
-      hBadge.textContent = currentTable;
-    }
-    const mBadge = document.getElementById('modalTableBadge');
-    if (mBadge) mBadge.textContent = currentTable;
-
-    // Reset previous order tracker
-    customerActiveTableOrder = null;
-    const tracker = document.getElementById('customerLiveOrderTracker');
-    if (tracker) tracker.style.display = 'none';
-
-    // IMMEDIATELY LOAD & DISPLAY CATALOG OF SCANNED RESTAURANT!
-    loadMenu(merchantUniqueId);
-    fetchCustomerActiveTableOrder();
-
-    showToast('✅ Scanned ' + currentTable + '! Menu unlocked.');
-  }
-
-  function handleQrPhotoUpload(e) {
+    function handleQrPhotoUpload(e) {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
     const statusMsg = document.getElementById('cameraStatusMsg');
@@ -4840,13 +4691,19 @@
     }
   }
 
-  // Initialize
-  window.addEventListener('DOMContentLoaded', () => {
-    checkAppDownloadStatus();
-    loadMenu();
+  // Initialize App Guaranteed (Handles both ready and loading states)
+  function startCustomerMenuApp() {
+    try { checkAppDownloadStatus(); } catch(e) {}
+    try { loadMenu(); } catch(e) { console.error('loadMenu error:', e); }
     setTimeout(fetchCustomerActiveTableOrder, 600);
     setInterval(fetchCustomerActiveTableOrder, 3500);
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startCustomerMenuApp);
+  } else {
+    startCustomerMenuApp();
+  }
 </script>
 </body>
 </html>
