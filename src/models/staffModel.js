@@ -14,6 +14,12 @@ const staffSchema = new mongoose.Schema(
       trim: true,
       required: true,
     },
+    merchantId: {
+      type: String,
+      index: true,
+      trim: true,
+      default: '',
+    },
     employeeId: {
       type: String,
       required: true,

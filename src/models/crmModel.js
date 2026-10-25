@@ -15,6 +15,12 @@ const crmCatalogSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
+    merchantId: {
+      type: String,
+      index: true,
+      trim: true,
+      default: '',
+    },
     businessName: {
       type: String,
       trim: true,
@@ -51,6 +57,12 @@ const crmDailySummarySchema = new mongoose.Schema(
       index: true,
     },
     foodypayId: {
+      type: String,
+      index: true,
+      trim: true,
+      default: '',
+    },
+    merchantId: {
       type: String,
       index: true,
       trim: true,

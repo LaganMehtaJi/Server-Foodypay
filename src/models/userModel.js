@@ -33,6 +33,13 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
+    merchantId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+      index: true,
+    },
     businessName: {
       type: String,
       default: '',
@@ -96,6 +103,9 @@ const userSchema = new mongoose.Schema(
 
 // Hash password before saving if modified
 userSchema.pre('save', async function (next) {
+  if (!this.merchantId && this.foodypayId) {
+    this.merchantId = this.foodypayId;
+  }
   if (!this.isModified('password') || !this.password) {
     return next();
   }

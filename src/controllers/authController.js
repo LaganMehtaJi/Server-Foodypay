@@ -63,6 +63,7 @@ export const registerUser = async (req, res, next) => {
           data: {
             _id: userExists._id,
             foodypayId: userExists.foodypayId,
+            merchantId: userExists.merchantId || userExists.foodypayId,
             name: userExists.name,
             email: userExists.email,
             businessName: userExists.businessName,
@@ -129,6 +130,7 @@ export const registerUser = async (req, res, next) => {
         data: {
           _id: user._id,
           foodypayId: user.foodypayId,
+            merchantId: user.merchantId || user.foodypayId,
           name: user.name,
           email: user.email,
           businessName: user.businessName,
@@ -204,6 +206,7 @@ export const loginUser = async (req, res, next) => {
       data: {
         _id: user._id,
         foodypayId: user.foodypayId,
+            merchantId: user.merchantId || user.foodypayId,
         name: user.name,
         email: user.email,
         businessName: user.businessName,
@@ -301,6 +304,7 @@ export const googleAuth = async (req, res, next) => {
       data: {
         _id: user._id,
         foodypayId: user.foodypayId,
+            merchantId: user.merchantId || user.foodypayId,
         name: user.name,
         email: user.email,
         businessName: user.businessName,
@@ -354,6 +358,7 @@ export const getAllUsers = async (req, res, next) => {
       ...u,
       _id: u._id,
       foodypayId: u.foodypayId,
+            merchantId: u.merchantId || u.foodypayId,
       uniqueId: u.foodypayId,
       plan: u.subscriptionPlan || 'L1',
       subscriptionPlan: u.subscriptionPlan || 'L1',
@@ -388,7 +393,7 @@ export const deleteUserById = async (req, res, next) => {
       user = await User.findById(rawId);
     }
     if (!user) {
-      user = await User.findOne({ foodypayId: rawId.toUpperCase() });
+      user = await User.findOne({ $or: [{ foodypayId: rawId.toUpperCase() }, { merchantId: rawId.toUpperCase() }] });
     }
     if (!user) {
       user = await User.findOne({ email: rawId.toLowerCase() });
@@ -451,7 +456,7 @@ export const getPublicMerchantDetails = async (req, res, next) => {
       }
     }
     if (!user && identifier) {
-      user = await User.findOne({ foodypayId: identifier.toUpperCase() });
+      user = await User.findOne({ $or: [{ foodypayId: identifier.toUpperCase() }, { merchantId: identifier.toUpperCase() }] });
     }
     if (!user && identifier) {
       const allUsers = await User.find({});
@@ -471,6 +476,7 @@ export const getPublicMerchantDetails = async (req, res, next) => {
       data: {
         _id: user._id,
         foodypayId: user.foodypayId,
+            merchantId: user.merchantId || user.foodypayId,
         businessName: user.businessName || user.name,
         name: user.name,
         contactNo: user.contactNo,
@@ -536,7 +542,7 @@ export const toggleUserLock = async (req, res, next) => {
       user = await User.findById(rawId);
     }
     if (!user) {
-      user = await User.findOne({ foodypayId: rawId.toUpperCase() });
+      user = await User.findOne({ $or: [{ foodypayId: rawId.toUpperCase() }, { merchantId: rawId.toUpperCase() }] });
     }
     if (!user) {
       user = await User.findOne({ email: rawId.toLowerCase() });
@@ -596,7 +602,7 @@ export const updateUserSubscription = async (req, res, next) => {
       user = await User.findById(rawId);
     }
     if (!user) {
-      user = await User.findOne({ foodypayId: rawId.toUpperCase() });
+      user = await User.findOne({ $or: [{ foodypayId: rawId.toUpperCase() }, { merchantId: rawId.toUpperCase() }] });
     }
     if (!user) {
       user = await User.findOne({ email: rawId.toLowerCase() });

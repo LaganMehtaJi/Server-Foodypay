@@ -160,7 +160,19 @@ const __dirname = path.dirname(__filename);
 const crmDir = path.join(__dirname, '..', 'crm');
 app.use(express.static(crmDir));
 app.use('/crm', express.static(crmDir));
+app.get('/manifest-waiter.json', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'manifest-waiter.json'));
+});
+app.get('/manifest.json', (req, res) => {
+  if (req.headers.referer && req.headers.referer.includes('/waiter')) {
+    return res.sendFile(path.join(__dirname, 'public', 'manifest-waiter.json'));
+  }
+  res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
+});
 app.get('/', (req, res) => {
+  if (req.query.mode === 'waiter' || req.query.waiter || (req.headers.referer && req.headers.referer.includes('/waiter'))) {
+    return res.redirect('/waiter');
+  }
   res.redirect('/client');
 });
 app.get(['/dashboard', '/pos'], (req, res) => {

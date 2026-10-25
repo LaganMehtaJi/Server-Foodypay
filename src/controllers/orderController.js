@@ -102,31 +102,13 @@ export const createPublicOrder = async (req, res, next) => {
       targetUser = await User.findById(merchantId).catch(() => null);
     }
     if (!targetUser && foodypayId && foodypayId !== 'undefined') {
-      const cleanFp = String(foodypayId).trim().toUpperCase();
-      const stripped = cleanFp.replace(/^FP[-_]?/i, '').trim();
-      targetUser = await User.findOne({
-        $or: [
-          { foodypayId: cleanFp },
-          { foodypayId: new RegExp(`^(FP[-_]?)?${stripped}$`, 'i') }
-        ]
-      }).catch(() => null);
-    }
-    if (!targetUser) {
-      targetUser = (await User.findOne({ foodypayId: 'FP-624358' }).catch(() => null)) || (await User.findOne().catch(() => null));
-    }
-    if (!targetUser) {
-      try {
-        targetUser = await User.create({
-          name: 'La Bella Vista Restaurant',
-          businessName: 'La Bella Vista',
-          email: 'order@foodypay.com',
-          foodypayId: 'FP-624358',
-          role: 'admin',
-          password: 'DefaultSecurePassword123!'
-        });
-      } catch (err) {
-        targetUser = await User.findOne().catch(() => null);
+      targetUser = await User.findOne({ foodypayId });
+      if (!targetUser && foodypayId.toString().trim().toUpperCase() === 'FP-9896') {
+        targetUser = (await User.findOne({ email: 'laganmehta.in@gmail.com' })) || (await User.findOne({ foodypayId: 'FP-445920' }));
       }
+    }
+    if (!targetUser) {
+      return res.status(404).json({ success: false, message: 'Valid merchant identifier (merchantId or foodypayId) is required for order placement' });
     }
 
     if (!targetUser) {
@@ -284,6 +266,22 @@ export const createPublicOrder = async (req, res, next) => {
       }
     }
 
+    // Auto-transition to kitchen KOT after 10 seconds for customer orders
+    if (!shouldPrintKot && finalPlacedBy !== 'Waiter') {
+      setTimeout(async () => {
+        try {
+          const fresh = await Order.findById(mongoOrder._id);
+          if (fresh && fresh.status === 'new') {
+            fresh.status = 'kot_printed';
+            fresh.kotPrinted = true;
+            await fresh.save();
+          }
+        } catch (e) {
+          console.warn('Auto-KOT transition error:', e.message);
+        }
+      }, 10000);
+    }
+
     res.status(201).json({
       success: true,
       data: mongoOrder,
@@ -349,16 +347,18 @@ export const getPublicOrders = async (req, res, next) => {
     }
     if (!targetUser && foodypayId && foodypayId !== 'undefined') {
       const cleanFp = foodypayId.toString().trim().toUpperCase();
-      const stripped = cleanFp.replace(/^FP[-_]?/i, '').trim();
-      targetUser = await User.findOne({
-        $or: [
-          { foodypayId: cleanFp },
-          { foodypayId: new RegExp(`^(FP[-_]?)?${stripped}$`, 'i') }
-        ]
-      }).catch(() => null);
+      targetUser = await User.findOne({ foodypayId: cleanFp }).catch(() => null);
+      if (!targetUser && cleanFp === 'FP-9896') {
+        targetUser = (await User.findOne({ email: 'laganmehta.in@gmail.com' })) || (await User.findOne({ foodypayId: 'FP-445920' }));
+      }
+      if (!targetUser && cleanFp.startsWith('SYS-')) {
+        targetUser = await User.findOne({ $or: [{ foodypayId: cleanFp }, { merchantId: cleanFp }] }).catch(() => null);
+      }
     }
-    if (!targetUser) {
-      targetUser = (await User.findOne({ foodypayId: 'FP-624358' }).catch(() => null)) || (await User.findOne({}).catch(() => null));
+    if (req.user) {
+      targetUser = req.user;
+    } else if (!targetUser) {
+      return res.status(400).json({ success: false, message: 'Authentication or valid merchant identifier is required' });
     }
 
     if (targetUser) {
@@ -450,13 +450,7 @@ export const claimPublicOrder = async (req, res, next) => {
     }
 
     order.customer = customer.trim();
-    if (phone) {
-      let cleanP = String(phone).replace(/\D/g, '');
-      if (cleanP.length > 10 && cleanP.startsWith('91')) cleanP = cleanP.slice(2);
-      if (cleanP.length > 10 && cleanP.startsWith('0')) cleanP = cleanP.slice(1);
-      if (cleanP.length > 10) cleanP = cleanP.slice(-10);
-      order.phone = cleanP || phone.trim();
-    }
+    if (phone) order.phone = phone.trim();
     if (note && note.trim()) {
       order.note = order.note ? `${order.note} | ${note.trim()}` : note.trim();
     }
@@ -556,8 +550,6 @@ export const updatePublicOrder = async (req, res, next) => {
       order.status = 'settled';
     }
     if (paymentMode) order.paymentMode = paymentMode;
-    if (req.body.paymentStatus) order.paymentStatus = req.body.paymentStatus;
-    if (req.body.paymentLabel) order.paymentLabel = req.body.paymentLabel;
 
     order.updatedAt = new Date().toISOString();
     await order.save();
@@ -641,6 +633,30 @@ export const syncPosTableStatus = async (req, res, next) => {
     const tableRegex = new RegExp(`^(table\\s*)?${cleanNum}$`, 'i');
 
     const cleanStatus = (status || '').toLowerCase().trim();
+
+    // If order was cancelled from dashboard, mark all running orders on table as cancelled
+    if (cleanStatus === 'cancelled') {
+      const cancelResult = await Order.updateMany(
+        {
+          user: targetUser._id,
+          table: { $regex: tableRegex },
+          status: { $nin: ['settled', 'completed'] },
+        },
+        {
+          $set: {
+            status: 'cancelled',
+            seen: true,
+            updatedAt: new Date(),
+          },
+        }
+      );
+      return res.json({
+        success: true,
+        message: 'Table orders marked cancelled',
+        modifiedCount: cancelResult.modifiedCount,
+        table: rawT,
+      });
+    }
 
     // If order is settled or table cleared, close running orders on this table
     if (cleanStatus === 'settled' || cleanStatus === 'completed' || cleanStatus === 'blank') {
@@ -961,93 +977,5 @@ export const deleteOrder = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
-  }
-};
-
-
-// ==========================================
-// REAL-TIME WAITER CALL ASSISTANCE SYSTEM
-// ==========================================
-const activeWaiterCalls = new Map(); // merchantKey -> Array of calls
-
-/**
- * @desc    Customer calls for Waiter assistance
- * @route   POST /api/orders/public/call-waiter
- * @access  Public
- */
-export const callWaiter = async (req, res, next) => {
-  try {
-    const { foodypayId, merchantUniqueId, table } = req.body;
-    const cleanMerchant = String(merchantUniqueId || foodypayId || 'FP-624358').trim().toUpperCase();
-    const cleanTable = String(table || 'Table 08').trim();
-
-    if (!activeWaiterCalls.has(cleanMerchant)) {
-      activeWaiterCalls.set(cleanMerchant, []);
-    }
-    const calls = activeWaiterCalls.get(cleanMerchant);
-    const callObj = {
-      id: 'call_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
-      table: cleanTable,
-      time: Date.now(),
-      status: 'pending'
-    };
-    calls.push(callObj);
-    if (calls.length > 60) calls.shift();
-
-    return res.json({
-      success: true,
-      message: 'Waiter alerted successfully',
-      call: callObj
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-/**
- * @desc    Waiter terminal polls for active calls
- * @route   GET /api/orders/public/waiter-calls
- * @access  Public
- */
-export const getWaiterCalls = async (req, res, next) => {
-  try {
-    const rawMerchant = req.query.foodypayId || req.query.merchantUniqueId || 'FP-624358';
-    const cleanMerchant = String(rawMerchant).trim().toUpperCase();
-    const calls = activeWaiterCalls.get(cleanMerchant) || [];
-    // Only pending calls from last 10 minutes
-    const cutoff = Date.now() - (10 * 60 * 1000);
-    const active = calls.filter(c => c.time > cutoff && c.status === 'pending');
-
-    return res.json({
-      success: true,
-      data: active
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-/**
- * @desc    Waiter acknowledges / dismisses call
- * @route   POST /api/orders/public/dismiss-waiter-call
- * @access  Public
- */
-export const dismissWaiterCall = async (req, res, next) => {
-  try {
-    const { foodypayId, merchantUniqueId, callId, table } = req.body;
-    const cleanMerchant = String(merchantUniqueId || foodypayId || 'FP-624358').trim().toUpperCase();
-    const calls = activeWaiterCalls.get(cleanMerchant) || [];
-    calls.forEach(c => {
-      if ((callId && c.id === callId) || (table && c.table.toLowerCase() === String(table).toLowerCase())) {
-        c.status = 'acknowledged';
-      }
-    });
-
-    return res.json({
-      success: true,
-      message: 'Call dismissed successfully'
-    });
-  } catch (err) {
-    next(err);
   }
 };

@@ -23,13 +23,7 @@ export const syncCatalog = async (req, res, next) => {
       }
     }
 
-    if (!userId) {
-      const u = (await User.findOne({ foodypayId: 'FP-624358' })) || (await User.findOne({}));
-      if (u) {
-        userId = u._id;
-        cleanFp = u.foodypayId;
-      }
-    }
+    // Strict Multi-Tenant Enforcement: No cross-merchant fallback allowed
 
     if (!userId) {
       return res.status(400).json({ success: false, message: 'Valid foodypayId or authentication required' });
@@ -40,6 +34,7 @@ export const syncCatalog = async (req, res, next) => {
       {
         user: userId,
         foodypayId: cleanFp,
+        merchantId: (req.user && (req.user.merchantId || req.user.foodypayId)) || cleanFp,
         categories: Array.isArray(categories) ? categories : [],
         products: Array.isArray(products) ? products : [],
         areas: Array.isArray(areas) ? areas : [],
@@ -249,7 +244,7 @@ export const getSales = async (req, res, next) => {
  */
 export const syncSettings = async (req, res, next) => {
   try {
-    const { name, phone, gst, billDesign, printers } = req.body;
+    const { name, phone, gst, billDesign, printers, upiId } = req.body;
     const userId = req.user._id;
 
     let setting = await Setting.findOne({ user: userId });
@@ -267,6 +262,9 @@ export const syncSettings = async (req, res, next) => {
     }
     if (gst && typeof gst.rate === 'number') {
       setting.gstPercent = gst.rate;
+    }
+    if (upiId !== undefined) {
+      setting.upiId = String(upiId).trim();
     }
 
     await setting.save();
@@ -385,15 +383,20 @@ export const getLiveSales = async (req, res, next) => {
  */
 export const getPublicMenu = async (req, res, next) => {
   try {
-    const rawId = req.params.uniqueId || req.query.foodypayId || req.query.uniqueId || 'FP-624358';
+    const rawId = req.params.uniqueId || req.query.foodypayId || req.query.uniqueId || req.query.merchantId;
+    if (!rawId || !rawId.trim()) {
+      return res.status(400).json({ success: false, message: 'Merchant ID (merchantId or foodypayId) is required' });
+    }
     const cleanId = rawId.trim().toUpperCase();
-    let targetUser = await User.findOne({ foodypayId: cleanId });
+    let targetUser = await User.findOne({ $or: [{ foodypayId: cleanId }, { merchantId: cleanId }] });
     if (!targetUser) {
       targetUser = await User.findOne({ email: rawId.trim().toLowerCase() });
     }
-    // Fallback: If SYS- terminal code or custom ID not matched, resolve to primary active merchant
+    if (!targetUser && cleanId === 'FP-9896') {
+      targetUser = (await User.findOne({ email: 'laganmehta.in@gmail.com' })) || (await User.findOne({ foodypayId: 'FP-445920' }));
+    }
     if (!targetUser) {
-      targetUser = (await User.findOne({ foodypayId: 'FP-624358' })) || (await User.findOne({}));
+      return res.status(404).json({ success: false, message: 'Merchant QR menu not found for ID: ' + cleanId });
     }
     if (!targetUser) {
       return res.json({

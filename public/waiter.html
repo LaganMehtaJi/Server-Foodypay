@@ -1630,7 +1630,74 @@
       100% { top: 10px; opacity: 0.8; }
     }
 
-  </style>
+  
+  /* Product Detail Sheet & Modal */
+  .dish-detail-modal-sheet {
+    border-radius: 26px 26px 0 0 !important;
+    max-width: 520px !important;
+    margin: 0 auto !important;
+    padding: 16px 20px 24px !important;
+    max-height: 88vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+  }
+  .ddm-var-chip {
+    padding: 8px 14px;
+    border-radius: 12px;
+    border: 1.5px solid #E2E8F0;
+    background: #F8FAFC;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+  }
+  .ddm-var-chip.active {
+    border-color: #FF5E14;
+    background: #FFF3EB;
+    color: #FF5E14;
+    box-shadow: 0 2px 8px rgba(255,94,20,0.2);
+  }
+  .dish-grid-card {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .dish-grid-card:active {
+    transform: scale(0.985);
+  }
+
+
+  /* Waiter Terminal Only - Strict 2-view mode: Tables & Order */
+  body.is-waiter-mode .hero-top,
+  body.is-waiter-mode #aajKaSpecialSection,
+  body.is-waiter-mode #customerLiveOrderTracker,
+  body.is-waiter-mode .stories-section,
+  body.is-waiter-mode .app-dl-banner,
+  body.is-waiter-mode #appDownloadBanner,
+  body.is-waiter-mode .bottom-dock-nav,
+  body.is-waiter-mode #bottomDockNav,
+  body.is-waiter-mode .table-qr-card,
+  body.is-waiter-mode .btn-call-waiter,
+  body.is-waiter-mode #btnCallWaiter,
+  body.is-waiter-mode [onclick*="callWaiterAlert"],
+  body.is-waiter-mode .profile-glow-wrap,
+  body.is-waiter-mode .tb-btn-settle,
+  body.is-waiter-mode .btn-settle,
+  body.is-waiter-mode [onclick*="settle"],
+  body.is-waiter-mode [onclick*="quickSettle"],
+  body.is-waiter-mode [onclick*="quickBillPreview"] {
+    display: none !important;
+  }
+  body.is-waiter-mode .hero-header {
+    background: transparent !important;
+    padding: 10px 16px 6px !important;
+    box-shadow: none !important;
+  }
+
+</style>
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 </head>
 <body>
@@ -1675,8 +1742,11 @@
           </div>
         </div>
         <div style="display:flex;gap:6px">
-          <button onclick="fetchLiveTableOrders(true)" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:12px;font-weight:700;padding:7px 12px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:4px">
+          <button onclick="fetchLiveTableOrders(true)" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:12px;font-weight:700;padding:7px 10px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:4px">
             🔄 Refresh
+          </button>
+          <button onclick="logoutWaiterTerminal()" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);color:#FCA5A5;font-size:12px;font-weight:800;padding:7px 10px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:4px" title="Logout Waiter Terminal">
+            🚪 Logout
           </button>
         </div>
       </div>
@@ -1713,6 +1783,16 @@
       </div>
     </div>
 
+    <!-- Waiter Takeaway / Pickup & Delivery Quick Orders Bar (matching Dashboard POS) -->
+    <div style="padding:4px 18px 10px;display:flex;gap:10px;flex-wrap:wrap">
+      <button type="button" onclick="openWaiterPickupModal()" style="flex:1;min-width:135px;background:#16A34A;color:#fff;border:none;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 3px 10px rgba(22,163,74,0.25)">
+        <span>🛍️ + Takeaway / Pickup</span>
+      </button>
+      <button type="button" onclick="openWaiterDeliveryOrderModal()" style="flex:1;min-width:135px;background:#2563EB;color:#fff;border:none;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 3px 10px rgba(37,99,235,0.25)">
+        <span>🛵 + Delivery Order</span>
+      </button>
+    </div>
+
     <!-- Tables Cards List Container -->
     <div id="waiterTablesCardsContainer" class="waiter-tables-container" style="padding:10px 18px 40px"></div>
   </div>
@@ -1720,14 +1800,26 @@
   <!-- MENU VIEW WRAPPER -->
   <div id="menuViewWrapper">
     <!-- Waiter Menu Navigation Bar (Shown when taking order on a table) -->
-    <div id="waiterMenuTopBar" style="display:none;background:#0F172A;color:#fff;padding:12px 18px;position:sticky;top:0;z-index:60;box-shadow:0 4px 16px rgba(0,0,0,0.2);display:flex;justify-content:space-between;align-items:center">
+    <div id="waiterMenuTopBar" style="display:none;background:#0F172A;color:#fff;padding:10px 16px;position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,0.3);display:flex;justify-content:space-between;align-items:center">
       
+      <!-- Back to Tables Button for Waiter -->
+      <button type="button" onclick="handleWaiterBackToTables()" style="background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:7px 14px;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background 0.15s ease">
+        <span style="font-size:17px;line-height:1">←</span>
+        <span>Back to Tables</span>
+      </button>
+
       <div style="text-align:center">
-        <div style="font-size:10px;color:#FB923C;font-weight:800;letter-spacing:0.5px">SERVING TABLE</div>
-        <b id="waiterMenuCurrentTable" style="font-size:15px;color:#fff">Table 1</b>
+        <div style="font-size:10px;color:#FB923C;font-weight:800;letter-spacing:0.6px">SERVING TABLE</div>
+        <b id="waiterMenuCurrentTable" style="font-size:16px;color:#fff;letter-spacing:0.3px">Table 1</b>
       </div>
-      <div style="font-size:11.5px;color:#94A3B8;font-weight:700;background:rgba(255,255,255,0.08);padding:5px 9px;border-radius:8px">
-        🤵 <span id="waiterMenuNamePill">Rahul</span>
+
+      <div style="display:flex;align-items:center;gap:8px">
+        <button type="button" onclick="openWaiterChangeTableModal()" title="Switch to another table" style="background:#ea580c;color:#fff;border:none;padding:6px 12px;border-radius:8px;font-size:11.5px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(234,88,12,0.35);display:inline-flex;align-items:center;gap:4px">
+          <span>🔄 Change Table</span>
+        </button>
+        <div style="font-size:11.5px;color:#94A3B8;font-weight:700;background:rgba(255,255,255,0.08);padding:6px 10px;border-radius:8px;display:inline-flex;align-items:center;gap:4px">
+          🤵 <span id="waiterMenuNamePill">Waiter</span>
+        </div>
       </div>
     </div>
 
@@ -1883,6 +1975,10 @@
         <span>➕ Add More Dishes</span>
       </button>
 
+      <button id="lotViewHistoryBtn" onclick="openCheckoutModal('history')" style="flex:1;min-width:115px;background:#334155;border:none;color:#fff;padding:9px 12px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 2px 8px rgba(51,65,85,0.2)">
+        <span>📜 Order History</span>
+      </button>
+
       <button id="lotStartNewOrderBtn" onclick="startFreshTableOrder()" style="display:none;flex:1;min-width:120px;background:#FF4F17;border:none;color:#fff;padding:9px 12px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 2px 8px rgba(255,79,23,0.3)">
         <span>🔄 Start New Order</span>
       </button>
@@ -1950,7 +2046,7 @@
   <main class="dishes-container" id="menuContainer">
 
       <div class="dish-grid-card">
-        <div class="dish-grid-img-wrap">
+        <div class="dish-grid-img-wrap" onclick="openDishDetailModal('${dishId}')" style="cursor:pointer">
           <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=700" alt="Smoky Honey Glazed Ribs" loading="lazy">
           <div class="dish-grid-diet-badge nonveg"></div>
           <div class="dish-grid-rating">⭐ 4.7</div>
@@ -2629,34 +2725,33 @@
   </div>
 </div>
 
-<!-- WAITER PIN / ID LOGIN MODAL -->
-<div class="sheet-overlay" id="waiterLoginModal" style="display:none">
-  <div class="sheet-modal" style="text-align:center;max-width:390px;margin:0 auto;border-radius:24px;padding:24px 20px">
-    <div class="sheet-drag-handle"></div>
-    <div style="width:54px;height:54px;border-radius:16px;background:#FFF4ED;color:#EA580C;display:flex;align-items:center;justify-content:center;margin:6px auto 12px;border:1.5px solid #FED7AA;box-shadow:0 4px 14px rgba(234,88,12,0.15)">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+<!-- WAITER PIN / ID LOGIN MODAL (Non-dismissible & Always Enforced) -->
+<div class="sheet-overlay" id="waiterLoginModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:999999;background:rgba(15,23,42,0.92);backdrop-filter:blur(8px);align-items:center;justify-content:center">
+  <div class="sheet-modal" style="text-align:center;max-width:390px;width:92%;margin:0 auto;border-radius:24px;padding:26px 22px;background:#ffffff;box-shadow:0 20px 45px rgba(0,0,0,0.4)">
+    <div style="width:58px;height:58px;border-radius:18px;background:#FFF4ED;color:#EA580C;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;border:1.5px solid #FED7AA;box-shadow:0 6px 18px rgba(234,88,12,0.2);font-size:26px">
+      🤵
     </div>
-    <h3 style="font-size:18px;font-weight:900;color:#0F172A;margin:0 0 4px" id="waiterLoginTitle">Waiter Terminal Login</h3>
-    <p style="font-size:12.5px;color:#64748B;margin:0 0 16px">Security PIN enter karke terminal unlock karein</p>
+    <h3 style="font-size:20px;font-weight:900;color:#0F172A;margin:0 0 4px" id="waiterLoginTitle">Waiter Terminal Login</h3>
+    <p style="font-size:13px;color:#64748B;margin:0 0 18px">ID aur Password / PIN enter karke terminal unlock karein</p>
 
     <div class="form-group" style="text-align:left;display:none" id="merchantIdGroup">
       <label style="font-size:11.5px;font-weight:800;color:#334155">Merchant / Outlet ID</label>
-      <input type="text" id="inputMerchantId" placeholder="e.g. FP-445920" style="font-weight:700" readonly>
+      <input type="text" id="inputMerchantId" placeholder="e.g. FP-624358" style="font-weight:700" readonly>
     </div>
 
-    <div class="form-group" style="text-align:left">
-      <label style="font-size:11.5px;font-weight:800;color:#334155">Waiter / Employee ID</label>
-      <input type="text" id="inputWaiterId" placeholder="e.g. waiter-rahul" style="font-weight:700;background:#F8FAFC" autocomplete="username">
+    <div class="form-group" style="text-align:left;margin-bottom:14px">
+      <label style="font-size:12px;font-weight:800;color:#334155;margin-bottom:6px;display:block">Waiter / Employee ID</label>
+      <input type="text" id="inputWaiterId" placeholder="e.g. W-01, waiter-01, rahul" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:12px;border:1.5px solid #CBD5E1;font-size:14px;font-weight:700;background:#F8FAFC;color:#0F172A" autocomplete="username">
     </div>
 
-    <div class="form-group" style="text-align:left">
-      <label style="font-size:11.5px;font-weight:800;color:#334155">Security PIN</label>
-      <input type="password" id="inputWaiterPin" placeholder="● ● ● ●" maxlength="6" inputmode="numeric" pattern="[0-9]*" style="font-size:22px;letter-spacing:8px;text-align:center;font-weight:900;padding:10px;border:2px solid #EA580C;border-radius:12px;background:#FFF8F4" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitWaiterLogin()">
+    <div class="form-group" style="text-align:left;margin-bottom:18px">
+      <label style="font-size:12px;font-weight:800;color:#334155;margin-bottom:6px;display:block">Password / Security PIN</label>
+      <input type="password" id="inputWaiterPin" placeholder="Enter Password or PIN" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:12px;border:2px solid #EA580C;font-size:16px;font-weight:800;letter-spacing:1px;background:#FFF8F4;color:#0F172A" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitWaiterLogin()">
     </div>
 
-    <button class="btn-submit-order" style="background:#EA580C;margin-top:14px;box-shadow:0 4px 15px rgba(234,88,12,0.35)" onclick="submitWaiterLogin()">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-      <span>Unlock Waiter Terminal</span>
+    <button type="button" class="btn-submit-order" style="width:100%;background:#EA580C;color:#fff;border:none;padding:14px;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 6px 18px rgba(234,88,12,0.35);display:flex;align-items:center;justify-content:center;gap:8px" onclick="submitWaiterLogin()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      <span>🔓 Unlock Waiter Terminal</span>
     </button>
   </div>
 </div>
@@ -2857,6 +2952,28 @@
     const qTable = url.searchParams.get('table');
 
     const parts = window.location.pathname.split('/').filter(Boolean);
+
+    // Dedicated Waiter App Check: Never allow "/" or customer menu
+    const isDedicatedWaiterApp = (
+      localStorage.getItem('fp_app_mode') === 'waiter' ||
+      localStorage.getItem('fp_is_waiter_app') === '1' ||
+      parts[0] === 'waiter' ||
+      parts[1] === 'waiter' ||
+      url.searchParams.get('mode') === 'waiter'
+    );
+
+    if (isDedicatedWaiterApp) {
+      isWaiterMode = true;
+      localStorage.setItem('fp_app_mode', 'waiter');
+      localStorage.setItem('fp_is_waiter_app', '1');
+
+      // Prevent customer "/" or "/client" or "/order" from ever running on this waiter app
+      if (parts[0] === 'client' || parts[0] === 'order' || window.location.pathname === '/' || window.location.pathname === '') {
+        window.location.replace('/waiter');
+        return;
+      }
+    }
+
     // Supported routes:
     // 1. /menu/:uniqueId/waiter/:waiterId
     // 2. /menu/:uniqueId/:table/waiter/:waiterId
@@ -2948,33 +3065,39 @@
   async function initWaiterMode() {
     if (!isWaiterMode) return;
 
-    // Apply waiter mode body class (automatically hides bottom dock nav and app download banner)
+    // Apply waiter mode body class (strictly reveals only Tables and Order views)
     document.body.classList.add('is-waiter-mode');
+
+    // Lock device mode as waiter app
+    localStorage.setItem('fp_app_mode', 'waiter');
+    localStorage.setItem('fp_is_waiter_app', '1');
+
+    // Switch manifest link to dedicated Waiter manifest
+    const manifestEl = document.querySelector('link[rel="manifest"]');
+    if (manifestEl) manifestEl.href = '/manifest-waiter.json';
 
     const btmDock = document.getElementById('bottomDockNav');
     if (btmDock) btmDock.style.display = 'none';
     checkAppDownloadStatus();
 
-    // 1. Try restoring session from saved Waiter JWT
-    if (currentWaiterJwt) {
+    // Session check: Waiter Login is always required on terminal start
+    const isSessionActive = sessionStorage.getItem('fp_waiter_active_session') === '1';
+
+    if (isSessionActive && currentWaiterJwt) {
       try {
         const meRes = await fetch('/api/staff/waiter/me', {
           headers: { 'Authorization': 'Bearer ' + currentWaiterJwt }
         });
         const meData = await meRes.json();
         if (meData.success && meData.waiter) {
-          const waiterEmpId = (meData.waiter.employeeId || '').toLowerCase();
-          const targetEmpId = (currentWaiterId || '').toLowerCase();
-          if (!targetEmpId || waiterEmpId === targetEmpId) {
-            currentWaiterId = meData.waiter.employeeId;
-            currentWaiterName = meData.waiter.name;
-            currentWaiterAssignedTables = meData.waiter.assignedTables || [];
-            showToast(`Welcome, ${currentWaiterName}!`);
-            showWaiterTablesScreen();
-            return;
-          }
+          currentWaiterId = meData.waiter.employeeId;
+          currentWaiterName = meData.waiter.name;
+          currentWaiterAssignedTables = meData.waiter.assignedTables || [];
+          showWaiterTablesScreen();
+          return;
         } else {
           currentWaiterJwt = '';
+          sessionStorage.removeItem('fp_waiter_active_session');
           localStorage.removeItem('fp_waiter_jwt');
         }
       } catch (err) {
@@ -2982,24 +3105,7 @@
       }
     }
 
-    if (!currentWaiterId) {
-      promptWaiterPinLogin();
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/staff/waiter/${encodeURIComponent(merchantUniqueId)}/${encodeURIComponent(currentWaiterId)}`);
-      const json = await res.json();
-      if (json.success && json.data) {
-        currentWaiterName = json.data.name;
-        currentWaiterId = json.data.employeeId;
-        currentWaiterAssignedTables = Array.isArray(json.data.assignedTables) ? json.data.assignedTables : [];
-      }
-    } catch (e) {
-      console.warn('Waiter check error:', e);
-    }
-
-    // Require PIN login upon QR scan
+    // Always require ID and Password login when starting waiter app
     promptWaiterPinLogin();
   }
 
@@ -3007,13 +3113,18 @@
     const modal = document.getElementById('waiterLoginModal');
     if (!modal) return;
     const mInput = document.getElementById('inputMerchantId');
-    if (mInput) mInput.value = merchantUniqueId;
+    if (mInput) mInput.value = merchantUniqueId || 'FP-624358';
     const wInput = document.getElementById('inputWaiterId');
-    if (wInput) wInput.value = currentWaiterId || '';
+    if (wInput) {
+      wInput.value = currentWaiterId || localStorage.getItem('fp_waiter_id') || '';
+    }
     const pinInput = document.getElementById('inputWaiterPin');
     if (pinInput) {
       pinInput.value = '';
-      setTimeout(() => pinInput.focus(), 300);
+      setTimeout(() => {
+        if (wInput && !wInput.value) wInput.focus();
+        else pinInput.focus();
+      }, 300);
     }
     const titleEl = document.getElementById('waiterLoginTitle');
     if (titleEl) {
@@ -3022,11 +3133,122 @@
         : 'Waiter Terminal Login';
     }
     modal.style.display = 'flex';
-    if (initialTab === 'history') {
-      switchOrderModalTab('history');
-    } else {
-      switchOrderModalTab('current');
-    }
+  }
+
+  function logoutWaiterTerminal() {
+    currentWaiterJwt = '';
+    currentWaiterId = '';
+    currentWaiterName = '';
+    sessionStorage.removeItem('fp_waiter_active_session');
+    localStorage.removeItem('fp_waiter_jwt');
+    localStorage.removeItem('fp_waiter_id');
+    localStorage.removeItem('fp_waiter_name');
+    showToast('Logged out of Waiter Terminal');
+    promptWaiterPinLogin();
+  }
+
+  
+  function handleWaiterBackToTables() {
+    // Waiter can freely return to tables screen while selecting dishes without losing items
+    showWaiterTablesScreen();
+  }
+
+  
+  /* ==========================================================================
+     WAITER FEATURE EXTENSIONS: CHANGE TABLE, PICKUP, DELIVERY
+     ========================================================================== */
+  let currentWaiterOrderType = 'dine_in';
+  let currentWaiterOrderInfo = null;
+
+  function openWaiterChangeTableModal() {
+    const modal = document.getElementById('waiterChangeTableModal');
+    const list = document.getElementById('waiterChangeTableList');
+    if (!modal || !list) return;
+
+    const areas = (storeData && Array.isArray(storeData.areas) && storeData.areas.length > 0)
+      ? storeData.areas
+      : [
+          { name: 'Restaurant', tables: [{ name: '1' }, { name: '2' }, { name: '3' }, { name: '4' }, { name: '5' }, { name: '6' }] },
+          { name: 'Cafe', tables: [{ name: 'T1' }, { name: 'T2' }, { name: 'T3' }] }
+        ];
+
+    const allTables = [];
+    areas.forEach(a => {
+      (a.tables || []).forEach(t => {
+        allTables.push({ area: a.name, name: String(t.name || t.id || '1') });
+      });
+    });
+
+    list.innerHTML = allTables.map(t => {
+      const isCur = String(t.name).toLowerCase() === String(currentTable).replace(/^table\s*/i, '').toLowerCase();
+      return `
+        <button type="button" onclick="selectNewWaiterTable('${escapeHtml(t.name)}')" style="padding:12px 8px;border-radius:12px;border:1.5px solid ${isCur ? '#EA580C' : '#CBD5E1'};background:${isCur ? '#FFEDD5' : '#fff'};color:${isCur ? '#9A3412' : '#0F172A'};font-weight:800;font-size:13px;cursor:pointer;text-align:center">
+          <div style="font-size:11px;color:#64748B;font-weight:600">${escapeHtml(t.area)}</div>
+          <div style="font-size:15px;margin-top:2px">Table ${escapeHtml(t.name)}</div>
+        </button>
+      `;
+    }).join('');
+
+    modal.style.display = 'flex';
+  }
+
+  function closeWaiterChangeTableModal() {
+    const modal = document.getElementById('waiterChangeTableModal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function selectNewWaiterTable(newTableName) {
+    closeWaiterChangeTableModal();
+    const formatted = newTableName.toLowerCase().startsWith('table') ? newTableName : `Table ${newTableName}`;
+    currentTable = formatted;
+
+    const curDisplay = document.getElementById('waiterMenuCurrentTable');
+    if (curDisplay) curDisplay.textContent = currentTable;
+    const heroTableBadge = document.getElementById('heroTableBadge');
+    if (heroTableBadge) heroTableBadge.textContent = currentTable.toUpperCase();
+
+    showToast(`Switched active order to ${currentTable}!`);
+  }
+
+  function openWaiterPickupModal() {
+    document.getElementById('waiterPickupModal').style.display = 'flex';
+  }
+  function closeWaiterPickupModal() {
+    document.getElementById('waiterPickupModal').style.display = 'none';
+  }
+
+  function startWaiterPickupOrder() {
+    const name = document.getElementById('wpCustName')?.value.trim() || 'Takeaway Diner';
+    const phone = document.getElementById('wpCustPhone')?.value.trim() || '';
+    closeWaiterPickupModal();
+
+    currentWaiterOrderType = 'pickup';
+    currentWaiterOrderInfo = { name, phone };
+    currentTable = `Pickup: ${name}`;
+
+    showWaiterMenuScreen(currentTable);
+    showToast(`🛍️ Taking Pickup Order for ${name}`);
+  }
+
+  function openWaiterDeliveryOrderModal() {
+    document.getElementById('waiterDeliveryModal').style.display = 'flex';
+  }
+  function closeWaiterDeliveryModal() {
+    document.getElementById('waiterDeliveryModal').style.display = 'none';
+  }
+
+  function startWaiterDeliveryOrder() {
+    const name = document.getElementById('wdCustName')?.value.trim() || 'Delivery Diner';
+    const phone = document.getElementById('wdCustPhone')?.value.trim() || '';
+    const addr = document.getElementById('wdCustAddr')?.value.trim() || '';
+    closeWaiterDeliveryModal();
+
+    currentWaiterOrderType = 'delivery';
+    currentWaiterOrderInfo = { name, phone, addr };
+    currentTable = `Delivery: ${name}`;
+
+    showWaiterMenuScreen(currentTable);
+    showToast(`🛵 Taking Delivery Order for ${name}`);
   }
 
   function showWaiterTablesScreen() {
@@ -3419,6 +3641,12 @@
       return;
     }
 
+    // In Waiter Mode, hide Clear/Cancel button and disable item delete/remove
+    const btnCancel = document.getElementById('btnTodModalCancel');
+    if (btnCancel) {
+      btnCancel.style.display = isWaiterMode ? 'none' : 'inline-block';
+    }
+
     list.innerHTML = activeEditingOrder.items.map((it, idx) => `
       <div style="background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center">
         <div style="flex:1;min-width:0;padding-right:8px">
@@ -3429,19 +3657,27 @@
         </div>
 
         <div style="display:flex;align-items:center;gap:8px">
-          <div style="display:flex;align-items:center;background:#F1F5F9;border-radius:8px;padding:2px">
-            <button onclick="changeOrderItemQty(${idx}, -1)" style="border:none;background:#fff;color:#0F172A;width:26px;height:26px;border-radius:6px;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.1)">-</button>
-            <span style="min-width:24px;text-align:center;font-weight:900;font-size:13px">${it.qty}</span>
-            <button onclick="changeOrderItemQty(${idx}, 1)" style="border:none;background:#fff;color:#0F172A;width:26px;height:26px;border-radius:6px;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.1)">+</button>
-          </div>
+          ${isWaiterMode ? `
+            <div style="font-size:12.5px;font-weight:800;color:#334155;background:#F1F5F9;padding:4px 10px;border-radius:6px">
+              Qty: ${it.qty}
+            </div>
+          ` : `
+            <div style="display:flex;align-items:center;background:#F1F5F9;border-radius:8px;padding:2px">
+              <button onclick="changeOrderItemQty(${idx}, -1)" style="border:none;background:#fff;color:#0F172A;width:26px;height:26px;border-radius:6px;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.1)">-</button>
+              <span style="min-width:24px;text-align:center;font-weight:900;font-size:13px">${it.qty}</span>
+              <button onclick="changeOrderItemQty(${idx}, 1)" style="border:none;background:#fff;color:#0F172A;width:26px;height:26px;border-radius:6px;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.1)">+</button>
+            </div>
+          `}
 
           <div style="font-weight:900;font-size:13.5px;color:#0F172A;min-width:48px;text-align:right">
             ₹${(Number(it.price) || 0) * (Number(it.qty) || 1)}
           </div>
 
-          <button onclick="deleteOrderItem(${idx})" style="border:none;background:none;color:#EF4444;font-size:16px;cursor:pointer;padding:4px" title="Delete item">
-            🗑️
-          </button>
+          ${!isWaiterMode ? `
+            <button onclick="deleteOrderItem(${idx})" style="border:none;background:none;color:#EF4444;font-size:16px;cursor:pointer;padding:4px" title="Delete item">
+              🗑️
+            </button>
+          ` : ''}
         </div>
       </div>
     `).join('');
@@ -3582,17 +3818,336 @@
   let customerActiveTableOrder = null;
   let lotItemsExpanded = true;
 
+  
+  /* ==========================================================================
+     PRODUCT / DISH DETAIL MODAL INTERACTION
+     ========================================================================== */
+  let activeDetailDish = null;
+  let activeDetailVariantIdx = 0;
+  let activeDetailQty = 1;
+
+  function openDishDetailModal(dishId) {
+    if (!catalogProducts || !catalogProducts.length) return;
+    const dish = catalogProducts.find(p => String(p.id || p.name) === String(dishId));
+    if (!dish) return;
+
+    activeDetailDish = dish;
+    activeDetailVariantIdx = selectedVariants.get(dish.id || dish.name) || 0;
+
+    const hasVars = Array.isArray(dish.vars) && dish.vars.length > 0;
+    const activeVar = hasVars ? (dish.vars[activeDetailVariantIdx] || dish.vars[0]) : null;
+    const currentVarName = activeVar ? (activeVar.n || 'Regular') : 'Regular';
+    const cartKey = `${dish.id || dish.name}__${currentVarName}`;
+    const inCart = cart.get(cartKey);
+    activeDetailQty = inCart ? inCart.qty : 1;
+
+    // Elements
+    const modal = document.getElementById('dishDetailModal');
+    const imgEl = document.getElementById('ddmImage');
+    const dietBadge = document.getElementById('ddmDietBadge');
+    const dietDot = document.getElementById('ddmDietDot');
+    const catEl = document.getElementById('ddmCategory');
+    const titleEl = document.getElementById('ddmTitle');
+    const descEl = document.getElementById('ddmDesc');
+    const noteEl = document.getElementById('ddmSpecialNote');
+    if (noteEl) noteEl.value = '';
+
+    const isVeg = dish.diet ? (dish.diet === 'veg' || dish.diet === 'both') : (dish.isVeg !== false);
+    if (dietBadge && dietDot) {
+      if (isVeg) {
+        dietBadge.style.borderColor = '#16A34A';
+        dietDot.style.background = '#16A34A';
+        dietDot.style.borderRadius = '50%';
+      } else {
+        dietBadge.style.borderColor = '#DC2626';
+        dietDot.style.background = '#DC2626';
+        dietDot.style.borderRadius = '2px';
+      }
+    }
+
+    if (imgEl) {
+      imgEl.src = getCuratedFoodImage(dish.name, dish.img);
+    }
+    if (catEl) catEl.textContent = (dish.cat || 'Main Course').toUpperCase();
+    if (titleEl) titleEl.textContent = dish.name;
+    if (descEl) descEl.textContent = dish.desc || 'Freshly prepared on order with authentic spices and finest farm ingredients.';
+
+    renderDishDetailVariants();
+    updateDishDetailPriceAndQty();
+
+    if (modal) {
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeDishDetailModal() {
+    const modal = document.getElementById('dishDetailModal');
+    if (modal) modal.style.display = 'none';
+    document.body.style.overflow = '';
+    activeDetailDish = null;
+  }
+
+  function renderDishDetailVariants() {
+    const varsSec = document.getElementById('ddmVariantsSection');
+    const varsList = document.getElementById('ddmVariantsList');
+    if (!varsSec || !varsList || !activeDetailDish) return;
+
+    const hasVars = Array.isArray(activeDetailDish.vars) && activeDetailDish.vars.length > 1;
+    if (!hasVars) {
+      varsSec.style.display = 'none';
+      return;
+    }
+
+    varsSec.style.display = 'block';
+    varsList.innerHTML = activeDetailDish.vars.map((v, idx) => {
+      const isSel = idx === activeDetailVariantIdx;
+      return `
+        <button type="button" class="ddm-var-chip ${isSel ? 'active' : ''}" onclick="selectDishDetailVariant(${idx})">
+          <span>${escapeHtml(v.n)}</span>
+          <span style="opacity:0.85;font-weight:800">₹${v.p}</span>
+        </button>
+      `;
+    }).join('');
+  }
+
+  function selectDishDetailVariant(idx) {
+    if (!activeDetailDish || !activeDetailDish.vars) return;
+    activeDetailVariantIdx = idx;
+    selectedVariants.set(activeDetailDish.id || activeDetailDish.name, idx);
+    renderDishDetailVariants();
+
+    const v = activeDetailDish.vars[idx];
+    const cartKey = `${activeDetailDish.id || activeDetailDish.name}__${v.n || 'Regular'}`;
+    const inCart = cart.get(cartKey);
+    activeDetailQty = inCart ? inCart.qty : 1;
+    updateDishDetailPriceAndQty();
+  }
+
+  function stepDishDetailQty(delta) {
+    activeDetailQty = Math.max(1, activeDetailQty + delta);
+    updateDishDetailPriceAndQty();
+  }
+
+  function updateDishDetailPriceAndQty() {
+    if (!activeDetailDish) return;
+    const hasVars = Array.isArray(activeDetailDish.vars) && activeDetailDish.vars.length > 0;
+    const curVar = hasVars ? (activeDetailDish.vars[activeDetailVariantIdx] || activeDetailDish.vars[0]) : null;
+    const unitPrice = curVar ? Number(curVar.p || 0) : Number(activeDetailDish.price || 0);
+    const totalPrice = unitPrice * activeDetailQty;
+
+    const priceEl = document.getElementById('ddmPrice');
+    if (priceEl) priceEl.textContent = '₹' + totalPrice;
+
+    const qtyEl = document.getElementById('ddmQtyDisplay');
+    if (qtyEl) qtyEl.textContent = activeDetailQty;
+  }
+
+  function submitDishDetailToCart() {
+    if (!activeDetailDish) return;
+    const dishId = activeDetailDish.id || activeDetailDish.name;
+    const hasVars = Array.isArray(activeDetailDish.vars) && activeDetailDish.vars.length > 0;
+    const curVar = hasVars ? (activeDetailDish.vars[activeDetailVariantIdx] || activeDetailDish.vars[0]) : null;
+    const curVarName = curVar ? (curVar.n || 'Regular') : 'Regular';
+
+    const cartKey = `${dishId}__${curVarName}`;
+    const inCart = cart.get(cartKey);
+    const prevQty = inCart ? inCart.qty : 0;
+    const delta = activeDetailQty - prevQty;
+
+    if (delta !== 0) {
+      updateQty(dishId, curVarName, delta);
+    } else if (prevQty === 0) {
+      updateQty(dishId, curVarName, activeDetailQty);
+    }
+
+    const noteEl = document.getElementById('ddmSpecialNote');
+    if (noteEl && noteEl.value.trim()) {
+      customerNote = (customerNote ? customerNote + ' | ' : '') + `${activeDetailDish.name}: ${noteEl.value.trim()}`;
+    }
+
+    closeDishDetailModal();
+    showToast(`✓ Added ${activeDetailDish.name} to order!`);
+  }
+
+  /* ==========================================================================
+     DIGITAL BILL RECEIPT GENERATION & AUTO DOWNLOAD
+     ========================================================================== */
+  function findHistoryOrder(orderId) {
+    try {
+      const history = JSON.parse(localStorage.getItem('fp_order_history') || '[]');
+      return history.find(h => h.orderId === orderId || h._id === orderId);
+    } catch(e) {
+      return null;
+    }
+  }
+
+  function downloadCustomerBillReceipt(order) {
+    if (!order) {
+      order = customerActiveTableOrder;
+    }
+    if (!order) {
+      showToast('No active bill to download');
+      return;
+    }
+
+    const storeName = storeData?.businessName || 'FoodyPay Restaurant';
+    const orderId = order.orderId || ('#FP-' + String(order._id || '').substring(0, 6).toUpperCase());
+    const tableStr = order.table || currentTable || 'Table 08';
+    const guestName = order.customer || localStorage.getItem('fp_customer_name') || 'Valued Diner';
+    const guestPhone = order.phone || localStorage.getItem('fp_customer_phone') || '';
+    const dateStr = new Date(order.updatedAt || order.createdAt || Date.now()).toLocaleString('en-IN', {
+      day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+    const items = order.items || [];
+    const subtotal = Number(order.subtotal || order.total || 0);
+    const tax = Number(order.tax || 0);
+    const total = Number(order.total || 0);
+    const payMode = (order.paymentStatus === 'paid' ? 'UPI / Online' : 'Cash / Counter');
+
+    const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Receipt ${orderId} - ${storeName}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f8fafc; margin: 0; padding: 24px; color: #0f172a; }
+    .bill-card { max-width: 440px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; }
+    .store-name { font-size: 22px; font-weight: 800; text-align: center; color: #0f172a; margin-bottom: 4px; }
+    .store-sub { font-size: 13px; color: #64748b; text-align: center; margin-bottom: 16px; }
+    .bill-meta { background: #f8fafc; border-radius: 10px; padding: 12px; margin-bottom: 18px; font-size: 13px; line-height: 1.6; border: 1px dashed #cbd5e1; }
+    .bill-meta-row { display: flex; justify-content: space-between; }
+    .items-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 14px; }
+    .items-table th { text-align: left; padding: 8px 4px; border-bottom: 2px solid #e2e8f0; color: #475569; font-size: 12px; text-transform: uppercase; }
+    .items-table td { padding: 10px 4px; border-bottom: 1px solid #f1f5f9; }
+    .totals { border-top: 2px dashed #cbd5e1; padding-top: 14px; margin-bottom: 20px; }
+    .total-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 6px; }
+    .grand-total { font-size: 18px; font-weight: 800; color: #16a34a; margin-top: 10px; border-top: 1px solid #e2e8f0; padding-top: 8px; }
+    .paid-stamp { text-align: center; padding: 10px; background: #ecfdf5; color: #15803d; border-radius: 8px; font-weight: 800; font-size: 14px; letter-spacing: 1px; border: 1px solid #a7f3d0; margin-bottom: 14px; }
+    .footer { text-align: center; font-size: 12px; color: #94a3b8; line-height: 1.5; }
+    @media print { body { background: #fff; padding: 0; } .bill-card { box-shadow: none; border: none; } }
+  </style>
+</head>
+<body>
+  <div class="bill-card">
+    <div class="store-name">${escapeHtml(storeName)}</div>
+    <div class="store-sub">Official Tax Invoice &amp; Payment Receipt</div>
+    <div class="paid-stamp">✓ SETTLED &amp; PAID (${payMode.toUpperCase()})</div>
+
+    <div class="bill-meta">
+      <div class="bill-meta-row"><span><b>Invoice No:</b> ${escapeHtml(orderId)}</span><span><b>Table:</b> ${escapeHtml(tableStr)}</span></div>
+      <div class="bill-meta-row"><span><b>Guest:</b> ${escapeHtml(guestName)}</span><span><b>Date:</b> ${dateStr}</span></div>
+      ${guestPhone ? `<div class="bill-meta-row"><span><b>Contact:</b> ${escapeHtml(guestPhone)}</span></div>` : ''}
+    </div>
+
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th style="text-align:center">Qty</th>
+          <th style="text-align:right">Price</th>
+          <th style="text-align:right">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${items.map(it => {
+          const q = Number(it.qty) || 1;
+          const p = Number(it.price !== undefined ? it.price : (it.p || 0));
+          return `<tr>
+            <td>
+              <b>${escapeHtml(it.name || 'Dish')}</b>
+              ${it.v && it.v !== 'Regular' ? `<div style="font-size:11px;color:#64748b">Variant: ${escapeHtml(it.v)}</div>` : ''}
+            </td>
+            <td style="text-align:center">${q}</td>
+            <td style="text-align:right">₹${p}</td>
+            <td style="text-align:right">₹${p * q}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+
+    <div class="totals">
+      <div class="total-row"><span>Subtotal:</span><span>₹${subtotal}</span></div>
+      ${tax > 0 ? `<div class="total-row"><span>GST / Taxes:</span><span>₹${tax}</span></div>` : ''}
+      <div class="total-row grand-total"><span>Grand Total:</span><span>₹${total}</span></div>
+    </div>
+
+    <div class="footer">
+      <p>Thank you for dining with us! ❤️</p>
+      <p style="font-size:11px">Powered by FoodyPay Smart POS</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const safeT = tableStr.replace(/[^a-zA-Z0-9]/g, '_');
+    a.download = `Bill_${safeT}_${orderId.replace(/[^a-zA-Z0-9]/g, '_')}.html`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      try { document.body.removeChild(a); } catch(e) {}
+      URL.revokeObjectURL(url);
+    }, 1200);
+  }
+
   async function fetchCustomerActiveTableOrder() {
     if (isWaiterMode || !currentTable || !merchantUniqueId) return;
 
     try {
-      const res = await fetch(`/api/orders/public?foodypayId=${encodeURIComponent(merchantUniqueId)}&table=${encodeURIComponent(currentTable)}&limit=1`);
+      // Query with status=all so we detect transitions through Placed -> Kitchen -> Bill Ready -> Settled
+      const res = await fetch(`/api/orders/public?foodypayId=${encodeURIComponent(merchantUniqueId)}&table=${encodeURIComponent(currentTable)}&status=all&limit=1`);
       const data = await res.json();
-      const active = (data && Array.isArray(data.data) && data.data.length > 0) ? data.data[0] : null;
+      const latest = (data && Array.isArray(data.data) && data.data.length > 0) ? data.data[0] : null;
 
-      if (active && String(active.table || '').toLowerCase().trim() === String(currentTable).toLowerCase().trim() && active.status !== 'settled' && active.status !== 'completed' && active.status !== 'cancelled') {
-        customerActiveTableOrder = active;
-        renderCustomerLiveOrderTracker(active);
+      if (latest && String(latest.table || '').toLowerCase().trim() === String(currentTable).toLowerCase().trim()) {
+        const isSettled = (latest.status === 'settled' || latest.status === 'completed');
+
+        // AUTOMATIC BILL DOWNLOAD ON DASHBOARD SETTLEMENT
+        if (isSettled) {
+          const dlKey = 'fpc_dl_bill_' + (latest.orderId || latest._id);
+          if (!localStorage.getItem(dlKey)) {
+            localStorage.setItem(dlKey, '1');
+            downloadCustomerBillReceipt(latest);
+            showToast('📥 Table Settled! Your bill receipt has been downloaded.');
+          }
+          customerActiveTableOrder = latest;
+          renderCustomerLiveOrderTracker(latest);
+        } else if (latest.status === 'cancelled') {
+          const hadActive = !!customerActiveTableOrder;
+          customerActiveTableOrder = null;
+          const tracker = document.getElementById('customerLiveOrderTracker');
+          if (tracker) tracker.style.display = 'none';
+
+          if (hadActive) {
+            showToast('❌ Order has been cancelled by the restaurant.');
+          }
+
+          // Update local history status to cancelled
+          try {
+            let hist = JSON.parse(localStorage.getItem('fp_order_history') || '[]');
+            let changed = false;
+            hist.forEach(h => {
+              if ((h.orderId && h.orderId === latest.orderId) || (h._id && h._id === latest._id)) {
+                if (h.status !== 'cancelled') {
+                  h.status = 'cancelled';
+                  changed = true;
+                }
+              }
+            });
+            if (changed) {
+              localStorage.setItem('fp_order_history', JSON.stringify(hist));
+              if (typeof renderOrderHistory === 'function') renderOrderHistory();
+            }
+          } catch(e) {}
+        } else {
+          customerActiveTableOrder = latest;
+          renderCustomerLiveOrderTracker(latest);
+        }
       } else {
         customerActiveTableOrder = null;
         const tracker = document.getElementById('customerLiveOrderTracker');
@@ -3651,8 +4206,8 @@
       if (startNewBtn) startNewBtn.style.display = 'inline-flex';
     } else if (isSettled) {
       if (dot) dot.style.background = '#16A34A';
-      if (badge) { badge.textContent = 'Table Settled / Closed'; badge.style.color = '#15803D'; }
-      if (desc) desc.textContent = 'Bill settled. Hope you enjoyed the food!';
+      if (badge) { badge.textContent = '✅ Table Settled & Paid'; badge.style.color = '#15803D'; }
+      if (desc) desc.innerHTML = 'Bill settled! Your receipt has been downloaded. <a href="javascript:void(0)" onclick="downloadCustomerBillReceipt()" style="color:#16A34A;font-weight:800;text-decoration:underline">Download Again</a>';
       if (s1) s1.style.background = '#16A34A';
       if (s2) s2.style.background = '#16A34A';
       if (s3) s3.style.background = '#16A34A';
@@ -3825,12 +4380,20 @@
 
   async function submitWaiterLogin() {
     const mInput = document.getElementById('inputMerchantId');
-    const merchantId = (mInput ? mInput.value.trim() : '') || merchantUniqueId;
-    const waiterIdInput = document.getElementById('inputWaiterId').value.trim();
-    const pinInput = document.getElementById('inputWaiterPin').value.trim();
+    const merchantId = (mInput ? mInput.value.trim() : '') || merchantUniqueId || 'FP-624358';
+    const waiterIdInput = (document.getElementById('inputWaiterId') ? document.getElementById('inputWaiterId').value.trim() : '');
+    const pinInput = (document.getElementById('inputWaiterPin') ? document.getElementById('inputWaiterPin').value.trim() : '');
 
     if (!waiterIdInput) {
-      alert('Please enter Waiter / Employee ID');
+      alert('Kripya Waiter / Employee ID enter karein');
+      const wEl = document.getElementById('inputWaiterId');
+      if (wEl) wEl.focus();
+      return;
+    }
+    if (!pinInput) {
+      alert('Kripya Password / Security PIN enter karein');
+      const pEl = document.getElementById('inputWaiterPin');
+      if (pEl) pEl.focus();
       return;
     }
 
@@ -3842,7 +4405,7 @@
       });
       const data = await res.json();
       if (!data.success) {
-        alert(data.message || 'Login failed. Please verify Employee ID & PIN.');
+        alert(data.message || 'Login failed. Please verify Employee ID & Password/PIN.');
         return;
       }
 
@@ -3855,11 +4418,17 @@
       currentWaiterName = data.data.name;
       currentWaiterAssignedTables = Array.isArray(data.data.assignedTables) ? data.data.assignedTables : [];
 
+      sessionStorage.setItem('fp_waiter_active_session', '1');
+      localStorage.setItem('fp_waiter_id', currentWaiterId);
+      localStorage.setItem('fp_waiter_name', currentWaiterName);
+      localStorage.setItem('fp_app_mode', 'waiter');
+      localStorage.setItem('fp_is_waiter_app', '1');
+
       document.getElementById('waiterLoginModal').style.display = 'none';
       showToast(`Welcome, ${currentWaiterName}!`);
       showWaiterTablesScreen();
     } catch (e) {
-      alert('Login error: ' + e.message);
+      alert('Network error during login: ' + (e.message || 'Please check server connection.'));
     }
   }
 
@@ -4242,9 +4811,17 @@
           const photoUrl = getCuratedFoodImage(specialDish.name, specialDish.img);
 
           const imgEl = document.getElementById('specialHeroImg');
-          if (imgEl && photoUrl) imgEl.src = photoUrl;
+          if (imgEl && photoUrl) {
+            imgEl.src = photoUrl;
+            imgEl.style.cursor = 'pointer';
+            imgEl.onclick = () => openDishDetailModal(dishId);
+          }
           const nameEl = document.getElementById('specialHeroName');
-          if (nameEl) nameEl.textContent = specialDish.name;
+          if (nameEl) {
+            nameEl.textContent = specialDish.name;
+            nameEl.style.cursor = 'pointer';
+            nameEl.onclick = () => openDishDetailModal(dishId);
+          }
           const descEl = document.getElementById('specialHeroDesc');
           if (descEl) descEl.textContent = specialDish.desc || 'Slow cooked delicacies glazed with raw honey, smoked paprika & fresh herbs.';
           const priceEl = document.getElementById('specialHeroPrice');
@@ -4306,7 +4883,7 @@
     // Update section title badge
     const headerTitle = activeCategory === 'All' ? 'All Items' : activeCategory;
     const headerIcon = CATEGORY_ICONS[headerTitle] || '🍲';
-    document.getElementById('dynamicSectionTitle').innerHTML = `<span>${headerIcon} ${headerTitle}</span> <span class="section-counter-badge" id="sectionItemCount">(${filtered.length})</span>`;
+    document.getElementById('dynamicSectionTitle').innerHTML = `<span>${headerIcon} ${headerTitle}</span> <span class="section-counter-badge">(${filtered.length})</span>`;
 
     if (!filtered.length) {
       container.innerHTML = `
@@ -4367,8 +4944,8 @@
 
           <div class="dish-grid-body">
             <div class="dish-grid-cat">${(dish.cat || 'Special').toUpperCase()}</div>
-            <div class="dish-grid-name" title="${dish.name}">${dish.name}</div>
-            <div class="dish-grid-desc">${dish.desc || 'Freshly prepared with authentic ingredients on table order.'}</div>
+            <div class="dish-grid-name" title="${dish.name}" onclick="openDishDetailModal('${dishId}')" style="cursor:pointer">${dish.name}</div>
+            <div class="dish-grid-desc" onclick="openDishDetailModal('${dishId}')" style="cursor:pointer">${dish.desc || 'Freshly prepared with authentic ingredients on table order.'}</div>
 
             ${varSelectorHtml}
 
@@ -4625,6 +5202,31 @@
   }
 
 
+  function reorderItemsFromHistory(orderId) {
+    let history = [];
+    try {
+      history = JSON.parse(localStorage.getItem('fp_order_history') || '[]');
+    } catch(e) {}
+    const order = history.find(h => h.orderId === orderId);
+    if (!order || !order.items) return;
+
+    (order.items || []).forEach(item => {
+      const dish = catalogProducts.find(p => (p.id || p.name) === (item.pid || item.name)) || {
+        id: item.pid || item.name,
+        name: item.name,
+        price: item.price,
+        diet: item.isVeg ? 'veg' : 'nonveg',
+        cat: 'Main Course'
+      };
+      const varName = item.v || item.varName || 'Regular';
+      const qty = Number(item.qty || 1);
+      updateQty(dish.id || dish.name, varName, qty);
+    });
+
+    showToast('✓ Dishes re-added to cart!');
+    openCheckoutModal('current');
+  }
+
   function renderOrderHistory() {
     const container = document.getElementById('orderHistoryListContainer') || document.getElementById('historyOrdersList');
     if (!container) return;
@@ -4637,37 +5239,76 @@
     if (!history.length) {
       container.innerHTML = `
         <div style="text-align:center;padding:40px 16px;color:#64748B">
-          <div style="font-size:36px;margin-bottom:10px">📜</div>
-          <b style="font-size:15px;color:#0F172A;display:block;margin-bottom:4px">No Past Orders Found</b>
+          <div style="font-size:42px;margin-bottom:10px">📜</div>
+          <b style="font-size:16px;color:#0F172A;display:block;margin-bottom:4px">No Past Orders Found</b>
           <p style="font-size:12.5px;max-width:260px;margin:0 auto 16px">When you place orders at any FoodyPay table, your receipt and order history will appear here.</p>
-          <button type="button" onclick="closeCheckoutModal();openQrScanModal()" style="padding:10px 20px;background:#FF4F17;color:#fff;border:none;border-radius:99px;font-size:12.5px;font-weight:800;cursor:pointer">
-            📷 Scan Table QR
+          <button type="button" onclick="closeCheckoutModal();scrollToMenu()" style="padding:10px 22px;background:#FF4F17;color:#fff;border:none;border-radius:99px;font-size:13px;font-weight:800;cursor:pointer">
+            🍽️ Order Dishes from Menu
           </button>
         </div>
       `;
       return;
     }
 
-    container.innerHTML = history.map(item => `
-      <div style="background:#FFFFFF;border:1.5px solid #F1F5F9;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.03)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <div>
-            <b style="font-size:14px;color:#0F172A">${item.restaurant || 'Restaurant'}</b>
-            <small style="display:block;color:#64748B;font-size:11.5px">${item.table || ''} · ${item.date || ''}</small>
+    container.innerHTML = history.map(item => {
+      let statusBadge = '<span style="font-size:10.5px;font-weight:800;background:#E0E7FF;color:#3730A3;padding:3px 9px;border-radius:99px">⏱ Placed</span>';
+      if (item.paymentStatus === 'paid') {
+        statusBadge = '<span style="font-size:10.5px;font-weight:800;background:#DCFCE7;color:#15803D;padding:3px 9px;border-radius:99px">✅ Paid Online</span>';
+      } else if (item.status === 'settled' || item.status === 'completed') {
+        statusBadge = '<span style="font-size:10.5px;font-weight:800;background:#DCFCE7;color:#15803D;padding:3px 9px;border-radius:99px">✅ Settled</span>';
+      } else if (item.status === 'bill_printed' || item.status === 'billed') {
+        statusBadge = '<span style="font-size:10.5px;font-weight:800;background:#FEF3C7;color:#B45309;padding:3px 9px;border-radius:99px">🧾 Bill Ready</span>';
+      } else if (item.status === 'kot_printed' || item.status === 'preparing') {
+        statusBadge = '<span style="font-size:10.5px;font-weight:800;background:#FFEDD5;color:#C2410C;padding:3px 9px;border-radius:99px">👨‍🍳 In Kitchen</span>';
+      } else if (item.status === 'cancelled') {
+        statusBadge = '<span style="font-size:10.5px;font-weight:800;background:#FEE2E2;color:#991B1B;padding:3px 9px;border-radius:99px">❌ Cancelled</span>';
+      }
+
+      const itemsListHtml = (item.items || []).map(i => {
+        const vText = (i.v && i.v !== 'Regular') ? ` · ${i.v}` : ((i.varName && i.varName !== 'Regular') ? ` · ${i.varName}` : '');
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 0">
+          <span><b>${i.qty}x</b> ${escapeHtml(i.name)}<small style="color:#64748B">${escapeHtml(vText)}</small></span>
+          <span>₹${(Number(i.price) || 0) * (Number(i.qty) || 1)}</span>
+        </div>`;
+      }).join('');
+
+      return `
+        <div style="background:#FFFFFF;border:1.5px solid #F1F5F9;border-radius:16px;padding:14px 16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,0.04)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div>
+              <b style="font-size:14px;color:#0F172A">${escapeHtml(item.restaurant || 'FoodyPay')}</b>
+              <small style="display:block;color:#64748B;font-size:11.5px">${escapeHtml(item.table || 'Table')} · ${item.date || ''}</small>
+            </div>
+            ${statusBadge}
           </div>
-          <span style="font-size:10.5px;font-weight:800;background:#DCFCE7;color:#15803D;padding:3px 8px;border-radius:99px">
-            Completed
-          </span>
+
+          <div style="font-size:12px;color:#334155;margin:8px 0;border-top:1px dashed #E2E8F0;border-bottom:1px dashed #E2E8F0;padding:8px 0;display:flex;flex-direction:column;gap:3px">
+            ${itemsListHtml}
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+            <div>
+              <span style="font-size:11px;color:#64748B;font-weight:700">Order #${item.orderId || ''}</span>
+              <div style="font-size:16px;font-weight:900;color:#0F172A">₹${item.total || 0}</div>
+            </div>
+
+            <div style="display:flex;gap:6px">
+              ${(item.status === 'bill_printed' || item.status === 'billed') && item.paymentStatus !== 'paid' ? `
+                <button type="button" onclick="closeCheckoutModal();openUpiPaymentModal()" style="padding:6px 12px;background:#16A34A;color:#fff;border:none;border-radius:8px;font-size:11.5px;font-weight:800;cursor:pointer">
+                  💳 Pay Bill
+                </button>
+              ` : ''}
+              <button type="button" onclick="downloadCustomerBillReceipt(findHistoryOrder('${item.orderId}'))" style="padding:6px 10px;background:#F1F5F9;color:#0F172A;border:1px solid #CBD5E1;border-radius:8px;font-size:11.5px;font-weight:800;cursor:pointer" title="Download Digital Tax Receipt">
+                📄 Bill
+              </button>
+              <button type="button" onclick="reorderItemsFromHistory('${item.orderId}')" style="padding:6px 12px;background:#FF4F17;color:#fff;border:none;border-radius:8px;font-size:11.5px;font-weight:800;cursor:pointer">
+                ➕ Reorder
+              </button>
+            </div>
+          </div>
         </div>
-        <div style="font-size:12px;color:#475569;margin-bottom:8px;border-top:1px dashed #E2E8F0;padding-top:6px">
-          ${(item.items || []).map(i => `${i.qty}x ${i.name}${i.varName ? ' (' + i.varName + ')' : ''}`).join(', ')}
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:800">
-          <span style="color:#64748B">Order #${item.orderId || ''}</span>
-          <span style="color:#0F172A;font-size:15px">₹${item.total || 0}</span>
-        </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   }
 
   function openCheckoutModal(initialTab) {
@@ -4740,10 +5381,18 @@
       document.getElementById('btnPlaceOrder').innerHTML = '<span>🚀 Send KOT to Kitchen (Punch)</span>';
     } else {
       document.getElementById('modalTableBadge').textContent = currentTable;
-      document.getElementById('btnPlaceOrder').innerHTML = '<span>Confirm &amp; Send to Kitchen</span>';
+      const isMore = customerActiveTableOrder && customerActiveTableOrder.status !== 'settled';
+      document.getElementById('btnPlaceOrder').innerHTML = isMore ? `<span>➕ Add to Running Table ${currentTable}</span>` : '<span>Confirm &amp; Send to Kitchen</span>';
     }
 
     modal.style.display = 'flex';
+
+    // Auto-switch to history if cart is empty or if initialTab is explicitly history
+    if (initialTab === 'history' || (!cart.size && initialTab !== 'current')) {
+      switchOrderModalTab('history');
+    } else {
+      switchOrderModalTab('current');
+    }
   }
 
   function closeCheckoutModal() {
@@ -4826,12 +5475,19 @@
     const total = discountedTotal;
     const note = document.getElementById('orderNote') ? document.getElementById('orderNote').value.trim() : '';
 
+    const isSpecialOrder = isWaiterMode && (typeof currentWaiterOrderType !== 'undefined') && (currentWaiterOrderType === 'pickup' || currentWaiterOrderType === 'delivery');
+    const finalCust = (isSpecialOrder && currentWaiterOrderInfo?.name) ? currentWaiterOrderInfo.name : (customer || 'Walk-in Guest');
+    const finalPhone = (isSpecialOrder && currentWaiterOrderInfo?.phone) ? currentWaiterOrderInfo.phone : phone;
+    const finalType = (isWaiterMode && currentWaiterOrderType === 'pickup') ? 'Pickup' : ((isWaiterMode && currentWaiterOrderType === 'delivery') ? 'Delivery' : 'Dine-In');
+
     const payload = {
       foodypayId: merchantUniqueId,
       table: currentTable,
-      type: 'Dine-In',
-      customer: customer || 'Walk-in Guest',
-      phone,
+      type: finalType,
+      orderType: finalType.toLowerCase(),
+      customer: finalCust,
+      phone: finalPhone,
+      deliveryAddress: (isSpecialOrder && currentWaiterOrderInfo?.addr) ? currentWaiterOrderInfo.addr : '',
       note,
       items,
       subtotal: taxableSubtotal,
@@ -4911,20 +5567,17 @@
           showWaiterTablesScreen();
         }, 500);
       } else {
-        showToast(isAddingMore ? `✓ Items added to ${currentTable}! Kitchen KOT updated.` : '✓ Order Sent to Kitchen! Preparing fresh.');
+        showToast(isAddingMore ? `✓ Items added to ${currentTable}! Kitchen KOT updated.` : `✓ Order ${orderCode} Placed! Kitchen KOT sent.`);
         const succModal = document.getElementById('successModal');
         if (succModal) succModal.style.display = 'none';
 
         // Immediately fetch and render active table order
         await fetchCustomerActiveTableOrder();
 
-        // Smooth scroll to live tracker
+        // Auto-open Order History modal so customer immediately sees their order in history!
         setTimeout(() => {
-          const tracker = document.getElementById('customerLiveOrderTracker');
-          if (tracker) {
-            tracker.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }, 200);
+          openCheckoutModal('history');
+        }, 600);
       }
     } catch (err) {
       console.error('Order placement failed:', err);
@@ -5548,6 +6201,152 @@
 </script>
 
 <!-- ONLINE UPI PAYMENT MODAL -->
+
+<!-- ================= PRODUCT / DISH DETAIL VIEW MODAL ================= -->
+
+<!-- WAITER CHANGE / SWITCH TABLE MODAL -->
+<div class="sheet-overlay" id="waiterChangeTableModal" style="display:none;z-index:99999" onclick="if(event.target===this)closeWaiterChangeTableModal()">
+  <div class="sheet-modal" style="max-height:80vh;padding:20px;border-top-left-radius:24px;border-top-right-radius:24px">
+    <div class="sheet-drag-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div>
+        <div style="font-size:11px;font-weight:800;color:#EA580C;text-transform:uppercase;letter-spacing:0.5px">WAITER SWITCH TABLE</div>
+        <h3 style="margin:2px 0 0;font-size:17px;font-weight:900;color:#0F172A">Select Destination Table</h3>
+      </div>
+      <button type="button" onclick="closeWaiterChangeTableModal()" style="border:none;background:#F1F5F9;width:32px;height:32px;border-radius:50%;font-size:15px;font-weight:800;cursor:pointer">✕</button>
+    </div>
+    <p style="font-size:12px;color:#64748B;margin:0 0 14px">Is order ko kis table par shift karna hai? Neeche se table chunein:</p>
+    <div id="waiterChangeTableList" style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;max-height:55vh;overflow-y:auto;padding-bottom:10px"></div>
+  </div>
+</div>
+
+<!-- WAITER PICKUP ORDER MODAL -->
+<div class="sheet-overlay" id="waiterPickupModal" style="display:none;z-index:99999" onclick="if(event.target===this)closeWaiterPickupModal()">
+  <div class="sheet-modal" style="padding:22px;border-top-left-radius:24px;border-top-right-radius:24px">
+    <div class="sheet-drag-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:24px">🛍️</span>
+        <div>
+          <h3 style="margin:0;font-size:17px;font-weight:900;color:#0F172A">New Takeaway / Pickup Order</h3>
+          <small style="color:#64748B;font-size:11.5px">Customer counter se pack karwake le jayega</small>
+        </div>
+      </div>
+      <button type="button" onclick="closeWaiterPickupModal()" style="border:none;background:#F1F5F9;width:32px;height:32px;border-radius:50%;font-size:15px;font-weight:800;cursor:pointer">✕</button>
+    </div>
+
+    <div style="margin-bottom:12px">
+      <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:4px">Customer Name</label>
+      <input type="text" id="wpCustName" placeholder="e.g. Ramesh Kumar" style="width:100%;box-sizing:border-box;padding:11px 14px;border:1.5px solid #CBD5E1;border-radius:12px;font-size:14px;outline:none">
+    </div>
+
+    <div style="margin-bottom:16px">
+      <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:4px">Mobile Number (10 Digits)</label>
+      <input type="tel" id="wpCustPhone" placeholder="e.g. 9876543210" maxlength="10" style="width:100%;box-sizing:border-box;padding:11px 14px;border:1.5px solid #CBD5E1;border-radius:12px;font-size:14px;outline:none">
+    </div>
+
+    <button type="button" onclick="startWaiterPickupOrder()" style="width:100%;padding:13px;border-radius:12px;border:none;background:#16A34A;color:#fff;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(22,163,74,0.3)">
+      <span>🍽️ Select Dishes for Pickup</span>
+    </button>
+  </div>
+</div>
+
+<!-- WAITER DELIVERY ORDER MODAL -->
+<div class="sheet-overlay" id="waiterDeliveryModal" style="display:none;z-index:99999" onclick="if(event.target===this)closeWaiterDeliveryModal()">
+  <div class="sheet-modal" style="padding:22px;border-top-left-radius:24px;border-top-right-radius:24px">
+    <div class="sheet-drag-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:24px">🛵</span>
+        <div>
+          <h3 style="margin:0;font-size:17px;font-weight:900;color:#0F172A">New Delivery Order</h3>
+          <small style="color:#64748B;font-size:11.5px">Customer ke address par deliver hoga</small>
+        </div>
+      </div>
+      <button type="button" onclick="closeWaiterDeliveryModal()" style="border:none;background:#F1F5F9;width:32px;height:32px;border-radius:50%;font-size:15px;font-weight:800;cursor:pointer">✕</button>
+    </div>
+
+    <div style="margin-bottom:12px">
+      <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:4px">Customer Name</label>
+      <input type="text" id="wdCustName" placeholder="e.g. Amit Sharma" style="width:100%;box-sizing:border-box;padding:11px 14px;border:1.5px solid #CBD5E1;border-radius:12px;font-size:14px;outline:none">
+    </div>
+
+    <div style="margin-bottom:12px">
+      <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:4px">Mobile Number (10 Digits)</label>
+      <input type="tel" id="wdCustPhone" placeholder="e.g. 9876543210" maxlength="10" style="width:100%;box-sizing:border-box;padding:11px 14px;border:1.5px solid #CBD5E1;border-radius:12px;font-size:14px;outline:none">
+    </div>
+
+    <div style="margin-bottom:16px">
+      <label style="display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:4px">Delivery Address</label>
+      <textarea id="wdCustAddr" rows="2" placeholder="e.g. Flat 302, Green Valley Apartments" style="width:100%;box-sizing:border-box;padding:10px 14px;border:1.5px solid #CBD5E1;border-radius:12px;font-size:13px;outline:none;font-family:inherit;resize:none"></textarea>
+    </div>
+
+    <button type="button" onclick="startWaiterDeliveryOrder()" style="width:100%;padding:13px;border-radius:12px;border:none;background:#2563EB;color:#fff;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(37,99,235,0.3)">
+      <span>🍽️ Select Dishes for Delivery</span>
+    </button>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="dishDetailModal" style="display:none;z-index:99999" onclick="if(event.target===this)closeDishDetailModal()">
+  <div class="sheet-modal dish-detail-modal-sheet">
+    <div class="sheet-drag-handle"></div>
+    
+    <!-- Top Large Photo & Badges -->
+    <div style="position:relative;width:100%;height:220px;border-radius:18px;overflow:hidden;margin-bottom:14px;background:#f1f5f9;box-shadow:0 6px 20px rgba(0,0,0,0.08)">
+      <img id="ddmImage" src="" alt="Dish" style="width:100%;height:100%;object-fit:cover;display:block">
+      <button type="button" onclick="closeDishDetailModal()" style="position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);color:#fff;border:none;cursor:pointer;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:2">✕</button>
+      <div id="ddmDietBadge" style="position:absolute;top:12px;left:12px;width:22px;height:22px;background:#fff;border-radius:5px;border:1.5px solid #16a34a;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.15)">
+        <span id="ddmDietDot" style="width:10px;height:10px;border-radius:50%;background:#16a34a"></span>
+      </div>
+      <div style="position:absolute;bottom:12px;right:12px;background:rgba(15,23,42,0.85);backdrop-filter:blur(6px);color:#fbbf24;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:800;display:flex;align-items:center;gap:4px">
+        <span id="ddmRating">⭐ 4.8</span>
+      </div>
+    </div>
+
+    <!-- Title, Category & Description -->
+    <div style="text-align:left;margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <span id="ddmCategory" style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:#FF5E14;background:#FFF3EB;padding:3px 8px;border-radius:6px">STARTERS</span>
+        <span style="font-size:12px;color:#64748b;font-weight:600">⏱️ Freshly Prepared</span>
+      </div>
+      <h2 id="ddmTitle" style="font-size:20px;font-weight:900;color:#0f172a;margin:6px 0 8px;line-height:1.25">Dish Title</h2>
+      <p id="ddmDesc" style="font-size:13.5px;color:#475569;line-height:1.55;margin:0">Slow cooked tender delicacies glazed with raw spices.</p>
+    </div>
+
+    <!-- Variant selector chips -->
+    <div id="ddmVariantsSection" style="display:none;text-align:left;margin-bottom:16px">
+      <label style="font-size:12px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px">Portion / Variant</label>
+      <div id="ddmVariantsList" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    </div>
+
+    <!-- Optional customer cooking note -->
+    <div style="text-align:left;margin-bottom:18px">
+      <label style="font-size:11.5px;font-weight:700;color:#64748b;display:block;margin-bottom:6px">Special Instructions / Cooking Note (Optional)</label>
+      <input type="text" id="ddmSpecialNote" placeholder="e.g. Less spicy, extra sauce, crunchy..." style="width:100%;box-sizing:border-box;padding:10px 14px;border:1.5px solid #E2E8F0;border-radius:12px;font-size:13px;font-family:inherit;outline:none;background:#F8FAFC">
+    </div>
+
+    <!-- Bottom Action Bar -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid #f1f5f9;gap:12px">
+      <div style="text-align:left">
+        <div style="font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase">Total Price</div>
+        <div id="ddmPrice" style="font-size:22px;font-weight:900;color:#0f172a">₹0</div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;align-items:center;background:#F1F5F9;border-radius:12px;padding:3px;border:1px solid #E2E8F0">
+          <button type="button" onclick="stepDishDetailQty(-1)" style="width:34px;height:34px;border-radius:8px;border:none;background:#fff;font-size:18px;font-weight:800;color:#0f172a;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)">−</button>
+          <span id="ddmQtyDisplay" style="width:34px;text-align:center;font-size:15px;font-weight:800;color:#0f172a">1</span>
+          <button type="button" onclick="stepDishDetailQty(1)" style="width:34px;height:34px;border-radius:8px;border:none;background:#fff;font-size:18px;font-weight:800;color:#0f172a;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)">+</button>
+        </div>
+
+        <button type="button" onclick="submitDishDetailToCart()" style="padding:12px 20px;border-radius:14px;border:none;background:linear-gradient(135deg,#FF5E14 0%,#FF3008 100%);color:#fff;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 6px 18px rgba(255,94,20,0.35);display:flex;align-items:center;gap:6px">
+          <span>+ Add to Order</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="sheet-overlay" id="upiPaymentModal" style="display:none;z-index:99999" onclick="if(event.target===this)closeUpiPaymentModal()">
   <div class="sheet-modal" style="border-radius:24px;max-width:440px;margin:0 auto;text-align:center;padding:22px 20px 28px">
     <div class="sheet-drag-handle"></div>

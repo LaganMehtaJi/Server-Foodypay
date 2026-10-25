@@ -23,6 +23,12 @@ const orderSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
+    merchantId: {
+      type: String,
+      index: true,
+      trim: true,
+      default: '',
+    },
     orderId: {
       type: String,
       required: true,
