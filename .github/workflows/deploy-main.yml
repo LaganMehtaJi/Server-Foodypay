@@ -62,7 +62,10 @@ jobs:
         run: |
           scp -i ~/.ssh/id_rsa \
             .env \
-            "$EC2_USER@$EC2_HOST:/home/ec2-user/backend/Server-Foodypay/.env"
+            "$EC2_USER@$EC2_HOST:/home/ec2-user/backend/Server-Foodypay/.env" || true
+          scp -i ~/.ssh/id_rsa \
+            .env \
+            "$EC2_USER@$EC2_HOST:/home/ec2-user/backend/Server-Foodypay/server/.env" || true
 
       - name: Deploy Backend
         env:
@@ -81,11 +84,13 @@ jobs:
             git reset --hard origin/main
 
             echo "Installing dependencies..."
+            if [ -d "server" ]; then
+              cd server
+            fi
             npm i
 
-
             echo "Reloading PM2..."
-            pm2 reload backend --update-env
+            pm2 reload backend --update-env || pm2 restart backend --update-env || pm2 start server.js --name backend --update-env
 
             echo "Saving PM2 configuration..."
             pm2 save

@@ -979,3 +979,87 @@ export const deleteOrder = async (req, res, next) => {
     next(error);
   }
 };
+
+// In-memory active waiter calls store (keyed by merchantUniqueId)
+const activeWaiterCalls = new Map();
+
+/**
+ * @desc    Call waiter alert from customer digital menu
+ * @route   POST /api/orders/public/call-waiter
+ * @access  Public
+ */
+export const callWaiter = async (req, res, next) => {
+  try {
+    const { id, merchantUniqueId, table, time } = req.body || {};
+    const cleanMerchantId = (merchantUniqueId || 'FP-624358').toString().trim().toUpperCase();
+    const callItem = {
+      id: id || `call_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      merchantUniqueId: cleanMerchantId,
+      table: table || 'Table',
+      time: Number(time) || Date.now(),
+      status: 'pending',
+    };
+
+    if (!activeWaiterCalls.has(cleanMerchantId)) {
+      activeWaiterCalls.set(cleanMerchantId, []);
+    }
+    const calls = activeWaiterCalls.get(cleanMerchantId);
+    const now = Date.now();
+    const filtered = calls.filter((c) => now - c.time < 15 * 60 * 1000);
+    filtered.push(callItem);
+    activeWaiterCalls.set(cleanMerchantId, filtered);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Waiter called successfully',
+      data: callItem,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Get active waiter calls for a merchant
+ * @route   GET /api/orders/public/waiter-calls
+ * @access  Public
+ */
+export const getWaiterCalls = async (req, res, next) => {
+  try {
+    const rawMerchant = (req.query.merchantUniqueId || req.query.merchantId || 'FP-624358').toString().trim().toUpperCase();
+    const calls = activeWaiterCalls.get(rawMerchant) || [];
+    const now = Date.now();
+    const validCalls = calls.filter((c) => now - c.time < 15 * 60 * 1000 && c.status === 'pending');
+
+    return res.status(200).json({
+      success: true,
+      data: validCalls,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Dismiss a waiter call alert
+ * @route   POST /api/orders/public/dismiss-waiter-call
+ * @access  Public
+ */
+export const dismissWaiterCall = async (req, res, next) => {
+  try {
+    const { merchantUniqueId, callId } = req.body || {};
+    const cleanMerchantId = (merchantUniqueId || 'FP-624358').toString().trim().toUpperCase();
+    if (activeWaiterCalls.has(cleanMerchantId)) {
+      const calls = activeWaiterCalls.get(cleanMerchantId);
+      const updated = calls.map((c) => (c.id === callId ? { ...c, status: 'dismissed' } : c));
+      activeWaiterCalls.set(cleanMerchantId, updated);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Waiter call dismissed',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
